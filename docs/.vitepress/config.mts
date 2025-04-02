@@ -34,6 +34,7 @@ export default defineConfig({
             { text: 'Lifecycle', link: '/guide/lifecycle' },
             { text: 'Async Operations', link: '/guide/async-provider' },
             { text: 'Stream Operations', link: '/guide/stream-provider' },
+            { text: 'Combining Providers', link: '/guide/combining-providers' },
           ],
         },
         {

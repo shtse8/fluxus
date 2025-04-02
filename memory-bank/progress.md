@@ -1,13 +1,14 @@
-# Progress: Fluxus (Memory Bank: Utilities Implemented)
+# Progress: Fluxus (Docs: Combining Providers Guide Added)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
 functional. Cancellation features for async and stream providers have been
 implemented and tested. Documentation site with auto-deployment is set up,
-including a new page comparing Fluxus with Riverpod. Initial refactoring phase
-addressing known issues and setting up linting/formatting is complete. Most
-`no-explicit-any` ESLint warnings have been addressed. Memory Bank is now
-updated. Focus can shift towards further refinement, features, or documentation.
+including pages for Riverpod comparison **and a new guide on combining
+providers**. Initial refactoring phase addressing known issues and setting up
+linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
+addressed. Memory Bank is updated. Focus can shift towards further refinement,
+features, or documentation.
 
 **What Works:**
 
@@ -52,8 +53,9 @@ updated. Focus can shift towards further refinement, features, or documentation.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
-    overrides, **and a comparison with Riverpod**.
-  - Sidebar configuration (`.vitepress/config.mts`) updated for the new page.
+    overrides, Riverpod comparison, **and a new guide on Combining Providers
+    (with initial examples)**.
+  - Sidebar configuration (`.vitepress/config.mts`) updated for new pages.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
     (`replace-in-file`).
@@ -80,7 +82,7 @@ updated. Focus can shift towards further refinement, features, or documentation.
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)
-   - Add more examples and advanced usage guides.
+   - Add more examples and advanced usage guides (Started: Combining Providers).
    - Improve API documentation presentation (e.g., better sidebar generation).
 
 **Known Issues:**

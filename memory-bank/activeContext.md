@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Docs: Riverpod Comparison Added)
+# Active Context: Fluxus (Docs: Combining Providers Guide Added)
 
-**Current Focus:** Updating Memory Bank to reflect implementation of `pipe` and
-`debounce` utilities.
+**Current Focus:** Updating Memory Bank after adding the "Combining Providers"
+documentation guide.
 
 **Recent Changes:**
 
@@ -100,7 +100,15 @@
   - Implemented `pipe` utility function (`src/utils/pipe.ts`) and tests
     (`pipe.test.ts`).
   - Implemented `debounce` utility function (`src/utils/debounce.ts`) and tests
-    (`debounce.test.ts`). page. **Next Steps (Potential):**
+    (`debounce.test.ts`).
+- **Documentation (Combining Providers):**
+  - Created `docs/guide/combining-providers.md`.
+  - Added examples for:
+    - Computed state from async data.
+    - Async operations triggered by state changes.
+    - Using utilities (`debounce`) with providers (conceptual/side-effect
+      focus).
+  - Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
 
 1. **Refinement:**
    - Refine `asyncProvider`/`streamProvider` (e.g., advanced
@@ -112,7 +120,7 @@
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)
-   - Add more examples and advanced guides.
+   - Add more examples and advanced guides (Started: Combining Providers).
    - Improve API documentation generation/presentation.
 
 **Active Decisions/Considerations:**
