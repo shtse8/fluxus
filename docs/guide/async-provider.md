@@ -16,9 +16,10 @@ Instead of just returning the final data `T`, an `asyncProvider` returns an
 `AsyncValue<T>` object, which represents the current state of the operation:
 
 1. **Loading (`AsyncLoading`):** The initial state while the promise is pending.
-   It might optionally contain `previousData` if the provider is re-fetching.
+   It might optionally contain `previousData` if the provider is re-fetching
+   after having previously succeeded.
    ```typescript
-   { state: 'loading', previousData?: T }
+   { state: 'loading', previousData?: T } // Contains last successful data during re-fetch
    ```
 2. **Data (`AsyncData<T>`):** The state when the promise resolves successfully.
    It contains the resolved `data`.
@@ -26,9 +27,11 @@ Instead of just returning the final data `T`, an `asyncProvider` returns an
    { state: 'data', data: T }
    ```
 3. **Error (`AsyncError`):** The state when the promise rejects. It contains the
-   `error` object and might optionally contain `previousData`.
+   `error` object. It might optionally contain `previousData` if the
+   `keepPreviousDataOnError` option is enabled and the provider had previously
+   succeeded.
    ```typescript
-   { state: 'error', error: unknown, stackTrace?: string, previousData?: T }
+   { state: 'error', error: unknown, stackTrace?: string, previousData?: T } // Contains last successful data if option enabled
    ```
 
 Fluxus also exports type guards (`isLoading`, `hasData`, `hasError`) to easily
@@ -39,9 +42,32 @@ check the current state of an `AsyncValue`.
 Define an `asyncProvider` by passing it an asynchronous function that accepts a
 `ScopeReader` and returns a `Promise`.
 
+## Options (`AsyncProviderOptions`)
+
+You can pass an optional second argument to `asyncProvider` with configuration:
+
 ```typescript
-import { asyncProvider } from '@shtse8/fluxus';
-import { userIdProvider } from './otherProviders'; // Assume this exists
+interface AsyncProviderOptions extends ProviderOptions {
+  /** An optional name for debugging. */
+  name?: string;
+  /**
+   * If true, when the async operation fails after having previously succeeded,
+   * the provider will continue to expose the last successful data in the
+   * `AsyncError` state's `previousData` field. Defaults to false.
+   */
+  keepPreviousDataOnError?: boolean;
+}
+```
+
+## Usage Example
+
+Define an `asyncProvider` by passing it an asynchronous function that accepts a
+`ScopeReader` and returns a `Promise`. You can optionally provide a name and set
+`keepPreviousDataOnError`.
+
+```typescript
+import { asyncProvider } from "@shtse8/fluxus";
+import { userIdProvider } from "./otherProviders"; // Assume this exists
 
 interface User {
   id: number;
@@ -49,21 +75,30 @@ interface User {
   email: string;
 }
 
-export const userProvider = asyncProvider<User>(async (read) => {
-  const userId = read.read(userIdProvider); // Read dependency
+export const userProvider = asyncProvider<User>(
+  async (read) => {
+    const userId = read.read(userIdProvider); // Read dependency
 
-  // Perform the async operation (e.g., API call)
-  const response = await fetch(`/api/users/${userId}`);
+    // Perform the async operation (e.g., API call)
+    // Note: The `read.signal` can be used for cancellation (see Cancellation guide)
+    const response = await fetch(`/api/users/${userId}`, {
+      signal: read.signal,
+    });
 
-  if (!response.ok) {
-    // Throw an error to transition to AsyncError state
-    throw new Error(`Failed to fetch user ${userId}: ${response.statusText}`);
-  }
+    if (!response.ok) {
+      // Throw an error to transition to AsyncError state
+      throw new Error(`Failed to fetch user ${userId}: ${response.statusText}`);
+    }
 
-  // Return the data to transition to AsyncData state
-  const data = await response.json();
-  return data as User;
-});
+    // Return the data to transition to AsyncData state
+    const data = await response.json();
+    return data as User;
+  },
+  {
+    name: "userDetails", // Optional name for debugging
+    keepPreviousDataOnError: true, // Keep showing old data if fetch fails
+  },
+);
 ```
 
 ## Handling `AsyncValue` in Components (React)
@@ -72,10 +107,10 @@ You typically use `useProvider` to get the current `AsyncValue` and render
 different UI based on its state:
 
 ```tsx
-import React from 'react';
-import { useProvider } from '@shtse8/fluxus/react-adapter';
-import { hasData, hasError, isLoading } from '@shtse8/fluxus'; // Import type guards
-import { userProvider } from './providers';
+import React from "react";
+import { useProvider } from "@shtse8/fluxus/react-adapter";
+import { hasData, hasError, isLoading } from "@shtse8/fluxus"; // Import type guards
+import { userProvider } from "./providers";
 
 function UserProfile() {
   const userAsyncValue = useProvider(userProvider);
@@ -83,16 +118,23 @@ function UserProfile() {
   if (isLoading(userAsyncValue)) {
     // Optionally show previous data while loading new data
     const previousName = userAsyncValue.previousData?.name;
-    return <div>Loading user... {previousName ? `(Previously: ${previousName})` : ''}</div>;
+    return (
+      <div>
+        Loading user... {previousName ? `(Previously: ${previousName})` : ""}
+      </div>
+    );
   }
 
   if (hasError(userAsyncValue)) {
     return (
-      <div style={{ color: 'red' }}>
+      <div style={{ color: "red" }}>
         Error loading user: {String(userAsyncValue.error)}
-        {/* Optionally show previous data on error */}
-        {userAsyncValue.previousData?.name &&
-          ` (Previous data: ${userAsyncValue.previousData.name})`}
+        {/* Show previous data on error if keepPreviousDataOnError was true */}
+        {userAsyncValue.previousData?.name && (
+          <p style={{ fontStyle: "italic" }}>
+            (Previous data: {userAsyncValue.previousData.name})
+          </p>
+        )}
       </div>
     );
   }
@@ -118,5 +160,7 @@ export default UserProfile;
 The `asyncProvider` simplifies managing loading, data, and error states for
 asynchronous operations, making your component logic cleaner and more robust.
 
-_(Note: Features like automatic re-fetching when dependencies change are planned
-for future refinement.)_
+The `asyncProvider` simplifies managing loading, data, and error states for
+asynchronous operations, making your component logic cleaner and more robust. It
+also automatically re-fetches when its dependencies change and supports
+cancellation.

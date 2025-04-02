@@ -6,7 +6,8 @@ import {
   Provider,
   ScopeReader,
   Dispose,
-  ProviderOptions,
+  ProviderOptions, // Keep for base type if needed elsewhere, but use specific below
+  AsyncProviderOptions,
 } from '../types.js';
 import { Scope } from '../scope.js'; // Assuming Scope class handles state management
 
@@ -23,8 +24,8 @@ export interface AsyncProviderInstance<T> extends Provider<AsyncValue<T>> {
   [$asyncProvider]: {
     /** The asynchronous function that produces the value. */
     create: (read: ScopeReader) => Promise<T>;
-    /** An optional name for debugging. */
-    name?: string;
+    /** Optional configuration for the provider. */
+    options?: AsyncProviderOptions;
   };
   // Add provider type identifier for potential future use/debugging
   readonly type?: 'asyncProvider';
@@ -60,6 +61,8 @@ export interface AsyncProviderState<T> {
   isExecuting: boolean;
   /** The promise representing the current execution */
   currentExecution?: Promise<void>;
+  /** Stores the last successfully resolved data, used for keepPreviousDataOnError */
+  lastSuccessfulData?: T;
 }
 
 /**
@@ -92,7 +95,7 @@ export interface AsyncProviderState<T> {
  */
 export function asyncProvider<T>(
   create: (read: ScopeReader) => Promise<T>,
-  options?: ProviderOptions
+  options?: AsyncProviderOptions
 ): AsyncProviderInstance<T> {
   // The provider function itself just returns the current AsyncValue state.
   // The actual logic happens during initialization within the Scope.
@@ -103,7 +106,7 @@ export function asyncProvider<T>(
 
   // Attach metadata using the symbol
   Object.defineProperty(providerFn, $asyncProvider, {
-    value: { create, name: options?.name },
+    value: { create, options }, // Pass the whole options object
     enumerable: false,
   });
 

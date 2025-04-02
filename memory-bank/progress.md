@@ -1,22 +1,22 @@
-# Progress: Fluxus (Docs: Combining Providers Examples Added)
+# Progress: Fluxus (Feature: `keepPreviousDataOnError` for `asyncProvider`)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
 functional. Cancellation features for async and stream providers have been
-implemented and tested. Documentation site with auto-deployment is set up,
-including pages for Riverpod comparison and a guide on combining providers
-**(now with examples for computed from async, async from state, utility usage,
-and streams from state)**. Initial refactoring phase addressing known issues and
-setting up linting/formatting is complete. Most `no-explicit-any` ESLint
-warnings have been addressed. Memory Bank is updated. Focus can shift towards
-further refinement, features, or documentation.
+implemented and tested. **Added `keepPreviousDataOnError` option to
+`asyncProvider`**. Documentation site with auto-deployment is set up, including
+pages for Riverpod comparison and a guide on combining providers (with
+examples). Initial refactoring phase addressing known issues and setting up
+linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
+addressed. Memory Bank is updated. Focus can shift towards further refinement,
+features, or documentation.
 
 **What Works:**
 
 - Project setup complete (`package.json`, `tsconfig.json`, `tsup.config.ts`).
 - Core types defined (`src/types.ts`), including `AsyncValue`,
-  `ProviderOverride`, and `ProviderOptions`. `ScopeReader` now includes optional
-  `signal`. Most `any` types replaced.
+  `ProviderOverride`, `ProviderOptions`, and **`AsyncProviderOptions`**.
+  `ScopeReader` now includes optional `signal`. Most `any` types replaced.
 - `Scope` class implemented (`src/scope.ts`) with:
   - State management for different provider types.
   - `read()` method supporting overrides and improved error messages (with
@@ -28,7 +28,8 @@ further refinement, features, or documentation.
   - Auto-disposal based on listener count (fixed related test failure).
   - **Cancellation:** `dispose()` reliably triggers `streamProvider` unsubscribe
     via callbacks. `_executeAsyncProvider` passes `AbortSignal` via
-    `ScopeReader` and handles cancellation/re-execution correctly.
+    `ScopeReader`, handles cancellation/re-execution correctly, and **now stores
+    `lastSuccessfulData` to implement `keepPreviousDataOnError`**.
   - Improved error/warning messages using provider names.
   - Most `any` types replaced with `unknown` or specific types.
 - `stateProvider` factory implemented, tested, updated to accept
@@ -36,8 +37,9 @@ further refinement, features, or documentation.
 - `computedProvider` factory implemented, tested (all tests passing), updated to
   accept `ProviderOptions`, and internal `any` types removed.
 - `asyncProvider` factory implemented (including re-execution on dependency
-  change), tested, updated to accept `ProviderOptions`, and **now supports
-  cancellation via `AbortSignal` passed in `ScopeReader`**.
+  change), tested, updated to accept **`AsyncProviderOptions`**, **supports
+  cancellation via `AbortSignal`**, and **implements
+  `keepPreviousDataOnError`**. All tests passing.
 - `streamProvider` factory implemented (including re-subscription on dependency
   change), tested, updated to accept `ProviderOptions`, and **now reliably
   cancels subscription on disposal**.
@@ -48,15 +50,16 @@ further refinement, features, or documentation.
   - `useProviderUpdater` hook.
   - Integration tests passing (TypeScript errors resolved).
 - Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
-  All tests passing (including new cancellation tests). `any` types removed or
-  disabled where intentional. Test assertion failures fixed.
+  All tests passing (including cancellation and `keepPreviousDataOnError`
+  tests). `any` types removed or disabled where intentional. Test assertion
+  failures fixed.
 - TSDoc comments added to core files.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
-    overrides, Riverpod comparison, and a guide on Combining Providers **(with
-    examples for computed-from-async, async-from-state, utility usage, and
-    stream-from-state)**.
+    overrides, Riverpod comparison, and a guide on Combining Providers (with
+    examples). **`asyncProvider` guide updated with `keepPreviousDataOnError`
+    option.**
   - Sidebar configuration (`.vitepress/config.mts`) updated for new pages.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
@@ -75,8 +78,9 @@ further refinement, features, or documentation.
 **What's Left To Build (Next Steps - Potential):**
 
 1. **Refinement:**
-   - Refine `asyncProvider`/`streamProvider` (advanced options like
-     re-fetch/re-subscribe strategies). Cancellation is implemented.
+   - ~~Add `keepPreviousDataOnError` option to `asyncProvider`.~~ (Done)
+   - Further refine `asyncProvider`/`streamProvider` (advanced options like
+     re-fetch/re-subscribe strategies).
 2. **New Features:**
    - ~~Utility functions (`pipe`, `debounce`, etc.).~~ (Done)
 3. **Framework Adapters:**

@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Docs: Combining Providers Guide Added)
+# Active Context: Fluxus (Feature: `keepPreviousDataOnError` for `asyncProvider`)
 
-**Current Focus:** Updating Memory Bank after adding the "Streams Depending on
-State" example to the "Combining Providers" guide.
+**Current Focus:** Updating Memory Bank after implementing the
+`keepPreviousDataOnError` option for `asyncProvider`.
 
 **Recent Changes:**
 
@@ -9,7 +9,7 @@ State" example to the "Combining Providers" guide.
   `tsup.config.ts`).
 - Created all core Memory Bank files.
 - Defined core types (`Provider`, `ScopeReader`, `Dispose`, `Disposable`) in
-  `src/types.ts`.
+  `src/types.ts` (including `AsyncProviderOptions`).
 - Implemented `Scope` class (`src/scope.ts`) including:
   - Provider state management (`providerStates` Map).
   - `read()` method for accessing provider values.
@@ -30,6 +30,13 @@ State" example to the "Combining Providers" guide.
     (loading/data/error).
   - Re-execution on dependency change logic in `Scope`.
   - Unit tests (`asyncProvider.test.ts`).
+  - **Added `keepPreviousDataOnError` option:**
+    - Defined `AsyncProviderOptions` in `types.ts`.
+    - Updated `asyncProvider` factory to accept options.
+    - Updated `Scope._executeAsyncProvider` to store `lastSuccessfulData` and
+      use it in `AsyncError` and `AsyncLoading` states based on the option.
+    - Added tests for the new option.
+    - Updated documentation (`docs/guide/async-provider.md`).
 - Implemented `streamProvider` factory (`src/providers/streamProvider.ts`)
   including:
   - Integration into `Scope` for subscription management and state updates.
@@ -111,9 +118,12 @@ State" example to the "Combining Providers" guide.
     - Streams depending on state (e.g., dynamic WebSocket subscription).
   - Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
 
+**Next Steps (Potential):**
+
 1. **Refinement:**
-   - Refine `asyncProvider`/`streamProvider` (e.g., advanced
-     re-fetch/re-subscribe options). Cancellation is now implemented.
+   - ~~Add `keepPreviousDataOnError` option to `asyncProvider`.~~ (Done)
+   - Further refine `asyncProvider`/`streamProvider` (e.g., advanced
+     re-fetch/re-subscribe options).
 2. **New Features:**
    - ~~Add utility functions (e.g., `pipe`, `debounce`).~~ (Done)
 3. **Framework Adapters:**

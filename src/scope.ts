@@ -137,7 +137,7 @@ export class Scope implements Disposable {
       return provider[$computedProvider]?.name ?? '<computedProvider>';
     }
     if (isAsyncProviderInstance(provider)) {
-      return provider[$asyncProvider]?.name ?? '<asyncProvider>';
+      return provider[$asyncProvider]?.options?.name ?? '<asyncProvider>';
     }
     if (isStreamProviderInstance(provider)) {
       return provider[$streamProvider]?.name ?? '<streamProvider>';
@@ -531,10 +531,11 @@ export class Scope implements Disposable {
     }
 
     state.asyncProviderState.isExecuting = true;
-    const previousData = hasData(state.asyncProviderState.value)
-      ? state.asyncProviderState.value.data
-      : undefined;
-    state.asyncProviderState.value = { state: 'loading', previousData };
+    // Use the stored last successful data for the loading state's previousData
+    state.asyncProviderState.value = {
+      state: 'loading',
+      previousData: state.asyncProviderState.lastSuccessfulData,
+    };
     state.notifyListeners(); // Notify about loading state
 
     const reader: ScopeReader = {
@@ -553,6 +554,8 @@ export class Scope implements Disposable {
     state.asyncProviderState.currentExecution = promise
       .then((data: T) => {
         if (state.isDisposed || state.asyncProviderState.abortController?.signal.aborted) return;
+        // Store successful data
+        state.asyncProviderState.lastSuccessfulData = data;
         state.asyncProviderState.value = { state: 'data', data };
         state.asyncProviderState.isExecuting = false;
         state.asyncProviderState.currentExecution = undefined;
@@ -565,13 +568,16 @@ export class Scope implements Disposable {
           `Error executing asyncProvider '${this._getProviderName(provider)}' (ID: ${state.internalId}):`,
           error
         );
-        const previousDataOnError = hasData(state.asyncProviderState.value)
-          ? state.asyncProviderState.value.data
+        // Check the option and use lastSuccessfulData if available and option is true
+        const keepPreviousData = provider[$asyncProvider]?.options?.keepPreviousDataOnError ?? false;
+        const previousDataOnError = keepPreviousData
+          ? state.asyncProviderState.lastSuccessfulData
           : undefined;
+
         state.asyncProviderState.value = {
           state: 'error',
           error,
-          previousData: previousDataOnError,
+          previousData: previousDataOnError, // Use potentially stored data
         };
         state.asyncProviderState.isExecuting = false;
         state.asyncProviderState.currentExecution = undefined;

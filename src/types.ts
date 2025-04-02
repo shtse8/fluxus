@@ -61,12 +61,14 @@ export interface ScopeReader {
 // --- Async Value Types ---
 
 /** Represents the state of an asynchronous operation: Loading */
+/** Represents the state of an asynchronous operation: Loading. May contain previous data if reloading after an error and keepPreviousDataOnError is true. */
 export type AsyncLoading = Readonly<{ state: 'loading'; previousData?: unknown }>;
 
 /** Represents the state of an asynchronous operation: Data Available */
 export type AsyncData<T> = Readonly<{ state: 'data'; data: T }>;
 
 /** Represents the state of an asynchronous operation: Error Occurred */
+/** Represents the state of an asynchronous operation: Error Occurred. May contain previous data if keepPreviousDataOnError is true. */
 export type AsyncError = Readonly<{
   state: 'error';
   error: unknown;
@@ -119,6 +121,18 @@ export interface ProviderOptions {
    * This name might be used in logging or error messages.
    */
   name?: string;
+}
+
+/**
+ * Optional configuration specifically for AsyncProviders.
+ */
+export interface AsyncProviderOptions extends ProviderOptions {
+  /**
+   * If true, when the async operation fails after having previously succeeded,
+   * the provider will continue to expose the last successful data in the
+   * `AsyncError` state's `previousData` field. Defaults to false.
+   */
+  keepPreviousDataOnError?: boolean;
 }
 
 /**

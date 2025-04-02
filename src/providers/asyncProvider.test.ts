@@ -305,6 +305,226 @@ describe('asyncProvider', () => {
     }
   });
 
+
+
+  // --- keepPreviousDataOnError Tests ---
+
+  describe('keepPreviousDataOnError option', () => {
+    it('should NOT keep previous data on error by default (keepPreviousDataOnError: false)', async () => {
+      scope = createScope();
+      const trigger = stateProvider(1);
+      let shouldFail = false;
+
+      const testProvider = asyncProvider(async (read) => {
+        read.read(trigger); // Depend on trigger
+        await delay(10);
+        if (shouldFail) {
+          throw new Error('Failed');
+        }
+        return 'success_data';
+      });
+
+      const listener = vi.fn();
+      scope.watch(testProvider, listener);
+
+      // Initial success
+      expect(isLoading(scope.read(testProvider))).toBe(true);
+      await delay(50);
+      let state = scope.read(testProvider);
+      expect(hasData(state)).toBe(true);
+      if (hasData(state)) {
+        expect(state.data).toBe('success_data');
+      }
+      expect(listener).toHaveBeenCalledTimes(1); // loading -> data
+
+      // Trigger failure
+      shouldFail = true;
+      const updater = scope.updater(trigger);
+      updater(scope, trigger, 2);
+      await delay(1); // Allow re-execution start
+
+      state = scope.read(testProvider);
+      expect(isLoading(state)).toBe(true);
+      // Default behavior: loading state during re-fetch *after* success should have previous data
+      if (isLoading(state)) {
+        expect(state.previousData).toBe('success_data');
+      }
+      expect(listener).toHaveBeenCalledTimes(2); // data -> loading
+
+      // Wait for failure
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasError(state)).toBe(true);
+      if (hasError(state)) {
+        expect(state.error).toBeInstanceOf(Error);
+        // Default behavior: error state does NOT keep previous data
+        expect(state.previousData).toBeUndefined();
+      }
+      expect(listener).toHaveBeenCalledTimes(3); // loading -> error
+    });
+
+    it('should keep previous data on error when keepPreviousDataOnError: true', async () => {
+      scope = createScope();
+      const trigger = stateProvider(1);
+      let shouldFail = false;
+
+      const testProvider = asyncProvider(
+        async (read) => {
+          read.read(trigger); // Depend on trigger
+          await delay(10);
+          if (shouldFail) {
+            throw new Error('Failed');
+          }
+          return 'success_data_kept';
+        },
+        { keepPreviousDataOnError: true } // Enable the option
+      );
+
+      const listener = vi.fn();
+      scope.watch(testProvider, listener);
+
+      // Initial success
+      expect(isLoading(scope.read(testProvider))).toBe(true);
+      await delay(50);
+      let state = scope.read(testProvider);
+      expect(hasData(state)).toBe(true);
+      if (hasData(state)) {
+        expect(state.data).toBe('success_data_kept');
+      }
+      expect(listener).toHaveBeenCalledTimes(1); // loading -> data
+
+      // Trigger failure
+      shouldFail = true;
+      const updater = scope.updater(trigger);
+      updater(scope, trigger, 2);
+      await delay(1); // Allow re-execution start
+
+      state = scope.read(testProvider);
+      expect(isLoading(state)).toBe(true);
+      // Loading state during re-fetch *after* success should have previous data regardless of option
+      if (isLoading(state)) {
+        expect(state.previousData).toBe('success_data_kept');
+      }
+      expect(listener).toHaveBeenCalledTimes(2); // data -> loading
+
+      // Wait for failure
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasError(state)).toBe(true);
+      if (hasError(state)) {
+        expect(state.error).toBeInstanceOf(Error);
+        // Option enabled: error state SHOULD keep previous data
+        expect(state.previousData).toBe('success_data_kept');
+      }
+      expect(listener).toHaveBeenCalledTimes(3); // loading -> error
+    });
+
+    it('should not keep data on error if the first execution failed (keepPreviousDataOnError: true)', async () => {
+      scope = createScope();
+      const testProvider = asyncProvider(
+        async () => {
+          await delay(10);
+          throw new Error('Initial Failure');
+        },
+        { keepPreviousDataOnError: true }
+      );
+
+      const listener = vi.fn();
+      scope.watch(testProvider, listener);
+
+      // Initial failure
+      expect(isLoading(scope.read(testProvider))).toBe(true);
+      await delay(50);
+      const state = scope.read(testProvider);
+      expect(hasError(state)).toBe(true);
+      if (hasError(state)) {
+        expect(state.error).toBeInstanceOf(Error);
+        // No previous successful data to keep
+        expect(state.previousData).toBeUndefined();
+      }
+      expect(listener).toHaveBeenCalledTimes(1); // loading -> error
+    });
+
+    it('should update kept data after subsequent success (keepPreviousDataOnError: true)', async () => {
+      scope = createScope();
+      const trigger = stateProvider(1);
+      let execution = 0;
+
+      const testProvider = asyncProvider(
+        async (read) => {
+          execution++;
+          read.read(trigger);
+          await delay(10);
+          // Fail on 2nd and 5th execution for this test
+          if (execution === 2 || execution === 5) {
+            throw new Error('Temporary Failure');
+          }
+          return `success_${execution}`;
+        },
+        { keepPreviousDataOnError: true }
+      );
+
+      const listener = vi.fn();
+      scope.watch(testProvider, listener);
+
+      // 1. Initial success
+      expect(isLoading(scope.read(testProvider))).toBe(true);
+      await delay(50);
+      let state = scope.read(testProvider);
+      expect(hasData(state)).toBe(true);
+      if (hasData(state)) expect(state.data).toBe('success_1');
+      expect(listener).toHaveBeenCalledTimes(1); // load -> data1
+
+      // 2. Trigger failure
+      const updater = scope.updater(trigger);
+      updater(scope, trigger, 2);
+      await delay(1);
+      expect(isLoading(scope.read(testProvider))).toBe(true);
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasError(state)).toBe(true);
+      if (hasError(state)) expect(state.previousData).toBe('success_1'); // Kept data1
+      expect(listener).toHaveBeenCalledTimes(3); // data1 -> load -> error(prev:data1)
+
+      // 3. Trigger success again
+      updater(scope, trigger, 3);
+      await delay(1);
+      state = scope.read(testProvider);
+      expect(isLoading(state)).toBe(true);
+      // Loading state should still show previous *successful* data
+      if (isLoading(state)) expect(state.previousData).toBe('success_1');
+      expect(listener).toHaveBeenCalledTimes(4); // error -> load
+
+      // Wait for final success
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasData(state)).toBe(true);
+      if (hasData(state)) expect(state.data).toBe('success_3'); // New data
+      expect(listener).toHaveBeenCalledTimes(5); // load -> data3
+
+      // 4. Trigger another success (execution 4)
+      updater(scope, trigger, 4);
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasData(state)).toBe(true);
+      if (hasData(state)) expect(state.data).toBe('success_4'); // New data
+      expect(listener).toHaveBeenCalledTimes(7); // load -> data4
+
+      // 5. Trigger one more failure (execution 5) to check if previousData is now success_4
+      updater(scope, trigger, 5);
+      await delay(1);
+      state = scope.read(testProvider);
+      expect(isLoading(state)).toBe(true);
+      if (isLoading(state)) expect(state.previousData).toBe('success_4'); // Loading shows last success
+      expect(listener).toHaveBeenCalledTimes(8); // data4 -> load
+
+      await delay(50);
+      state = scope.read(testProvider);
+      expect(hasError(state)).toBe(true);
+      if (hasError(state)) expect(state.previousData).toBe('success_4'); // Kept data4
+      expect(listener).toHaveBeenCalledTimes(9); // load -> error(prev:data4)
+    });
+  });
   // TODO: Add tests for re-computation when dependencies change (requires enhancing Scope/AsyncProvider)
   // TODO: Add tests for cancellation if implemented - DONE
   // TODO: Add tests for previousData preservation in loading/error states
