@@ -2,10 +2,10 @@ name: Fluxus CI/CD
 
 on:
   push:
-    branches: [ "main" ]
-    tags: [ 'v*' ] # Also trigger on version tags
+    branches: ['main']
+    tags: ['v*'] # Also trigger on version tags
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build-and-test: # Renamed for clarity
@@ -14,31 +14,31 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: package-lock.json # Path relative to working-directory
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json # Path relative to working-directory
 
-    - name: Install dependencies
-      # Run from the root of the checkout directory
-      run: npm ci
+      - name: Install dependencies
+        # Run from the root of the checkout directory
+        run: npm ci
 
-    - name: Run type checking
-      # Run from the root of the checkout directory
-      run: npm run typecheck
+      - name: Run type checking
+        # Run from the root of the checkout directory
+        run: npm run typecheck
 
-    - name: Run tests
-      # Run from the root of the checkout directory
-      run: npm run test
+      - name: Run tests
+        # Run from the root of the checkout directory
+        run: npm run test
 
-    - name: Build project # Added build step here for verification
-      # Run from the root of the checkout directory
-      run: npm run build
+      - name: Build project # Added build step here for verification
+        # Run from the root of the checkout directory
+        run: npm run build
 
   publish-npm:
     needs: build-and-test # Ensure build and tests pass before publishing

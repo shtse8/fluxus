@@ -34,7 +34,7 @@ of state. For simple mutable state, we use `stateProvider`. Create a file (e.g.,
 
 ```typescript
 // src/providers.ts
-import { stateProvider } from "@shtse8/fluxus";
+import { stateProvider } from '@shtse8/fluxus';
 
 // Create a provider for a counter state, initialized to 0
 export const counterProvider = stateProvider(0);
@@ -51,20 +51,20 @@ or the relevant part of your component tree with it, typically near the root:
 
 ```tsx
 // src/App.tsx
-import React from "react";
-import { ProviderScope } from "@shtse8/fluxus/react-adapter";
-import CounterDisplay from "./CounterDisplay";
-import CounterControls from "./CounterControls";
+import React from 'react';
+import { ProviderScope } from '@shtse8/fluxus/react-adapter';
+import CounterDisplay from './CounterDisplay';
+import CounterControls from './CounterControls';
 
 function App() {
-    return (
-        // ProviderScope creates and manages the Scope for components below it
-        <ProviderScope>
-            <h1>Fluxus Counter</h1>
-            <CounterDisplay />
-            <CounterControls />
-        </ProviderScope>
-    );
+  return (
+    // ProviderScope creates and manages the Scope for components below it
+    <ProviderScope>
+      <h1>Fluxus Counter</h1>
+      <CounterDisplay />
+      <CounterControls />
+    </ProviderScope>
+  );
 }
 
 export default App;
@@ -80,16 +80,16 @@ using hooks.
 
   ```tsx
   // src/CounterDisplay.tsx
-  import React from "react";
-  import { useProvider } from "@shtse8/fluxus/react-adapter";
-  import { counterProvider } from "./providers";
+  import React from 'react';
+  import { useProvider } from '@shtse8/fluxus/react-adapter';
+  import { counterProvider } from './providers';
 
   function CounterDisplay() {
-      // Read the current value of counterProvider
-      // This component will re-render when the counter changes
-      const count = useProvider(counterProvider);
+    // Read the current value of counterProvider
+    // This component will re-render when the counter changes
+    const count = useProvider(counterProvider);
 
-      return <div>Count: {count}</div>;
+    return <div>Count: {count}</div>;
   }
 
   export default CounterDisplay;
@@ -102,24 +102,24 @@ using hooks.
 
   ```tsx
   // src/CounterControls.tsx
-  import React from "react";
-  import { useProviderUpdater } from "@shtse8/fluxus/react-adapter";
-  import { counterProvider } from "./providers";
+  import React from 'react';
+  import { useProviderUpdater } from '@shtse8/fluxus/react-adapter';
+  import { counterProvider } from './providers';
 
   function CounterControls() {
-      // Get the updater function for counterProvider
-      // This component won't re-render when the counter changes
-      const updateCounter = useProviderUpdater(counterProvider);
+    // Get the updater function for counterProvider
+    // This component won't re-render when the counter changes
+    const updateCounter = useProviderUpdater(counterProvider);
 
-      const increment = () => updateCounter((currentCount) => currentCount + 1);
-      const decrement = () => updateCounter((currentCount) => currentCount - 1);
+    const increment = () => updateCounter((currentCount) => currentCount + 1);
+    const decrement = () => updateCounter((currentCount) => currentCount - 1);
 
-      return (
-          <div>
-              <button onClick={increment}>Increment</button>
-              <button onClick={decrement}>Decrement</button>
-          </div>
-      );
+    return (
+      <div>
+        <button onClick={increment}>Increment</button>
+        <button onClick={decrement}>Decrement</button>
+      </div>
+    );
   }
 
   export default CounterControls;

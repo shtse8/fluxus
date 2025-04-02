@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / stateProvider
 
@@ -25,9 +25,9 @@ The type of the state value.
 ### initialValue
 
 The initial value for the state,
-  or a function that computes the initial value using a [ScopeReader](../interfaces/ScopeReader.md).
-  If a function is provided, it will be called once per scope when the provider
-  is first initialized within that scope.
+or a function that computes the initial value using a [ScopeReader](../interfaces/ScopeReader.md).
+If a function is provided, it will be called once per scope when the provider
+is first initialized within that scope.
 
 `T` | (`reader`) => `T`
 

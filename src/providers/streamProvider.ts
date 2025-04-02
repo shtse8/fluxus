@@ -1,11 +1,12 @@
 import {
   AsyncValue,
-  AsyncLoading,
-  AsyncData,
-  AsyncError,
+  // AsyncLoading, // Unused import
+  // AsyncData, // Unused import
+  // AsyncError, // Unused import
   Provider,
   ScopeReader,
   Dispose,
+  ProviderOptions,
 } from '../types.js';
 import { Scope } from '../scope.js'; // Needed for type hints, though not used directly here
 
@@ -43,6 +44,8 @@ export interface StreamProviderInstance<T> extends Provider<AsyncValue<T>> {
   [$streamProvider]: {
     /** The function that creates the stream source. */
     create: (read: ScopeReader) => Subscribable<T>;
+    /** An optional name for debugging. */
+    name?: string;
   };
   readonly type?: 'streamProvider';
 }
@@ -53,12 +56,9 @@ export interface StreamProviderInstance<T> extends Provider<AsyncValue<T>> {
  * @param value The value to check.
  * @returns True if the value is a StreamProviderInstance, false otherwise.
  */
-export function isStreamProviderInstance<T>(
-  value: unknown,
-): value is StreamProviderInstance<T> {
+export function isStreamProviderInstance<T>(value: unknown): value is StreamProviderInstance<T> {
   return (
-    typeof value === 'function' &&
-    Object.prototype.hasOwnProperty.call(value, $streamProvider)
+    typeof value === 'function' && Object.prototype.hasOwnProperty.call(value, $streamProvider)
   );
 }
 
@@ -118,6 +118,7 @@ export interface StreamProviderState<T> {
  */
 export function streamProvider<T>(
   create: (read: ScopeReader) => Subscribable<T>,
+  options?: ProviderOptions
 ): StreamProviderInstance<T> {
   // The provider function itself just returns the current AsyncValue state.
   // The actual logic happens during initialization within the Scope.
@@ -128,7 +129,7 @@ export function streamProvider<T>(
 
   // Attach metadata using the symbol
   Object.defineProperty(providerFn, $streamProvider, {
-    value: { create },
+    value: { create, name: options?.name },
     enumerable: false,
   });
 

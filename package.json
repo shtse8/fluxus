@@ -30,7 +30,9 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "npm run docs:api && replace-in-file \"/<T>/g\" \"&lt;T&gt;\" \"docs/api/generated/**/*.md\" --isRegex && vitepress build docs",
     "docs:api": "typedoc",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write ."
   },
   "keywords": [
     "state management",
@@ -55,7 +57,14 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
+    "globals": "^16.0.0",
     "jsdom": "^26.0.0",
+    "prettier": "^3.5.3",
     "replace-in-file": "^8.3.0",
     "rxjs": "^7.8.2",
     "tsup": "^8.4.0",

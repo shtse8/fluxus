@@ -38,10 +38,11 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"], // Include necessary libs
     "moduleResolution": "nodenext", // Use NodeNext resolution
     "baseUrl": ".", // Base directory for path aliases, if needed
-    "paths": { // Example path alias
+    "paths": {
+      // Example path alias
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "react-adapter/**/*.ts", "tests/**/*.ts"], // Include source, react adapter, and test files
+  "include": ["src/**/*.ts", "react-adapter/**/*.ts", "react-adapter/**/*.tsx", "vitest.setup.ts"], // Include source, react adapter (ts/tsx), and setup file
   "exclude": ["node_modules", "dist"] // Exclude build output and dependencies
 }

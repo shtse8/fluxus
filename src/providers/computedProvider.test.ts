@@ -59,7 +59,7 @@ describe('computedProvider', () => {
     expect(computeFn).toHaveBeenCalledTimes(2);
   });
 
-   it('should recompute when a dependency changes (using watch in compute)', () => {
+  it('should recompute when a dependency changes (using watch in compute)', () => {
     // Note: reader.watch currently behaves like reader.read for dependency tracking,
     // but using it signifies intent to react to changes.
     const scope = createScope();
@@ -79,7 +79,6 @@ describe('computedProvider', () => {
     expect(scope.read(derivedProvider)).toBe(50);
     expect(computeFn).toHaveBeenCalledTimes(2);
   });
-
 
   it('should handle multiple dependencies', () => {
     const scope = createScope();
@@ -107,29 +106,29 @@ describe('computedProvider', () => {
   });
 
   it('should handle chained computed providers', () => {
-      const scope = createScope();
-      const baseProvider = stateProvider(2);
-      const computeFn1 = vi.fn((reader) => reader.read(baseProvider) * 2);
-      const derived1 = computedProvider(computeFn1);
-      const computeFn2 = vi.fn((reader) => reader.read(derived1) + 1);
-      const derived2 = computedProvider(computeFn2);
+    const scope = createScope();
+    const baseProvider = stateProvider(2);
+    const computeFn1 = vi.fn((reader) => reader.read(baseProvider) * 2);
+    const derived1 = computedProvider(computeFn1);
+    const computeFn2 = vi.fn((reader) => reader.read(derived1) + 1);
+    const derived2 = computedProvider(computeFn2);
 
-      expect(scope.read(derived2)).toBe(5); // 2*2 + 1
-      expect(computeFn1).toHaveBeenCalledTimes(1);
-      expect(computeFn2).toHaveBeenCalledTimes(1);
+    expect(scope.read(derived2)).toBe(5); // 2*2 + 1
+    expect(computeFn1).toHaveBeenCalledTimes(1);
+    expect(computeFn2).toHaveBeenCalledTimes(1);
 
-      // Update base
-      scope.updater(baseProvider)(scope, baseProvider, 3);
+    // Update base
+    scope.updater(baseProvider)(scope, baseProvider, 3);
 
-      // Read final derived - should trigger recomputation down the chain
-      expect(scope.read(derived2)).toBe(7); // 3*2 + 1
-      expect(computeFn1).toHaveBeenCalledTimes(2); // Recomputed
-      expect(computeFn2).toHaveBeenCalledTimes(2); // Recomputed
+    // Read final derived - should trigger recomputation down the chain
+    expect(scope.read(derived2)).toBe(7); // 3*2 + 1
+    expect(computeFn1).toHaveBeenCalledTimes(2); // Recomputed
+    expect(computeFn2).toHaveBeenCalledTimes(2); // Recomputed
 
-      // Read again - cached
-      expect(scope.read(derived2)).toBe(7);
-      expect(computeFn1).toHaveBeenCalledTimes(2);
-      expect(computeFn2).toHaveBeenCalledTimes(2);
+    // Read again - cached
+    expect(scope.read(derived2)).toBe(7);
+    expect(computeFn1).toHaveBeenCalledTimes(2);
+    expect(computeFn2).toHaveBeenCalledTimes(2);
   });
 
   // Test interaction with auto-dispose (if applicable - computed might not auto-dispose itself directly)
@@ -137,24 +136,22 @@ describe('computedProvider', () => {
   // If a computed provider reads a state provider that auto-disposes, reading the computed
   // provider again should fail because the dependency read fails.
   it('should fail read if dependency was auto-disposed', () => {
-      const scope = createScope();
-      const counterProvider = stateProvider(100);
-      const listener = vi.fn();
-      const derivedProvider = computedProvider((reader) => reader.read(counterProvider) + 5);
+    const scope = createScope();
+    const counterProvider = stateProvider(100);
+    const listener = vi.fn();
+    const derivedProvider = computedProvider((reader) => reader.read(counterProvider) + 5);
 
-      // Initialize both
-      scope.read(derivedProvider);
-      const unsubscribe = scope.watch(counterProvider, listener); // Add listener to counter
+    // Initialize both
+    scope.read(derivedProvider);
+    const unsubscribe = scope.watch(counterProvider, listener); // Add listener to counter
 
-      // Unsubscribe - should auto-dispose counterProvider state
-      unsubscribe();
+    // Unsubscribe - should auto-dispose counterProvider state
+    unsubscribe();
 
-      // Reading derived should now fail because its dependency (counterProvider) is disposed
-  
-  
-      expect(() => scope.read(derivedProvider)).toThrowError(
-          'Cannot read provider: its state has been disposed'
-      );
+    // Reading derived should now fail because its dependency (counterProvider) is disposed
+
+    expect(() => scope.read(derivedProvider)).toThrowError(
+      'Cannot read provider: its state has been disposed'
+    );
   });
-
 });

@@ -5,7 +5,7 @@ import { asyncProvider } from './asyncProvider.js';
 import { isLoading, hasData, hasError } from '../types.js';
 
 // Helper to delay execution
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('asyncProvider', () => {
   let scope: Scope;
@@ -20,7 +20,8 @@ describe('asyncProvider', () => {
     const initialState = scope.read(testProvider);
 
     expect(isLoading(initialState)).toBe(true);
-    if (isLoading(initialState)) { // Use type guard
+    if (isLoading(initialState)) {
+      // Use type guard
       expect(initialState.previousData).toBeUndefined();
     }
   });
@@ -76,7 +77,7 @@ describe('asyncProvider', () => {
     if (hasError(finalState)) {
       expect(finalState.error).toBe(testError);
     }
-     // Should be notified for loading -> error transition
+    // Should be notified for loading -> error transition
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
@@ -84,9 +85,9 @@ describe('asyncProvider', () => {
     scope = createScope();
     const disposeFn = vi.fn();
     const testProvider = asyncProvider(async (read) => {
-        read.onDispose(disposeFn);
-        await delay(10);
-        return 'done';
+      read.onDispose(disposeFn);
+      await delay(10);
+      return 'done';
     });
 
     scope.read(testProvider); // Initialize
@@ -101,9 +102,9 @@ describe('asyncProvider', () => {
     scope = createScope();
     const depProvider = stateProvider('dependency_value');
     const testProvider = asyncProvider(async (read) => {
-        const depValue = read.read(depProvider); // Call the .read() method
-        await delay(10);
-        return `data_based_on_${depValue}`;
+      const depValue = read.read(depProvider); // Call the .read() method
+      await delay(10);
+      return `data_based_on_${depValue}`;
     });
 
     const initialState = scope.read(testProvider);
@@ -142,9 +143,9 @@ describe('asyncProvider', () => {
     expect(hasData(scope.read(testProvider))).toBe(true);
     const dataState = scope.read(testProvider);
     if (hasData(dataState)) {
-        expect(dataState.data).toBe('data_for_initial');
+      expect(dataState.data).toBe('data_for_initial');
     } else {
-        expect.fail('Expected data state after initial execution');
+      expect.fail('Expected data state after initial execution');
     }
     expect(listener).toHaveBeenCalledTimes(1); // loading -> data
 
@@ -159,9 +160,9 @@ describe('asyncProvider', () => {
     const loadingState = scope.read(testProvider);
     expect(isLoading(loadingState)).toBe(true);
     if (isLoading(loadingState)) {
-        expect(loadingState.previousData).toBe('data_for_initial');
+      expect(loadingState.previousData).toBe('data_for_initial');
     } else {
-        expect.fail('Expected loading state during re-execution');
+      expect.fail('Expected loading state during re-execution');
     }
     expect(listener).toHaveBeenCalledTimes(2); // data -> loading
 
@@ -170,13 +171,12 @@ describe('asyncProvider', () => {
     const finalState = scope.read(testProvider);
     expect(hasData(finalState)).toBe(true);
     if (hasData(finalState)) {
-        expect(finalState.data).toBe('data_for_updated');
+      expect(finalState.data).toBe('data_for_updated');
     } else {
-        expect.fail('Expected data state after re-execution');
+      expect.fail('Expected data state after re-execution');
     }
     expect(listener).toHaveBeenCalledTimes(3); // loading -> data
   });
-
 
   // TODO: Add tests for re-computation when dependencies change (requires enhancing Scope/AsyncProvider)
   // TODO: Add tests for cancellation if implemented

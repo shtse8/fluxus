@@ -21,25 +21,25 @@ themselves are just values**.
   thus creating dependencies and enabling composition.
 
 ```typescript
-import { computedProvider, stateProvider } from "@shtse8/fluxus";
+import { computedProvider, stateProvider } from '@shtse8/fluxus';
 
 // Provider for a simple configuration value (could come from anywhere)
-const apiUrlProvider = () => "https://api.example.com";
+const apiUrlProvider = () => 'https://api.example.com';
 
 // Provider for mutable user preferences
-const themeProvider = stateProvider<"light" | "dark">("light");
+const themeProvider = stateProvider<'light' | 'dark'>('light');
 
 // Provider that computes derived data by reading other providers
 const userSettingsProvider = computedProvider((read) => {
-    // Read the current values of other providers
-    const apiUrl = read(apiUrlProvider);
-    const theme = read(themeProvider);
+  // Read the current values of other providers
+  const apiUrl = read(apiUrlProvider);
+  const theme = read(themeProvider);
 
-    return {
-        apiUrl,
-        theme,
-        // ... other settings
-    };
+  return {
+    apiUrl,
+    theme,
+    // ... other settings
+  };
 });
 ```
 

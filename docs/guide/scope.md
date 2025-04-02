@@ -42,16 +42,16 @@ via React context. Hooks like `useProvider` then access this implicit scope
 behind the scenes.
 
 ```tsx
-import { ProviderScope } from "@shtse8/fluxus/react-adapter";
+import { ProviderScope } from '@shtse8/fluxus/react-adapter';
 
 function App() {
-    return (
-        // This component creates a Scope instance
-        <ProviderScope>
-            {/* Components inside here can use Fluxus hooks */}
-            <MyFeature />
-        </ProviderScope>
-    );
+  return (
+    // This component creates a Scope instance
+    <ProviderScope>
+      {/* Components inside here can use Fluxus hooks */}
+      <MyFeature />
+    </ProviderScope>
+  );
 }
 ```
 

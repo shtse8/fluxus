@@ -40,31 +40,29 @@ Define an `asyncProvider` by passing it an asynchronous function that accepts a
 `ScopeReader` and returns a `Promise`.
 
 ```typescript
-import { asyncProvider } from "@shtse8/fluxus";
-import { userIdProvider } from "./otherProviders"; // Assume this exists
+import { asyncProvider } from '@shtse8/fluxus';
+import { userIdProvider } from './otherProviders'; // Assume this exists
 
 interface User {
-    id: number;
-    name: string;
-    email: string;
+  id: number;
+  name: string;
+  email: string;
 }
 
 export const userProvider = asyncProvider<User>(async (read) => {
-    const userId = read.read(userIdProvider); // Read dependency
+  const userId = read.read(userIdProvider); // Read dependency
 
-    // Perform the async operation (e.g., API call)
-    const response = await fetch(`/api/users/${userId}`);
+  // Perform the async operation (e.g., API call)
+  const response = await fetch(`/api/users/${userId}`);
 
-    if (!response.ok) {
-        // Throw an error to transition to AsyncError state
-        throw new Error(
-            `Failed to fetch user ${userId}: ${response.statusText}`,
-        );
-    }
+  if (!response.ok) {
+    // Throw an error to transition to AsyncError state
+    throw new Error(`Failed to fetch user ${userId}: ${response.statusText}`);
+  }
 
-    // Return the data to transition to AsyncData state
-    const data = await response.json();
-    return data as User;
+  // Return the data to transition to AsyncData state
+  const data = await response.json();
+  return data as User;
 });
 ```
 
@@ -74,49 +72,44 @@ You typically use `useProvider` to get the current `AsyncValue` and render
 different UI based on its state:
 
 ```tsx
-import React from "react";
-import { useProvider } from "@shtse8/fluxus/react-adapter";
-import { hasData, hasError, isLoading } from "@shtse8/fluxus"; // Import type guards
-import { userProvider } from "./providers";
+import React from 'react';
+import { useProvider } from '@shtse8/fluxus/react-adapter';
+import { hasData, hasError, isLoading } from '@shtse8/fluxus'; // Import type guards
+import { userProvider } from './providers';
 
 function UserProfile() {
-    const userAsyncValue = useProvider(userProvider);
+  const userAsyncValue = useProvider(userProvider);
 
-    if (isLoading(userAsyncValue)) {
-        // Optionally show previous data while loading new data
-        const previousName = userAsyncValue.previousData?.name;
-        return (
-            <div>
-                Loading user...{" "}
-                {previousName ? `(Previously: ${previousName})` : ""}
-            </div>
-        );
-    }
+  if (isLoading(userAsyncValue)) {
+    // Optionally show previous data while loading new data
+    const previousName = userAsyncValue.previousData?.name;
+    return <div>Loading user... {previousName ? `(Previously: ${previousName})` : ''}</div>;
+  }
 
-    if (hasError(userAsyncValue)) {
-        return (
-            <div style={{ color: "red" }}>
-                Error loading user: {String(userAsyncValue.error)}
-                {/* Optionally show previous data on error */}
-                {userAsyncValue.previousData?.name &&
-                    ` (Previous data: ${userAsyncValue.previousData.name})`}
-            </div>
-        );
-    }
+  if (hasError(userAsyncValue)) {
+    return (
+      <div style={{ color: 'red' }}>
+        Error loading user: {String(userAsyncValue.error)}
+        {/* Optionally show previous data on error */}
+        {userAsyncValue.previousData?.name &&
+          ` (Previous data: ${userAsyncValue.previousData.name})`}
+      </div>
+    );
+  }
 
-    // We know it's AsyncData here, but check for safety (or use ! operator)
-    if (hasData(userAsyncValue)) {
-        const user = userAsyncValue.data;
-        return (
-            <div>
-                <h2>{user.name}</h2>
-                <p>Email: {user.email}</p>
-            </div>
-        );
-    }
+  // We know it's AsyncData here, but check for safety (or use ! operator)
+  if (hasData(userAsyncValue)) {
+    const user = userAsyncValue.data;
+    return (
+      <div>
+        <h2>{user.name}</h2>
+        <p>Email: {user.email}</p>
+      </div>
+    );
+  }
 
-    // Fallback case (should ideally not be reached with AsyncValue)
-    return <div>Unknown user state.</div>;
+  // Fallback case (should ideally not be reached with AsyncValue)
+  return <div>Unknown user state.</div>;
 }
 
 export default UserProfile;

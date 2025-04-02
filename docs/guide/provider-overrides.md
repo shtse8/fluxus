@@ -56,46 +56,48 @@ An override is defined using an object conforming to the `ProviderOverride`
 type:
 
 ```typescript
-import type { Provider, ProviderOverride } from "@shtse8/fluxus";
+import type { Provider, ProviderOverride } from '@shtse8/fluxus';
 
 export type ProviderOverride = {
-    /** The original provider to override. */
-    provider: Provider<any>;
-    /** The overriding provider or value. */
-    useValue: Provider<any> | any;
+  /** The original provider to override. */
+  provider: Provider<any>;
+  /** The overriding provider or value. */
+  useValue: Provider<any> | any;
 };
 ```
 
 **Examples:**
 
 ```typescript
-import { computedProvider, stateProvider } from "@shtse8/fluxus";
-import type { ProviderOverride } from "@shtse8/fluxus";
+import { computedProvider, stateProvider } from '@shtse8/fluxus';
+import type { ProviderOverride } from '@shtse8/fluxus';
 
 // Original providers
-const configProvider = stateProvider({ apiUrl: "/api/real" });
-const itemsProvider = asyncProvider(async (read) => {/* fetch real items */});
+const configProvider = stateProvider({ apiUrl: '/api/real' });
+const itemsProvider = asyncProvider(async (read) => {
+  /* fetch real items */
+});
 const countProvider = stateProvider(10);
 
 // Override definitions
 const testOverrides: ProviderOverride[] = [
-    // 1. Override configProvider with a fixed value
-    {
-        provider: configProvider,
-        useValue: { apiUrl: "/api/mock" },
-    },
+  // 1. Override configProvider with a fixed value
+  {
+    provider: configProvider,
+    useValue: { apiUrl: '/api/mock' },
+  },
 
-    // 2. Override itemsProvider with a mock async provider returning fixed data
-    {
-        provider: itemsProvider,
-        useValue: asyncProvider(async () => [{ id: 1, name: "Mock Item" }]),
-    },
+  // 2. Override itemsProvider with a mock async provider returning fixed data
+  {
+    provider: itemsProvider,
+    useValue: asyncProvider(async () => [{ id: 1, name: 'Mock Item' }]),
+  },
 
-    // 3. Override countProvider with a different state provider instance
-    {
-        provider: countProvider,
-        useValue: stateProvider(99), // Start count at 99 in this scope
-    },
+  // 3. Override countProvider with a different state provider instance
+  {
+    provider: countProvider,
+    useValue: stateProvider(99), // Start count at 99 in this scope
+  },
 ];
 ```
 
@@ -104,18 +106,18 @@ const testOverrides: ProviderOverride[] = [
 Pass the `overrides` array to the `ProviderScope` component:
 
 ```tsx
-import React from "react";
-import { ProviderScope } from "@shtse8/fluxus/react-adapter";
-import { testOverrides } from "./test-overrides"; // Import your overrides
-import MyFeature from "./MyFeature";
+import React from 'react';
+import { ProviderScope } from '@shtse8/fluxus/react-adapter';
+import { testOverrides } from './test-overrides'; // Import your overrides
+import MyFeature from './MyFeature';
 
 function TestRoot() {
-    return (
-        <ProviderScope overrides={testOverrides}>
-            {/* Components inside MyFeature will use the overridden providers */}
-            <MyFeature />
-        </ProviderScope>
-    );
+  return (
+    <ProviderScope overrides={testOverrides}>
+      {/* Components inside MyFeature will use the overridden providers */}
+      <MyFeature />
+    </ProviderScope>
+  );
 }
 ```
 

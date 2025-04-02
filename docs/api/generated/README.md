@@ -1,6 +1,6 @@
 **@shtse8/fluxus v1.0.0**
 
-***
+---
 
 # @shtse8/fluxus v1.0.0
 

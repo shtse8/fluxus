@@ -41,28 +41,25 @@ provider's state is disposed of (either through scope disposal or automatic
 disposal).
 
 ```typescript
-import { stateProvider } from "@shtse8/fluxus";
-import { someExternalService } from "./externalService";
+import { stateProvider } from '@shtse8/fluxus';
+import { someExternalService } from './externalService';
 
-const dataProvider = stateProvider<string | null>(
-    null,
-    (read, update, onDispose) => {
-        console.log("Initializing dataProvider state...");
-        const subscription = someExternalService.subscribe((newData) => {
-            update(newData); // Update the provider's state
-        });
+const dataProvider = stateProvider<string | null>(null, (read, update, onDispose) => {
+  console.log('Initializing dataProvider state...');
+  const subscription = someExternalService.subscribe((newData) => {
+    update(newData); // Update the provider's state
+  });
 
-        // Register cleanup logic
-        onDispose(() => {
-            console.log("Disposing dataProvider state, unsubscribing...");
-            subscription.unsubscribe();
-        });
+  // Register cleanup logic
+  onDispose(() => {
+    console.log('Disposing dataProvider state, unsubscribing...');
+    subscription.unsubscribe();
+  });
 
-        // Optional: Return initial value or perform initial fetch
-        // update(someExternalService.getInitialData());
-        return null; // Initial value if not updated immediately
-    },
-);
+  // Optional: Return initial value or perform initial fetch
+  // update(someExternalService.getInitialData());
+  return null; // Initial value if not updated immediately
+});
 ```
 
 In this example, when the `dataProvider` state is disposed of, the `onDispose`

@@ -1,4 +1,4 @@
-import { ScopeReader, Provider, Dispose } from '../types.js';
+import { ScopeReader, Provider, ProviderOptions } from '../types.js'; // Removed unused Dispose
 import { Scope } from '../scope.js'; // Need Scope to add the updater method later
 
 // --- Type Definitions ---
@@ -32,8 +32,7 @@ export interface StateProviderState<T> {
   listeners: Set<() => void>;
 }
 
-export 
-// Using a unique symbol allows us to identify StateProvider instances
+export // Using a unique symbol allows us to identify StateProvider instances
 // without relying on instanceof checks or specific properties.
 const $stateProvider = Symbol.for('fluxus.stateProvider');
 
@@ -58,6 +57,8 @@ export interface StateProviderInstance<T> extends Provider<T> {
      * @returns {StateProviderState<T>} The initial internal state.
      */
     initializeState: (reader: ScopeReader, internalId: number) => StateProviderState<T>;
+    /** An optional name for debugging. */
+    name?: string;
   };
   /** @internal A read-only property for easier type narrowing if needed. */
   // Add a property for easier type narrowing if needed, though symbol is preferred
@@ -77,7 +78,6 @@ export function isStateProviderInstance<T>(
   // Check if it's a function and has the internal symbol identifier.
   return typeof provider === 'function' && !!(provider as any)[$stateProvider];
 }
-
 
 // --- Factory Function ---
 
@@ -100,15 +100,17 @@ export function isStateProviderInstance<T>(
  * const userIdProvider = stateProvider((reader) => reader.read(userProvider)?.id ?? -1);
  */
 export function stateProvider<T>(
-  initialValue: T | ((reader: ScopeReader) => T)
+  initialValue: T | ((reader: ScopeReader) => T),
+  options?: ProviderOptions
 ): StateProviderInstance<T> {
-
   // This is the core function that Scope will call to initialize the provider's state.
   // Accept internalId from Scope
-  const initializeState = (reader: ScopeReader, internalId: number): StateProviderState<T> => {
-    let currentValue = typeof initialValue === 'function'
-      ? (initialValue as (reader: ScopeReader) => T)(reader)
-      : initialValue;
+  const initializeState = (reader: ScopeReader, _internalId: number): StateProviderState<T> => {
+    // Mark internalId as unused
+    let currentValue =
+      typeof initialValue === 'function'
+        ? (initialValue as (reader: ScopeReader) => T)(reader)
+        : initialValue;
 
     const state: StateProviderState<T> = {
       value: currentValue,
@@ -138,9 +140,8 @@ export function stateProvider<T>(
   };
 
   // Attach the metadata/initializer function using the symbol
-  (providerFn as any)[$stateProvider] = { initializeState };
+  (providerFn as any)[$stateProvider] = { initializeState, name: options?.name };
   (providerFn as any)._fluxus_provider_type = 'StateProvider';
-
 
   return providerFn as StateProviderInstance<T>;
 }

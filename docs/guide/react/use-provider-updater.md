@@ -20,37 +20,37 @@ but don't need to display the state itself. A common example is a button panel
 or control component.
 
 ```tsx
-import React from "react";
-import { useProviderUpdater } from "@shtse8/fluxus/react-adapter";
-import { counterProvider } from "./providers"; // Assuming counterProvider is a stateProvider
+import React from 'react';
+import { useProviderUpdater } from '@shtse8/fluxus/react-adapter';
+import { counterProvider } from './providers'; // Assuming counterProvider is a stateProvider
 
 function CounterControls() {
-    // Get the updater function for counterProvider
-    // This component will NOT re-render when the counter value changes
-    const updateCounter = useProviderUpdater(counterProvider);
+  // Get the updater function for counterProvider
+  // This component will NOT re-render when the counter value changes
+  const updateCounter = useProviderUpdater(counterProvider);
 
-    // Define actions using the updater
-    const increment = () => {
-        // The updater function receives the current state and returns the new state
-        updateCounter((currentValue) => currentValue + 1);
-    };
+  // Define actions using the updater
+  const increment = () => {
+    // The updater function receives the current state and returns the new state
+    updateCounter((currentValue) => currentValue + 1);
+  };
 
-    const decrement = () => {
-        updateCounter((currentValue) => currentValue - 1);
-    };
+  const decrement = () => {
+    updateCounter((currentValue) => currentValue - 1);
+  };
 
-    const reset = () => {
-        // You can also set the state directly
-        updateCounter(0);
-    };
+  const reset = () => {
+    // You can also set the state directly
+    updateCounter(0);
+  };
 
-    return (
-        <div>
-            <button onClick={increment}>Increment</button>
-            <button onClick={decrement}>Decrement</button>
-            <button onClick={reset}>Reset</button>
-        </div>
-    );
+  return (
+    <div>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
 }
 
 export default CounterControls;
@@ -76,10 +76,10 @@ instead:
 ```tsx
 // Less optimal example
 function CounterControls() {
-    const count = useProvider(counterProvider); // Component now subscribes!
-    const updateCounter = useProviderUpdater(counterProvider);
+  const count = useProvider(counterProvider); // Component now subscribes!
+  const updateCounter = useProviderUpdater(counterProvider);
 
-    // ... same buttons ...
+  // ... same buttons ...
 }
 ```
 

@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Core Providers & Docs Implemented)
+# Active Context: Fluxus (Refactoring Complete)
 
-**Current Focus:** Updating Memory Bank after implementing core providers and
-documentation site. Awaiting next task.
+**Current Focus:** Updating Memory Bank after completing the initial refactoring
+phase. Awaiting next task.
 
 **Recent Changes:**
 
@@ -62,19 +62,29 @@ documentation site. Awaiting next task.
 - Added `.gitignore`.
 - Set up GitHub Actions workflow (`.github/workflows/deploy-docs.yml`) to
   automatically build and deploy docs site to GitHub Pages.
-- Resolved various TypeScript configuration issues and test failures during
-  development.
+- **Refactoring Phase 1:**
+  - Fixed failing `computedProvider` auto-dispose test by enabling
+    `markDependentsStale` during disposal in `Scope`.
+  - Fixed TypeScript errors in `react-adapter/hooks.test.tsx` by updating
+    `tsconfig.json` include patterns.
+  - Added optional `name` property to providers (`ProviderOptions` in
+    `types.ts`, updated factories).
+  - Integrated provider names into `Scope` error messages and logs for better
+    debugging.
+  - Set up ESLint and Prettier: installed dependencies, created config files
+    (`eslint.config.js`, `.prettierrc.cjs`), added `lint` and `format` scripts
+    to `package.json`.
+  - Ran formatter and linter, fixing warnings/errors (Note:
+    `@typescript-eslint/no-explicit-any` rule temporarily disabled in
+    `eslint.config.js` due to numerous warnings).
 
 **Next Steps (Potential):**
 
 1. **Refinement:**
    - Refine `asyncProvider`/`streamProvider` (e.g., cancellation, advanced
      re-fetch/re-subscribe options).
-   - Investigate remaining test failure (`computedProvider` auto-dispose
-     scenario).
-   - Investigate persistent TypeScript errors in `hooks.test.tsx`
-     (`toHaveTextContent`).
-   - Add provider names/IDs for better debugging.
+   - Address remaining `no-explicit-any` warnings and re-enable the
+     corresponding ESLint rule.
 2. **New Features:**
    - Add utility functions (e.g., `pipe`, `debounce`).
 3. **Framework Adapters:**
@@ -93,3 +103,4 @@ documentation site. Awaiting next task.
 - `ScopeReader` provides capabilities (`read`, `watch`, `onDispose`) via
   arguments.
 - Documentation uses VitePress, deployed via GitHub Actions.
+- ESLint and Prettier are used for code quality and formatting.

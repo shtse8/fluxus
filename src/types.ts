@@ -59,7 +59,12 @@ export type AsyncLoading = Readonly<{ state: 'loading'; previousData?: unknown }
 export type AsyncData<T> = Readonly<{ state: 'data'; data: T }>;
 
 /** Represents the state of an asynchronous operation: Error Occurred */
-export type AsyncError = Readonly<{ state: 'error'; error: unknown; stackTrace?: string; previousData?: unknown }>;
+export type AsyncError = Readonly<{
+  state: 'error';
+  error: unknown;
+  stackTrace?: string;
+  previousData?: unknown;
+}>;
 
 /**
  * A union type representing the possible states of an asynchronous operation:
@@ -79,7 +84,7 @@ export function isLoading<T>(value: AsyncValue<T>): value is AsyncLoading {
 /** Type guard to check if an AsyncValue is in the data state. */
 export function hasData<T>(value: AsyncValue<T>): value is AsyncData<T> {
   return value.state === 'data';
-} // <-- Add missing closing brace
+}
 
 /**
  * Represents overriding a provider with another provider or a direct value
@@ -92,17 +97,21 @@ export interface ProviderOverride {
   useValue: Provider<any> | any; // Allow overriding with a value or another provider
 }
 
-
-
-
-
-
-
 /** Type guard to check if an AsyncValue is in the error state. */
 export function hasError<T>(value: AsyncValue<T>): value is AsyncError {
   return value.state === 'error';
 }
 
+/**
+ * Optional configuration for providers.
+ */
+export interface ProviderOptions {
+  /**
+   * An optional name for debugging purposes.
+   * This name might be used in logging or error messages.
+   */
+  name?: string;
+}
 
 /**
  * The core building block of Fluxus. A Provider defines how to create a value
@@ -133,7 +142,7 @@ export const $provider = Symbol.for('fluxus.provider');
  * @returns True if the value is a function (the basic form of a provider), false otherwise.
  */
 export function isProvider<T>(obj: unknown): obj is Provider<T> {
-    return typeof obj === 'function';
+  return typeof obj === 'function';
 }
 
 // More specific provider types (like StateProvider, ComputedProvider) will extend or utilize this base concept.

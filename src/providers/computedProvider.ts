@@ -1,5 +1,5 @@
-import { ScopeReader, Provider, Dispose } from '../types.js';
-import { Scope } from '../scope.js'; // May be needed later
+import { ScopeReader, Provider, ProviderOptions } from '../types.js'; // Removed unused Dispose
+// import { Scope } from '../scope.js'; // Unused import
 
 // --- Type Definitions ---
 
@@ -35,6 +35,8 @@ export interface ComputedProviderInstance<T> extends Provider<T> {
      * @returns {T} The computed value.
      */
     compute: (reader: ScopeReader) => T;
+    /** An optional name for debugging. */
+    name?: string;
   };
   /** @internal A read-only property for easier type narrowing if needed. */
   readonly _fluxus_provider_type: 'ComputedProvider';
@@ -53,7 +55,6 @@ export function isComputedProviderInstance<T>(
   // Check if it's a function and has the internal symbol identifier.
   return typeof provider === 'function' && !!(provider as any)[$computedProvider];
 }
-
 
 // --- Factory Function ---
 
@@ -86,9 +87,9 @@ export function isComputedProviderInstance<T>(
  * });
  */
 export function computedProvider<T>(
-  compute: (reader: ScopeReader) => T
+  compute: (reader: ScopeReader) => T,
+  options?: ProviderOptions
 ): ComputedProviderInstance<T> {
-
   // This function represents the Provider<T> interface.
   // Similar to StateProvider, the actual logic happens within the Scope
   // based on the metadata attached via the symbol.
@@ -99,7 +100,7 @@ export function computedProvider<T>(
   };
 
   // Attach metadata
-  (providerFn as any)[$computedProvider] = { compute };
+  (providerFn as any)[$computedProvider] = { compute, name: options?.name };
   (providerFn as any)._fluxus_provider_type = 'ComputedProvider';
 
   return providerFn as ComputedProviderInstance<T>;

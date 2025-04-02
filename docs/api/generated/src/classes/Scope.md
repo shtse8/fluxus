@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / Scope
 
@@ -33,8 +33,8 @@ Creates a new Scope instance.
 ##### parent?
 
 An optional parent scope. If provided,
-       this scope can potentially inherit or override providers from the parent
-       (behavior depends on specific provider implementations and future features).
+this scope can potentially inherit or override providers from the parent
+(behavior depends on specific provider implementations and future features).
 
 `null` | `Scope`
 
@@ -80,7 +80,7 @@ Calling dispose multiple times should be safe (idempotent).
 
 `Disposable.dispose`
 
-***
+---
 
 ### read()
 
@@ -130,7 +130,7 @@ If the scope or provider state is disposed.
 
 If a circular dependency is detected.
 
-***
+---
 
 ### updater()
 
@@ -177,7 +177,7 @@ If the scope is disposed.
 
 If the provider is not a valid, initialized StateProvider in this scope.
 
-***
+---
 
 ### watch()
 

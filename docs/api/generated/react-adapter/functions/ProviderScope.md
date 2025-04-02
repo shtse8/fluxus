@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [react-adapter](../README.md) / ProviderScope
 
@@ -41,6 +41,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ProviderScope>
       <App />
     </ProviderScope>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
 ```

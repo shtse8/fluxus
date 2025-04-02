@@ -1,11 +1,12 @@
 import {
   AsyncValue,
-  AsyncLoading,
-  AsyncData,
-  AsyncError,
+  // AsyncLoading, // Unused import
+  // AsyncData, // Unused import
+  // AsyncError, // Unused import
   Provider,
   ScopeReader,
   Dispose,
+  ProviderOptions,
 } from '../types.js';
 import { Scope } from '../scope.js'; // Assuming Scope class handles state management
 
@@ -22,6 +23,8 @@ export interface AsyncProviderInstance<T> extends Provider<AsyncValue<T>> {
   [$asyncProvider]: {
     /** The asynchronous function that produces the value. */
     create: (read: ScopeReader) => Promise<T>;
+    /** An optional name for debugging. */
+    name?: string;
   };
   // Add provider type identifier for potential future use/debugging
   readonly type?: 'asyncProvider';
@@ -33,13 +36,8 @@ export interface AsyncProviderInstance<T> extends Provider<AsyncValue<T>> {
  * @param value The value to check.
  * @returns True if the value is an AsyncProviderInstance, false otherwise.
  */
-export function isAsyncProviderInstance<T>(
-  value: unknown,
-): value is AsyncProviderInstance<T> {
-  return (
-    typeof value === 'function' &&
-    Object.prototype.hasOwnProperty.call(value, $asyncProvider)
-  );
+export function isAsyncProviderInstance<T>(value: unknown): value is AsyncProviderInstance<T> {
+  return typeof value === 'function' && Object.prototype.hasOwnProperty.call(value, $asyncProvider);
 }
 
 /**
@@ -87,6 +85,7 @@ export interface AsyncProviderState<T> {
  */
 export function asyncProvider<T>(
   create: (read: ScopeReader) => Promise<T>,
+  options?: ProviderOptions
 ): AsyncProviderInstance<T> {
   // The provider function itself just returns the current AsyncValue state.
   // The actual logic happens during initialization within the Scope.
@@ -97,7 +96,7 @@ export function asyncProvider<T>(
 
   // Attach metadata using the symbol
   Object.defineProperty(providerFn, $asyncProvider, {
-    value: { create },
+    value: { create, name: options?.name },
     enumerable: false,
   });
 
@@ -108,7 +107,6 @@ export function asyncProvider<T>(
     configurable: true, // Allow potential redefinition if necessary
     writable: false,
   });
-
 
   return providerFn as unknown as AsyncProviderInstance<T>;
 }

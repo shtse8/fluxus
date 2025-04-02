@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / computedProvider
 
@@ -33,9 +33,9 @@ The type of the computed value.
 (`reader`) => `T`
 
 The function that computes the
-  derived state. It receives a [ScopeReader](../interfaces/ScopeReader.md) to access other providers.
-  It's crucial to use `reader.watch` or `reader.read` within this function
-  to establish dependencies correctly for automatic recomputation.
+derived state. It receives a [ScopeReader](../interfaces/ScopeReader.md) to access other providers.
+It's crucial to use `reader.watch` or `reader.read` within this function
+to establish dependencies correctly for automatic recomputation.
 
 ## Returns
 
@@ -56,6 +56,6 @@ const doubleCountProvider = computedProvider((reader) => {
 
 ## See
 
- - [stateProvider](stateProvider.md) for creating mutable state.
- - [ScopeReader](../interfaces/ScopeReader.md) for how to access dependencies.
-});
+- [stateProvider](stateProvider.md) for creating mutable state.
+- [ScopeReader](../interfaces/ScopeReader.md) for how to access dependencies.
+  });

@@ -3,6 +3,7 @@
 **Core Components:**
 
 1. **`Provider<T>`:**
+
    - A function (or potentially an object with a creation function) that defines
      how to create a value `T`.
    - Takes a `ScopeReader` argument to access other providers.
@@ -12,6 +13,7 @@
      `FutureProvider`, `StreamProvider`, `Computed`).
 
 2. **`Scope`:**
+
    - An isolated container holding the state of providers instantiated within
      it.
    - Manages the lifecycle of provider states.

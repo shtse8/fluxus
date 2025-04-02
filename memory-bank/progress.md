@@ -1,37 +1,42 @@
-# Progress: Fluxus (Core Providers & Docs Implemented)
+# Progress: Fluxus (Refactoring Complete)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`) and basic React adapter are functional. Documentation site with
-auto-deployment is set up. Focus is shifting towards refinement, further
-documentation, and potentially new framework adapters.
+auto-deployment is set up. Initial refactoring phase addressing known issues and
+setting up linting/formatting is complete. Focus can now shift towards further
+refinement, features, or documentation.
 
 **What Works:**
 
 - Project setup complete (`package.json`, `tsconfig.json`, `tsup.config.ts`).
-- Core types defined (`src/types.ts`), including `AsyncValue` and
-  `ProviderOverride`.
+- Core types defined (`src/types.ts`), including `AsyncValue`,
+  `ProviderOverride`, and `ProviderOptions`.
 - `Scope` class implemented (`src/scope.ts`) with:
   - State management for different provider types.
-  - `read()` method supporting overrides.
-  - `updater()` method supporting overrides.
-  - `watch()` method for subscriptions.
+  - `read()` method supporting overrides and improved error messages (with
+    provider names).
+  - `updater()` method supporting overrides and improved error messages.
+  - `watch()` method for subscriptions with improved warnings.
   - `dispose()` method for scope cleanup.
   - Dependency tracking for re-computation/re-execution.
-  - Auto-disposal based on listener count.
-- `stateProvider` factory implemented and tested.
-- `computedProvider` factory implemented and tested (except for one auto-dispose
-  scenario).
+  - Auto-disposal based on listener count (fixed related test failure).
+  - Improved error/warning messages using provider names.
+- `stateProvider` factory implemented, tested, and updated to accept
+  `ProviderOptions`.
+- `computedProvider` factory implemented, tested (all tests passing), and
+  updated to accept `ProviderOptions`.
 - `asyncProvider` factory implemented (including re-execution on dependency
-  change) and tested.
+  change), tested, and updated to accept `ProviderOptions`.
 - `streamProvider` factory implemented (including re-subscription on dependency
-  change) and tested.
+  change), tested, and updated to accept `ProviderOptions`.
 - Provider Overrides implemented and tested.
 - React adapter (`react-adapter/`) implemented with:
   - `ProviderScope` component (supports overrides).
   - `useProvider` hook (using `useSyncExternalStore`).
   - `useProviderUpdater` hook.
-  - Integration tests passing (ignoring TS errors).
+  - Integration tests passing (TypeScript errors resolved).
 - Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
+  All tests passing.
 - TSDoc comments added to core files.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
@@ -42,14 +47,17 @@ documentation, and potentially new framework adapters.
     (`replace-in-file`).
 - GitHub Actions workflow set up for automatic deployment to GitHub Pages.
 - `.gitignore` configured.
+- ESLint and Prettier set up and configured (`eslint.config.js`,
+  `.prettierrc.cjs`).
+- Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
+  checks (with `no-explicit-any` rule temporarily disabled).
 
 **What's Left To Build (Next Steps - Potential):**
 
 1. **Refinement:**
-   - Investigate and fix failing `computedProvider` auto-dispose test.
-   - Investigate and fix persistent TypeScript errors in `hooks.test.tsx`.
+   - Address remaining `no-explicit-any` warnings and re-enable the
+     corresponding ESLint rule.
    - Refine `asyncProvider`/`streamProvider` (cancellation, advanced options).
-   - Add provider names/IDs for debugging.
 2. **New Features:**
    - Utility functions (`pipe`, `debounce`, etc.).
 3. **Framework Adapters:**
@@ -62,13 +70,9 @@ documentation, and potentially new framework adapters.
 
 **Known Issues:**
 
-- One test failure in `src/providers/computedProvider.test.ts` related to
-  reading a computed provider after its dependency auto-disposes
-  (`should fail read if dependency was auto-disposed`). The underlying `read`
-  logic seems correct, but the test expectation isn't met.
-- Persistent TypeScript errors in `react-adapter/hooks.test.tsx` regarding
-  `@testing-library/jest-dom` matchers (`toHaveTextContent`) not being
-  recognized by the type checker, despite being present at runtime.
+- The `@typescript-eslint/no-explicit-any` ESLint rule is currently disabled in
+  `eslint.config.js` due to numerous warnings (approx. 50). These should be
+  addressed incrementally to improve type safety.
 
 **Blockers:**
 

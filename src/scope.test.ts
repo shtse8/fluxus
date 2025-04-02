@@ -117,7 +117,7 @@ describe('Scope', () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
-   it('should return a no-op unsubscribe when watching a non-state provider', () => {
+  it('should return a no-op unsubscribe when watching a non-state provider', () => {
     const scope = createScope();
     const simpleProvider: Provider<string> = () => 'hello';
     const listener = vi.fn();
@@ -149,93 +149,89 @@ describe('Scope', () => {
 
     // The dispose callback should have been called
 
+    describe('Scope Overrides', () => {
+      let parentScope: Scope;
+      let childScope: Scope;
+      const providerA = stateProvider(10);
+      // const providerB = stateProvider('B'); // Unused variable
+      const providerC = computedProvider(
+        (read: ScopeReader) => `C based on ${read.read(providerA)}`
+      ); // Add type for read
 
-describe('Scope Overrides', () => {
-  let parentScope: Scope;
-  let childScope: Scope;
-  const providerA = stateProvider(10);
-  const providerB = stateProvider('B');
-  const providerC = computedProvider((read: ScopeReader) => `C based on ${read.read(providerA)}`); // Add type for read
+      beforeEach(() => {
+        parentScope = createScope();
+      });
 
-  beforeEach(() => {
-    parentScope = createScope();
-  });
+      afterEach(() => {
+        parentScope?.dispose();
+        childScope?.dispose();
+      });
 
-  afterEach(() => {
-    parentScope?.dispose();
-    childScope?.dispose();
-  });
+      it('should return override value when overridden with value', () => {
+        childScope = createScope(parentScope, [{ provider: providerA, useValue: 999 }]);
+        expect(childScope.read(providerA)).toBe(999);
+        // Parent scope should be unaffected
+        expect(parentScope.read(providerA)).toBe(10);
+      });
 
-  it('should return override value when overridden with value', () => {
-    childScope = createScope(parentScope, [
-      { provider: providerA, useValue: 999 },
-    ]);
-    expect(childScope.read(providerA)).toBe(999);
-    // Parent scope should be unaffected
-    expect(parentScope.read(providerA)).toBe(10);
-  });
+      it('should use overriding provider when overridden with provider', () => {
+        const overrideProviderA = stateProvider(100);
+        childScope = createScope(parentScope, [
+          { provider: providerA, useValue: overrideProviderA },
+        ]);
 
-  it('should use overriding provider when overridden with provider', () => {
-    const overrideProviderA = stateProvider(100);
-    childScope = createScope(parentScope, [
-      { provider: providerA, useValue: overrideProviderA },
-    ]);
+        // Reads from child scope use the override
+        expect(childScope.read(providerA)).toBe(100);
 
-    // Reads from child scope use the override
-    expect(childScope.read(providerA)).toBe(100);
+        // Update via override
+        const updater = childScope.updater(overrideProviderA); // Get updater for the override
+        updater(childScope, overrideProviderA, (n) => n + 1);
+        expect(childScope.read(providerA)).toBe(101);
 
-    // Update via override
-    const updater = childScope.updater(overrideProviderA); // Get updater for the override
-    updater(childScope, overrideProviderA, (n) => n + 1);
-    expect(childScope.read(providerA)).toBe(101);
+        // Parent scope should be unaffected
+        expect(parentScope.read(providerA)).toBe(10);
+        const parentUpdater = parentScope.updater(providerA);
+        parentUpdater(parentScope, providerA, (n) => n + 5);
+        expect(parentScope.read(providerA)).toBe(15);
+        expect(childScope.read(providerA)).toBe(101); // Child still uses its override
+      });
 
-    // Parent scope should be unaffected
-    expect(parentScope.read(providerA)).toBe(10);
-    const parentUpdater = parentScope.updater(providerA);
-    parentUpdater(parentScope, providerA, (n) => n + 5);
-    expect(parentScope.read(providerA)).toBe(15);
-    expect(childScope.read(providerA)).toBe(101); // Child still uses its override
-  });
+      it('should use override in dependent providers within the same scope', () => {
+        childScope = createScope(parentScope, [{ provider: providerA, useValue: 50 }]);
+        // providerC reads providerA, should use the overridden value (50) in childScope
+        expect(childScope.read(providerC)).toBe('C based on 50');
+        // Parent scope uses original value
+        expect(parentScope.read(providerC)).toBe('C based on 10');
+      });
 
-  it('should use override in dependent providers within the same scope', () => {
-     childScope = createScope(parentScope, [
-      { provider: providerA, useValue: 50 },
-    ]);
-    // providerC reads providerA, should use the overridden value (50) in childScope
-    expect(childScope.read(providerC)).toBe('C based on 50');
-    // Parent scope uses original value
-    expect(parentScope.read(providerC)).toBe('C based on 10');
-  });
+      it('should throw error when getting updater for non-stateprovider override', () => {
+        childScope = createScope(parentScope, [
+          { provider: providerA, useValue: () => 99 }, // Override with a generic provider
+        ]);
+        expect(() => childScope.updater(providerA)).toThrow(
+          'Provider overridden with a non-StateProvider value, cannot get updater.'
+        );
+      });
 
-  it('should throw error when getting updater for non-stateprovider override', () => {
-    childScope = createScope(parentScope, [
-      { provider: providerA, useValue: () => 99 }, // Override with a generic provider
-    ]);
-    expect(() => childScope.updater(providerA)).toThrow(
-      'Provider overridden with a non-StateProvider value, cannot get updater.'
-    );
-  });
+      it('should allow overriding with a different state provider type', () => {
+        const overrideProviderA = stateProvider('overridden');
+        childScope = createScope(parentScope, [
+          // Override providerA (number) with a string state provider
+          { provider: providerA, useValue: overrideProviderA },
+        ]);
 
-   it('should allow overriding with a different state provider type', () => {
-    const overrideProviderA = stateProvider('overridden');
-    childScope = createScope(parentScope, [
-        // Override providerA (number) with a string state provider
-        { provider: providerA, useValue: overrideProviderA },
-    ]);
+        // Reading the original providerA in the child scope now returns the override's value
+        expect(childScope.read(providerA)).toBe('overridden');
 
-    // Reading the original providerA in the child scope now returns the override's value
-    expect(childScope.read(providerA)).toBe('overridden');
+        // We need to get the updater for the *overriding* provider
+        const updater = childScope.updater(overrideProviderA);
+        updater(childScope, overrideProviderA, (s) => s + '!');
+        expect(childScope.read(providerA)).toBe('overridden!');
 
-    // We need to get the updater for the *overriding* provider
-    const updater = childScope.updater(overrideProviderA);
-    updater(childScope, overrideProviderA, (s) => s + '!');
-    expect(childScope.read(providerA)).toBe('overridden!');
-
-    // Parent remains unaffected
-    expect(parentScope.read(providerA)).toBe(10);
-  });
-
-});
+        // Parent remains unaffected
+        expect(parentScope.read(providerA)).toBe(10);
+      });
+    });
 
     expect(disposeCallback).toHaveBeenCalledTimes(1);
 
@@ -243,7 +239,7 @@ describe('Scope Overrides', () => {
     expect(() => scope.read(providerWithDispose)).toThrowError('Scope has been disposed');
   });
 
-   it('should clear internal state map on dispose', () => {
+  it('should clear internal state map on dispose', () => {
     const scope = createScope();
     const simpleProvider: Provider<number> = () => 1;
     scope.read(simpleProvider);
@@ -259,7 +255,7 @@ describe('Scope Overrides', () => {
     // We could potentially expose the map size for testing, but throwing is a good indicator.
   });
 
-   it('should throw error when getting updater from a disposed scope', () => {
+  it('should throw error when getting updater from a disposed scope', () => {
     const scope = createScope();
     const counterProvider = stateProvider(0);
     scope.read(counterProvider); // Initialize
@@ -268,7 +264,7 @@ describe('Scope Overrides', () => {
     expect(() => scope.updater(counterProvider)).toThrowError('Scope has been disposed');
   });
 
-   it('should throw error when watching a disposed scope', () => {
+  it('should throw error when watching a disposed scope', () => {
     const scope = createScope();
     const counterProvider = stateProvider(0);
     const listener = vi.fn();
@@ -277,84 +273,82 @@ describe('Scope Overrides', () => {
 
     expect(() => scope.watch(counterProvider, listener)).toThrowError('Scope has been disposed');
   });
-
 });
 
+// --- Auto-Dispose Tests ---
 
-  // --- Auto-Dispose Tests ---
+it('should auto-dispose state when last listener unsubscribes', () => {
+  const scope = createScope();
+  const counterProvider = stateProvider(0);
+  const listener1 = vi.fn();
+  const listener2 = vi.fn();
 
-  it('should auto-dispose state when last listener unsubscribes', () => {
-    const scope = createScope();
-    const counterProvider = stateProvider(0);
-    const listener1 = vi.fn();
-    const listener2 = vi.fn();
+  // Initialize and add listeners
+  scope.read(counterProvider);
+  const unsubscribe1 = scope.watch(counterProvider, listener1);
+  const unsubscribe2 = scope.watch(counterProvider, listener2);
 
-    // Initialize and add listeners
-    scope.read(counterProvider);
-    const unsubscribe1 = scope.watch(counterProvider, listener1);
-    const unsubscribe2 = scope.watch(counterProvider, listener2);
+  // Check state exists (indirectly)
+  expect(() => scope.read(counterProvider)).not.toThrow();
 
-    // Check state exists (indirectly)
-    expect(() => scope.read(counterProvider)).not.toThrow();
+  // Unsubscribe one listener - should NOT dispose
+  unsubscribe1();
+  expect(() => scope.read(counterProvider)).not.toThrow();
 
-    // Unsubscribe one listener - should NOT dispose
-    unsubscribe1();
-    expect(() => scope.read(counterProvider)).not.toThrow();
+  // Unsubscribe the last listener - should dispose
+  unsubscribe2();
 
-    // Unsubscribe the last listener - should dispose
-    unsubscribe2();
+  // Attempting to read should now throw because the state is disposed
+  expect(() => scope.read(counterProvider)).toThrowError(
+    'Cannot read provider: its state has been disposed'
+  );
+});
 
-    // Attempting to read should now throw because the state is disposed
-    expect(() => scope.read(counterProvider)).toThrowError(
-      'Cannot read provider: its state has been disposed'
-    );
-  });
+it('should NOT auto-dispose state if other listeners exist', () => {
+  const scope = createScope();
+  const counterProvider = stateProvider(0);
+  const listener1 = vi.fn();
+  const listener2 = vi.fn();
 
-  it('should NOT auto-dispose state if other listeners exist', () => {
-    const scope = createScope();
-    const counterProvider = stateProvider(0);
-    const listener1 = vi.fn();
-    const listener2 = vi.fn();
+  scope.read(counterProvider);
+  const unsubscribe1 = scope.watch(counterProvider, listener1);
+  scope.watch(counterProvider, listener2); // Keep listener2 active
 
-    scope.read(counterProvider);
-    const unsubscribe1 = scope.watch(counterProvider, listener1);
-    scope.watch(counterProvider, listener2); // Keep listener2 active
+  // Unsubscribe listener1
+  unsubscribe1();
 
-    // Unsubscribe listener1
-    unsubscribe1();
+  // State should still exist
+  expect(() => scope.read(counterProvider)).not.toThrow();
+  expect(scope.read(counterProvider)).toBe(0);
+});
 
-    // State should still exist
-    expect(() => scope.read(counterProvider)).not.toThrow();
-    expect(scope.read(counterProvider)).toBe(0);
-  });
+it('should throw error when watching an auto-disposed provider state', () => {
+  const scope = createScope();
+  const counterProvider = stateProvider(0);
+  const listener1 = vi.fn();
+  const listener2 = vi.fn();
 
-  it('should throw error when watching an auto-disposed provider state', () => {
-    const scope = createScope();
-    const counterProvider = stateProvider(0);
-    const listener1 = vi.fn();
-    const listener2 = vi.fn();
+  scope.read(counterProvider);
+  const unsubscribe = scope.watch(counterProvider, listener1);
+  unsubscribe(); // Auto-dispose
 
-    scope.read(counterProvider);
-    const unsubscribe = scope.watch(counterProvider, listener1);
-    unsubscribe(); // Auto-dispose
+  // Attempting to watch again should fail during the initial read
+  expect(() => scope.watch(counterProvider, listener2)).toThrowError(
+    'Cannot read provider: its state has been disposed'
+  );
+});
 
-    // Attempting to watch again should fail during the initial read
-    expect(() => scope.watch(counterProvider, listener2)).toThrowError(
-      'Cannot read provider: its state has been disposed'
-    );
-  });
+it('should throw error when getting updater for an auto-disposed provider state', () => {
+  const scope = createScope();
+  const counterProvider = stateProvider(0);
+  const listener = vi.fn();
 
-  it('should throw error when getting updater for an auto-disposed provider state', () => {
-    const scope = createScope();
-    const counterProvider = stateProvider(0);
-    const listener = vi.fn();
+  scope.read(counterProvider);
+  const unsubscribe = scope.watch(counterProvider, listener);
+  unsubscribe(); // Auto-dispose
 
-    scope.read(counterProvider);
-    const unsubscribe = scope.watch(counterProvider, listener);
-    unsubscribe(); // Auto-dispose
-
-    // Attempting to get updater should fail during the initial read
-    expect(() => scope.updater(counterProvider)).toThrowError(
-      'Cannot read provider: its state has been disposed'
-    );
-  });
+  // Attempting to get updater should fail during the initial read
+  expect(() => scope.updater(counterProvider)).toThrowError(
+    'Cannot read provider: its state has been disposed'
+  );
+});

@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / StateProviderInstance
 
@@ -48,9 +48,9 @@ StateProviders are the primary way to introduce mutable state into the Fluxus sy
 
 ## Properties
 
-### \_fluxus\_provider\_type
+### \_fluxus_provider_type
 
-> `readonly` **\_fluxus\_provider\_type**: `"StateProvider"`
+> `readonly` **\_fluxus_provider_type**: `"StateProvider"`
 
 Defined in: [src/providers/stateProvider.ts:64](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L64)
 
@@ -58,7 +58,7 @@ Defined in: [src/providers/stateProvider.ts:64](https://github.com/shtse8/fluxus
 
 A read-only property for easier type narrowing if needed.
 
-***
+---
 
 ### \[$stateProvider\]
 

@@ -37,7 +37,10 @@ interface ProviderScopeProps {
  * )
  * ```
  */
-export function ProviderScope({ children, overrides = [] }: ProviderScopeProps): React.ReactElement {
+export function ProviderScope({
+  children,
+  overrides = [],
+}: ProviderScopeProps): React.ReactElement {
   const parentScope = React.useContext(ScopeContext);
   const scopeRef = React.useRef<Scope | null>(null);
 
@@ -63,9 +66,5 @@ export function ProviderScope({ children, overrides = [] }: ProviderScopeProps):
     };
   }, []); // Empty dependency array ensures cleanup runs only on final unmount.
 
-  return (
-    <ScopeContext.Provider value={scope}>
-      {children}
-    </ScopeContext.Provider>
-  );
+  return <ScopeContext.Provider value={scope}>{children}</ScopeContext.Provider>;
 }

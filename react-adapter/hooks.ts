@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { useScope } from './context.js';
 import { Provider } from '../src/types.js';
-import { StateProviderInstance, StateUpdater, isStateProviderInstance } from '../src/providers/stateProvider.js';
+import {
+  StateProviderInstance,
+  // StateUpdater, // Unused import
+  // isStateProviderInstance, // Unused import
+} from '../src/providers/stateProvider.js';
 
 /**
  * A React hook that reads a provider's value from the current {@link Scope}
@@ -27,21 +31,25 @@ export function useProvider<T>(provider: Provider<T>): T {
   const lastValueRef = React.useRef<T | undefined>(undefined);
 
   // Subscribe to provider updates
-  const subscribe = React.useCallback((onStoreChange: () => void) => { // Renamed callback for clarity
-    try {
+  const subscribe = React.useCallback(
+    (onStoreChange: () => void) => {
+      // Renamed callback for clarity
+      try {
         // scope.watch returns the unsubscribe function
         return scope.watch(provider, () => {
-            onStoreChange(); // Call the callback provided by useSyncExternalStore
+          onStoreChange(); // Call the callback provided by useSyncExternalStore
         });
-    } catch (error: any) {
+      } catch (error: any) {
         // If scope is disposed during subscribe, return a no-op unsubscribe
         // Check for disposal errors more broadly
         if (error instanceof Error && error.message.includes('disposed')) {
-            return () => {};
+          return () => {};
         }
         throw error; // Re-throw other errors
-    }
-  }, [scope, provider]); // Add scope and provider back as dependencies
+      }
+    },
+    [scope, provider]
+  ); // Add scope and provider back as dependencies
 
   // Get the current value (snapshot) of the provider
   const getSnapshot = React.useCallback(() => {
@@ -70,11 +78,11 @@ export function useProvider<T>(provider: Provider<T>): T {
 
   // Initialize ref with the first snapshot if it's undefined
   if (lastValueRef.current === undefined) {
-      try {
-        lastValueRef.current = scope.read(provider);
-      } catch {
-        // Ignore errors here, getSnapshot will handle them
-      }
+    try {
+      lastValueRef.current = scope.read(provider);
+    } catch {
+      // Ignore errors here, getSnapshot will handle them
+    }
   }
 
   // Optional: Define getServerSnapshot for SSR/server components.
@@ -111,21 +119,26 @@ export function useProvider<T>(provider: Provider<T>): T {
  * @throws {Error} If the provider is not a valid, initialized StateProvider in the scope.
  */
 // Return type is now the simplified version for the user: (newValueOrFn) => void
-export function useProviderUpdater<T>(provider: StateProviderInstance<T>): (newValueOrFn: T | ((prev: T) => T)) => void {
-    const scope = useScope();
+export function useProviderUpdater<T>(
+  provider: StateProviderInstance<T>
+): (newValueOrFn: T | ((prev: T) => T)) => void {
+  const scope = useScope();
 
-    // Get the internal updater function from the scope.
-    // Fetch it directly to avoid stale closures related to the scope instance.
-    const internalUpdater = scope.updater(provider);
+  // Get the internal updater function from the scope.
+  // Fetch it directly to avoid stale closures related to the scope instance.
+  const internalUpdater = scope.updater(provider);
 
-    // Return a stable function that calls the internal updater with scope and provider.
-    // Use useCallback to ensure the returned function identity is stable if scope/provider don't change.
-    const stableUpdater = React.useCallback((newValueOrFn: T | ((prev: T) => T)) => {
-        // Call the internal updater, passing the current scope and provider instance.
-        internalUpdater(scope, provider, newValueOrFn);
-    }, [scope, provider, internalUpdater]); // internalUpdater dependency ensures if scope.updater changes behavior, we update
+  // Return a stable function that calls the internal updater with scope and provider.
+  // Use useCallback to ensure the returned function identity is stable if scope/provider don't change.
+  const stableUpdater = React.useCallback(
+    (newValueOrFn: T | ((prev: T) => T)) => {
+      // Call the internal updater, passing the current scope and provider instance.
+      internalUpdater(scope, provider, newValueOrFn);
+    },
+    [scope, provider, internalUpdater]
+  ); // internalUpdater dependency ensures if scope.updater changes behavior, we update
 
-    return stableUpdater;
+  return stableUpdater;
 }
 
 // Example of a combined hook (less common, usually separate value/updater)

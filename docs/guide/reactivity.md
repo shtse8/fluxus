@@ -19,7 +19,7 @@ The foundation of Fluxus reactivity is **automatic dependency tracking**.
    the graph looks like `A -> B -> C`.
 
 ```typescript
-import { computedProvider, stateProvider } from "@shtse8/fluxus";
+import { computedProvider, stateProvider } from '@shtse8/fluxus';
 
 const providerA = stateProvider(10);
 const providerB = computedProvider((read) => read(providerA) * 2); // B depends on A

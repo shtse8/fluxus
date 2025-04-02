@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
-***
+---
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / ScopeReader
 
@@ -35,7 +35,7 @@ The cleanup function to be executed.
 
 `void`
 
-***
+---
 
 ### read()
 
@@ -66,7 +66,7 @@ The provider to read.
 
 The current value of the dependency provider within the current scope.
 
-***
+---
 
 ### watch()
 

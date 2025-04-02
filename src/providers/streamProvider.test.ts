@@ -6,7 +6,7 @@ import { isLoading, hasData, hasError } from '../types.js';
 import { Subject } from 'rxjs'; // Using RxJS Subject for easy stream simulation
 
 // Helper to delay execution
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('streamProvider', () => {
   let scope: Scope;
@@ -28,7 +28,7 @@ describe('streamProvider', () => {
 
     expect(isLoading(initialState)).toBe(true);
     if (isLoading(initialState)) {
-        expect(initialState.previousData).toBeUndefined();
+      expect(initialState.previousData).toBeUndefined();
     }
   });
 
@@ -96,7 +96,7 @@ describe('streamProvider', () => {
         // Simulate emitting one value so subscription is active
         observer.next?.('initial');
         return { unsubscribe: unsubscribeSpy }; // Return subscription with the spy
-      }
+      },
     };
     const testProvider = streamProvider<string>(() => mockSubscribable);
 
@@ -107,13 +107,13 @@ describe('streamProvider', () => {
     expect(unsubscribeSpy).toHaveBeenCalledTimes(1); // Verify the spy was called
   });
 
-   it('should call unsubscribe when listener count drops to zero (autoDispose)', () => {
+  it('should call unsubscribe when listener count drops to zero (autoDispose)', () => {
     const unsubscribeSpy = vi.fn();
-     const mockSubscribable = {
+    const mockSubscribable = {
       subscribe: (observer: any) => {
         observer.next?.('initial');
         return { unsubscribe: unsubscribeSpy };
-      }
+      },
     };
     const testProvider = streamProvider<string>(() => mockSubscribable);
 
@@ -133,8 +133,7 @@ describe('streamProvider', () => {
     let createCount = 0;
     const stream1 = new Subject<string>();
     const stream2 = new Subject<string>();
-    const unsubscribe1Spy = vi.spyOn(stream1, 'unsubscribe');
-    const unsubscribe2Spy = vi.spyOn(stream2, 'unsubscribe');
+    // Unused spies removed
 
     const testProvider = streamProvider<string>((read) => {
       createCount++;
@@ -157,9 +156,9 @@ describe('streamProvider', () => {
     await delay(1);
     const dataState1 = scope.read(testProvider);
     if (hasData(dataState1)) {
-        expect(dataState1.data).toBe('a');
+      expect(dataState1.data).toBe('a');
     } else {
-        expect.fail('Expected data state after stream1 emit');
+      expect.fail('Expected data state after stream1 emit');
     }
     expect(listener).toHaveBeenCalledTimes(1); // loading -> data
 
@@ -181,9 +180,9 @@ describe('streamProvider', () => {
     await delay(1);
     const dataState2 = scope.read(testProvider);
     if (hasData(dataState2)) {
-        expect(dataState2.data).toBe('b');
+      expect(dataState2.data).toBe('b');
     } else {
-        expect.fail('Expected data state after stream2 emit');
+      expect.fail('Expected data state after stream2 emit');
     }
     // Listener called for: loading->a, loading->b
     // Staleness itself doesn't trigger listener for streams.
@@ -194,9 +193,9 @@ describe('streamProvider', () => {
     await delay(1);
     const dataState3 = scope.read(testProvider);
     if (hasData(dataState3)) {
-        expect(dataState3.data).toBe('b'); // Still 'b'
+      expect(dataState3.data).toBe('b'); // Still 'b'
     } else {
-        expect.fail('Expected data state after ignored stream1 emit');
+      expect.fail('Expected data state after ignored stream1 emit');
     }
     expect(listener).toHaveBeenCalledTimes(2); // No extra notification
 
@@ -204,7 +203,6 @@ describe('streamProvider', () => {
     scope.dispose();
     // expect(unsubscribe2Spy).toHaveBeenCalledTimes(1); // Check new stream unsubscribed
   });
-
 
   // TODO: Add tests for dependencies
   // TODO: Add tests for completion handling

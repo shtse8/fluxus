@@ -19,17 +19,17 @@ simple interface representing anything that can be subscribed to:
 
 ```typescript
 interface Subscribable<T> {
-    subscribe(observer: Observer<T>): Subscription;
+  subscribe(observer: Observer<T>): Subscription;
 }
 
 interface Observer<T> {
-    next?: (value: T) => void;
-    error?: (err: unknown) => void;
-    complete?: () => void;
+  next?: (value: T) => void;
+  error?: (err: unknown) => void;
+  complete?: () => void;
 }
 
 interface Subscription {
-    unsubscribe(): void;
+  unsubscribe(): void;
 }
 ```
 
@@ -54,46 +54,48 @@ Define a `streamProvider` by passing it a function that accepts a `ScopeReader`
 and returns your `Subscribable` stream source.
 
 ```typescript
-import { streamProvider } from "@shtse8/fluxus";
-import { webSocket } from "rxjs/webSocket"; // Example using RxJS
+import { streamProvider } from '@shtse8/fluxus';
+import { webSocket } from 'rxjs/webSocket'; // Example using RxJS
 
-interface Message {/* ... */}
+interface Message {
+  /* ... */
+}
 
 // Example: Provider for a WebSocket connection
 const messagesProvider = streamProvider<Message>((read) => {
-    const url = "wss://example.com/socket";
-    const stream$ = webSocket<Message>(url); // Returns an RxJS Observable
+  const url = 'wss://example.com/socket';
+  const stream$ = webSocket<Message>(url); // Returns an RxJS Observable
 
-    // Optional: Use onDispose for cleanup if needed beyond unsubscription
-    // read.onDispose(() => console.log('WebSocket provider disposed'));
+  // Optional: Use onDispose for cleanup if needed beyond unsubscription
+  // read.onDispose(() => console.log('WebSocket provider disposed'));
 
-    return stream$; // RxJS Observables are Subscribable
+  return stream$; // RxJS Observables are Subscribable
 });
 
 // Example: Simple interval timer (using a helper to create a Subscribable)
 function createIntervalStream(ms: number): Subscribable<number> {
-    let count = 0;
-    let intervalId: NodeJS.Timeout | null = null;
-    return {
-        subscribe: (observer) => {
-            intervalId = setInterval(() => {
-                observer.next?.(count++);
-            }, ms);
-            // Emit initial value immediately?
-            observer.next?.(0);
-            return {
-                unsubscribe: () => {
-                    if (intervalId) clearInterval(intervalId);
-                },
-            };
+  let count = 0;
+  let intervalId: NodeJS.Timeout | null = null;
+  return {
+    subscribe: (observer) => {
+      intervalId = setInterval(() => {
+        observer.next?.(count++);
+      }, ms);
+      // Emit initial value immediately?
+      observer.next?.(0);
+      return {
+        unsubscribe: () => {
+          if (intervalId) clearInterval(intervalId);
         },
-    };
+      };
+    },
+  };
 }
 
 const counterStreamProvider = streamProvider<number>((read) => {
-    const stream = createIntervalStream(1000);
-    read.onDispose(() => console.log("Interval stream disposed"));
-    return stream;
+  const stream = createIntervalStream(1000);
+  read.onDispose(() => console.log('Interval stream disposed'));
+  return stream;
 });
 ```
 
@@ -106,33 +108,29 @@ whenever the stream emits a new value (transitioning to `AsyncData`) or an error
 (transitioning to `AsyncError`).
 
 ```tsx
-import React from "react";
-import { useProvider } from "@shtse8/fluxus/react-adapter";
-import { hasData, hasError, isLoading } from "@shtse8/fluxus";
-import { messagesProvider } from "./providers"; // Assuming messagesProvider exists
+import React from 'react';
+import { useProvider } from '@shtse8/fluxus/react-adapter';
+import { hasData, hasError, isLoading } from '@shtse8/fluxus';
+import { messagesProvider } from './providers'; // Assuming messagesProvider exists
 
 function MessageDisplay() {
-    const messageValue = useProvider(messagesProvider);
+  const messageValue = useProvider(messagesProvider);
 
-    if (isLoading(messageValue)) {
-        return <div>Connecting to messages...</div>;
-    }
+  if (isLoading(messageValue)) {
+    return <div>Connecting to messages...</div>;
+  }
 
-    if (hasError(messageValue)) {
-        return (
-            <div style={{ color: "red" }}>
-                Message stream error: {String(messageValue.error)}
-            </div>
-        );
-    }
+  if (hasError(messageValue)) {
+    return <div style={{ color: 'red' }}>Message stream error: {String(messageValue.error)}</div>;
+  }
 
-    // Show the latest message
-    if (hasData(messageValue)) {
-        const latestMessage = messageValue.data;
-        return <div>Last Message: {JSON.stringify(latestMessage)}</div>;
-    }
+  // Show the latest message
+  if (hasData(messageValue)) {
+    const latestMessage = messageValue.data;
+    return <div>Last Message: {JSON.stringify(latestMessage)}</div>;
+  }
 
-    return <div>Waiting for messages...</div>;
+  return <div>Waiting for messages...</div>;
 }
 ```
 

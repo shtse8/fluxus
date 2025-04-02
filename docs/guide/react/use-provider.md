@@ -14,29 +14,29 @@ within your React components and subscribe to its updates.
 ## Usage
 
 ```tsx
-import React from "react";
-import { useProvider } from "@shtse8/fluxus/react-adapter";
-import { themeProvider, userProvider } from "./providers"; // Assuming these exist
+import React from 'react';
+import { useProvider } from '@shtse8/fluxus/react-adapter';
+import { themeProvider, userProvider } from './providers'; // Assuming these exist
 
 function UserProfile() {
-    // Read the user object from userProvider
-    // This component will re-render if the user object changes
-    const user = useProvider(userProvider);
+  // Read the user object from userProvider
+  // This component will re-render if the user object changes
+  const user = useProvider(userProvider);
 
-    // Read the theme string from themeProvider
-    // This component will also re-render if the theme changes
-    const theme = useProvider(themeProvider);
+  // Read the theme string from themeProvider
+  // This component will also re-render if the theme changes
+  const theme = useProvider(themeProvider);
 
-    if (!user) {
-        return <div>Loading user...</div>;
-    }
+  if (!user) {
+    return <div>Loading user...</div>;
+  }
 
-    return (
-        <div className={`profile theme-${theme}`}>
-            <h2>{user.name}</h2>
-            <p>Email: {user.email}</p>
-        </div>
-    );
+  return (
+    <div className={`profile theme-${theme}`}>
+      <h2>{user.name}</h2>
+      <p>Email: {user.email}</p>
+    </div>
+  );
 }
 
 export default UserProfile;

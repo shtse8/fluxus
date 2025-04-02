@@ -1,9 +1,9 @@
-import React, { StrictMode } from 'react';
+import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest'; // Import vi
+import { describe, it, expect, vi } from 'vitest'; // Import vi
 import { ProviderScope, useProvider, useProviderUpdater } from './index.js'; // Assuming index exports necessary things
 import { stateProvider } from '../src/providers/stateProvider.js';
-import { createScope, Scope } from '../src/scope.js';
+// Unused Scope imports removed
 import { Provider } from '../src/types.js';
 
 // --- Test Setup ---
@@ -16,14 +16,14 @@ const TestComponent = ({ provider }: { provider: Provider<any> }) => {
   return <div data-testid="value">{JSON.stringify(value)}</div>;
 };
 
-// Helper component to test useProviderUpdater
-const UpdateComponent = ({ provider }: { provider: ReturnType<typeof stateProvider<any>> }) => {
-  const update = useProviderUpdater(provider);
-  return <button onClick={() => act(() => update((v: number) => v + 1))}>Increment</button>;
-};
+// Unused UpdateComponent removed
 
 // Helper component combining both hooks
-const CombinedComponent = ({ provider }: { provider: ReturnType<typeof stateProvider<number>> }) => {
+const CombinedComponent = ({
+  provider,
+}: {
+  provider: ReturnType<typeof stateProvider<number>>;
+}) => {
   const value = useProvider(provider);
   const update = useProviderUpdater(provider);
   return (
@@ -82,7 +82,7 @@ describe('React Adapter Hooks', () => {
   describe('useProviderUpdater', () => {
     it('should get an updater function for a stateProvider', () => {
       const counterProvider = stateProvider(0);
-      let updater: Function | null = null;
+      let updater: ((newValueOrFn: number | ((prev: number) => number)) => void) | null = null;
 
       const GetUpdaterComponent = () => {
         // Read the provider first to ensure it's initialized in the scope
@@ -123,37 +123,39 @@ describe('React Adapter Hooks', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('100');
     });
 
-     it('should throw error if used without ProviderScope', () => {
-        const counterProvider = stateProvider(0);
-        // Suppress console.error expected from React for this test
-        const originalError = console.error;
-        console.error = vi.fn();
+    it('should throw error if used without ProviderScope', () => {
+      const counterProvider = stateProvider(0);
+      // Suppress console.error expected from React for this test
+      const originalError = console.error;
+      console.error = vi.fn();
 
-        expect(() => render(
-            <TestComponent provider={counterProvider} />
-        )).toThrowError('useScope must be used within a ProviderScope');
+      expect(() => render(<TestComponent provider={counterProvider} />)).toThrowError(
+        'useScope must be used within a ProviderScope'
+      );
 
-        // Restore console.error
-        console.error = originalError;
-     });
+      // Restore console.error
+      console.error = originalError;
+    });
 
-     it('should throw error when getting updater for non-state provider', () => {
-        const simpleProvider: Provider<string> = () => 'hello';
-        const originalError = console.error;
-        console.error = vi.fn(); // Suppress React error boundary logs
+    it('should throw error when getting updater for non-state provider', () => {
+      const simpleProvider: Provider<string> = () => 'hello';
+      const originalError = console.error;
+      console.error = vi.fn(); // Suppress React error boundary logs
 
-        const GetUpdaterComponent = () => {
-            useProviderUpdater(simpleProvider as any); // Cast needed for test
-            return null;
-        };
+      const GetUpdaterComponent = () => {
+        useProviderUpdater(simpleProvider as any); // Cast needed for test
+        return null;
+      };
 
-        expect(() => render(
-            <ProviderScope>
-                <GetUpdaterComponent />
-            </ProviderScope>
-        )).toThrowError('Target provider is not a StateProvider or state is inconsistent');
+      expect(() =>
+        render(
+          <ProviderScope>
+            <GetUpdaterComponent />
+          </ProviderScope>
+        )
+      ).toThrowError('Target provider is not a StateProvider or state is inconsistent');
 
-        console.error = originalError;
-     });
+      console.error = originalError;
+    });
   });
 });

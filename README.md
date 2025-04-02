@@ -35,47 +35,43 @@ pnpm add fluxus
 ## Basic Usage (React)
 
 ```tsx
-import React from "react";
+import React from 'react';
 import {
-    ProviderScope,
-    stateProvider,
-    useProvider,
-    useProviderUpdater,
-} from "fluxus/react-adapter";
+  ProviderScope,
+  stateProvider,
+  useProvider,
+  useProviderUpdater,
+} from 'fluxus/react-adapter';
 
 // 1. Define a provider (just a function)
 const counterProvider = stateProvider(0);
 
 // 2. Wrap your app (or relevant part) in ProviderScope
 function App() {
-    return (
-        <ProviderScope>
-            <CounterDisplay />
-            <CounterControls />
-        </ProviderScope>
-    );
+  return (
+    <ProviderScope>
+      <CounterDisplay />
+      <CounterControls />
+    </ProviderScope>
+  );
 }
 
 // 3. Use providers in components
 function CounterDisplay() {
-    // Reads the value and subscribes to updates
-    const count = useProvider(counterProvider);
-    return <div>Count: {count}</div>;
+  // Reads the value and subscribes to updates
+  const count = useProvider(counterProvider);
+  return <div>Count: {count}</div>;
 }
 
 function CounterControls() {
-    // Gets the updater function (doesn't cause re-renders itself)
-    const updateCounter = useProviderUpdater(counterProvider);
-    return (
-        <div>
-            <button onClick={() => updateCounter((c) => c + 1)}>
-                Increment
-            </button>
-            <button onClick={() => updateCounter((c) => c - 1)}>
-                Decrement
-            </button>
-        </div>
-    );
+  // Gets the updater function (doesn't cause re-renders itself)
+  const updateCounter = useProviderUpdater(counterProvider);
+  return (
+    <div>
+      <button onClick={() => updateCounter((c) => c + 1)}>Increment</button>
+      <button onClick={() => updateCounter((c) => c - 1)}>Decrement</button>
+    </div>
+  );
 }
 
 export default App;

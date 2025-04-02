@@ -2,8 +2,8 @@
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 hero:
-  name: "Fluxus"
-  text: "Modern State Management"
+  name: 'Fluxus'
+  text: 'Modern State Management'
   tagline: Inspired by Riverpod, built for TypeScript. Functional, reactive, and boilerplate-free.
   image:
     # Add a logo path here later if you have one

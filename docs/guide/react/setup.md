@@ -28,19 +28,19 @@ is done near the root of your application, for example, in your `App.tsx` or
 
 ```tsx {3,8}
 // src/App.tsx
-import React from "react";
-import { ProviderScope } from "@shtse8/fluxus/react-adapter";
-import MyFeatureComponent from "./MyFeatureComponent";
+import React from 'react';
+import { ProviderScope } from '@shtse8/fluxus/react-adapter';
+import MyFeatureComponent from './MyFeatureComponent';
 
 function App() {
-    return (
-        // Wrap the relevant part of your app
-        <ProviderScope>
-            {/* Components inside can now use Fluxus hooks */}
-            <MyFeatureComponent />
-            {/* ... other components */}
-        </ProviderScope>
-    );
+  return (
+    // Wrap the relevant part of your app
+    <ProviderScope>
+      {/* Components inside can now use Fluxus hooks */}
+      <MyFeatureComponent />
+      {/* ... other components */}
+    </ProviderScope>
+  );
 }
 
 export default App;
@@ -57,15 +57,15 @@ is a more advanced topic).
 
 ```tsx
 <ProviderScope>
-    {/* Outer Scope */}
-    <UserProfile />
-    <FeatureSection>
-        {/* Inner Scope - components inside here use this scope */}
-        <ProviderScope>
-            <FeatureSpecificComponent />
-        </ProviderScope>
-    </FeatureSection>
-</ProviderScope>;
+  {/* Outer Scope */}
+  <UserProfile />
+  <FeatureSection>
+    {/* Inner Scope - components inside here use this scope */}
+    <ProviderScope>
+      <FeatureSpecificComponent />
+    </ProviderScope>
+  </FeatureSection>
+</ProviderScope>
 ```
 
 With `<ProviderScope>` in place, you're ready to start reading and interacting
