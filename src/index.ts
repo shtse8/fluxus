@@ -39,6 +39,11 @@ export type { ComputedProviderInstance } from './providers/computedProvider.js';
 // AsyncProvider
 export { asyncProvider, isAsyncProviderInstance } from './providers/asyncProvider.js';
 export type { AsyncProviderInstance } from './providers/asyncProvider.js';
+
+// Utility Functions
+export { pipe } from './utils/pipe.js';
+export { debounce } from './utils/debounce.js';
+
 // Future exports:
 // export * from './providers/futureProvider';
 // export * from './utils/pipe';
