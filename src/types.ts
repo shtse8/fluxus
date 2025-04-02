@@ -92,9 +92,9 @@ export function hasData<T>(value: AsyncValue<T>): value is AsyncData<T> {
  */
 export interface ProviderOverride {
   /** The original provider to override. */
-  provider: Provider<any>;
+  provider: Provider<unknown>; // Changed any to unknown
   /** The overriding provider or value. */
-  useValue: Provider<any> | any; // Allow overriding with a value or another provider
+  useValue: Provider<unknown> | unknown; // Changed any to unknown
 }
 
 /** Type guard to check if an AsyncValue is in the error state. */

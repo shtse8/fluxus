@@ -43,6 +43,18 @@ export interface ComputedProviderInstance<T> extends Provider<T> {
 }
 
 /**
+ * @internal Internal type combining Provider<T> with internal properties.
+ */
+type InternalComputedProvider<T> = Provider<T> & {
+  // Correctly define the type of the property associated with the symbol
+  [$computedProvider]: {
+    compute: (reader: ScopeReader) => T;
+    name?: string;
+  };
+  _fluxus_provider_type: 'ComputedProvider';
+};
+
+/**
  * Type guard to check if a given value is a {@link ComputedProviderInstance}.
  *
  * @template T The potential type of the computed value.
@@ -52,8 +64,8 @@ export interface ComputedProviderInstance<T> extends Provider<T> {
 export function isComputedProviderInstance<T>(
   provider: unknown
 ): provider is ComputedProviderInstance<T> {
-  // Check if it's a function and has the internal symbol identifier.
-  return typeof provider === 'function' && !!(provider as any)[$computedProvider];
+  // Check if it's a function, not null, and has the internal symbol identifier.
+  return typeof provider === 'function' && provider !== null && $computedProvider in provider;
 }
 
 // --- Factory Function ---
@@ -78,13 +90,11 @@ export function isComputedProviderInstance<T>(
  * const countProvider = stateProvider(0);
  * const doubleCountProvider = computedProvider((reader) => {
  *   const count = reader.watch(countProvider); // Establish dependency
- *   const count = reader.watch(countProvider); // Establish dependency
  *   return count * 2;
  * });
  *
  * @see {@link stateProvider} for creating mutable state.
  * @see {@link ScopeReader} for how to access dependencies.
- * });
  */
 export function computedProvider<T>(
   compute: (reader: ScopeReader) => T,
@@ -99,9 +109,11 @@ export function computedProvider<T>(
     );
   };
 
-  // Attach metadata
-  (providerFn as any)[$computedProvider] = { compute, name: options?.name };
-  (providerFn as any)._fluxus_provider_type = 'ComputedProvider';
+  // Cast to internal type to attach metadata without using 'any'
+  const internalProvider = providerFn as InternalComputedProvider<T>;
+  internalProvider[$computedProvider] = { compute, name: options?.name };
+  internalProvider._fluxus_provider_type = 'ComputedProvider';
 
-  return providerFn as ComputedProviderInstance<T>;
+  // The final cast is safe because InternalComputedProvider has all properties of ComputedProviderInstance
+  return internalProvider as ComputedProviderInstance<T>;
 }

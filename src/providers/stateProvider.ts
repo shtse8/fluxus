@@ -66,6 +66,17 @@ export interface StateProviderInstance<T> extends Provider<T> {
 }
 
 /**
+ * @internal Internal type combining Provider<T> with internal properties.
+ */
+type InternalStateProvider<T> = Provider<T> & {
+  [$stateProvider]: {
+    initializeState: (reader: ScopeReader, internalId: number) => StateProviderState<T>;
+    name?: string;
+  };
+  _fluxus_provider_type: 'StateProvider';
+};
+
+/**
  * Type guard to check if a given value is a {@link StateProviderInstance}.
  *
  * @template T The potential type of the state managed by the provider.
@@ -75,8 +86,8 @@ export interface StateProviderInstance<T> extends Provider<T> {
 export function isStateProviderInstance<T>(
   provider: unknown
 ): provider is StateProviderInstance<T> {
-  // Check if it's a function and has the internal symbol identifier.
-  return typeof provider === 'function' && !!(provider as any)[$stateProvider];
+  // Check if it's a function, not null, and has the internal symbol identifier.
+  return typeof provider === 'function' && provider !== null && $stateProvider in provider;
 }
 
 // --- Factory Function ---
@@ -139,11 +150,13 @@ export function stateProvider<T>(
     );
   };
 
-  // Attach the metadata/initializer function using the symbol
-  (providerFn as any)[$stateProvider] = { initializeState, name: options?.name };
-  (providerFn as any)._fluxus_provider_type = 'StateProvider';
+  // Cast to internal type to attach metadata without using 'any'
+  const internalProvider = providerFn as InternalStateProvider<T>;
+  internalProvider[$stateProvider] = { initializeState, name: options?.name };
+  internalProvider._fluxus_provider_type = 'StateProvider';
 
-  return providerFn as StateProviderInstance<T>;
+  // The final cast is safe because InternalStateProvider has all properties of StateProviderInstance
+  return internalProvider as StateProviderInstance<T>;
 }
 
 // --- Scope Extension (Conceptual - needs integration into Scope class) ---

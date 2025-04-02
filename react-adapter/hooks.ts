@@ -39,7 +39,7 @@ export function useProvider<T>(provider: Provider<T>): T {
         return scope.watch(provider, () => {
           onStoreChange(); // Call the callback provided by useSyncExternalStore
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If scope is disposed during subscribe, return a no-op unsubscribe
         // Check for disposal errors more broadly
         if (error instanceof Error && error.message.includes('disposed')) {
@@ -57,21 +57,23 @@ export function useProvider<T>(provider: Provider<T>): T {
       const currentValue = scope.read(provider);
       lastValueRef.current = currentValue; // Cache the latest value
       return currentValue;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If scope is disposed, return the last known value if available
-      if (error.message === 'Scope has been disposed') {
-        if (lastValueRef.current !== undefined) {
-          // console.warn('useProvider: Scope disposed, returning last known value.');
-          return lastValueRef.current;
-        } else {
-          // This case should be rare (disposed before first successful read)
-          // Re-throwing might be better, but could crash the app.
-          // Depending on requirements, returning undefined or a specific error value might be options.
-          // For now, re-throw to make the issue visible during testing.
-          throw error;
+      if (error instanceof Error) {
+        if (error.message === 'Scope has been disposed') {
+          if (lastValueRef.current !== undefined) {
+            // console.warn('useProvider: Scope disposed, returning last known value.');
+            return lastValueRef.current;
+          } else {
+            // This case should be rare (disposed before first successful read)
+            // Re-throwing might be better, but could crash the app.
+            // Depending on requirements, returning undefined or a specific error value might be options.
+            // For now, re-throw to make the issue visible during testing.
+            throw error;
+          }
         }
       }
-      // Re-throw other errors
+      // Re-throw error if it's not an Error instance or not the specific message
       throw error;
     }
   }, [scope, provider]); // Add scope and provider back as dependencies

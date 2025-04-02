@@ -51,7 +51,7 @@ export default [
       ...tseslint.configs.recommendedTypeChecked?.rules, // Add type-checked rules
       ...eslintConfigPrettier.rules,
       'prettier/prettier': 'warn',
-      '@typescript-eslint/no-explicit-any': 'off', // TODO: Re-enable and fix 'any' types
+      '@typescript-eslint/no-explicit-any': 'warn', // TODO: Re-enable and fix 'any' types
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
@@ -78,7 +78,7 @@ export default [
       ...tseslint.configs.recommended.rules,
       ...eslintConfigPrettier.rules,
       'prettier/prettier': 'warn',
-      '@typescript-eslint/no-explicit-any': 'off', // TODO: Re-enable and fix 'any' types
+      '@typescript-eslint/no-explicit-any': 'warn', // TODO: Re-enable and fix 'any' types
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       // Disable rules that require type info if they cause issues
       '@typescript-eslint/no-unsafe-assignment': 'off',

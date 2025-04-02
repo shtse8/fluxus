@@ -41,8 +41,8 @@ interface BaseInternalState extends Disposable {
   readonly internalId: number;
   dispose: Dispose;
   disposeCallbacks: Set<Dispose>;
-  dependencies: Set<Provider<any>>;
-  dependents: Set<Provider<any>>;
+  dependencies: Set<Provider<unknown>>; // Changed any to unknown
+  dependents: Set<Provider<unknown>>; // Changed any to unknown
   isComputing: boolean;
   isDisposed: boolean;
   isStale: boolean;
@@ -79,20 +79,23 @@ type InternalState<T> =
 // Type guards
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isStateProviderInternalState<_T>(
-  state: InternalState<any> | undefined
-): state is StateProviderInternalState<any> {
+  state: InternalState<unknown> | undefined // Changed any to unknown
+): state is StateProviderInternalState<unknown> {
+  // Changed any to unknown
   return state?.type === 'state';
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isAsyncProviderInternalState<_T>(
-  state: InternalState<any> | undefined
-): state is AsyncProviderInternalState<any> {
+  state: InternalState<unknown> | undefined // Changed any to unknown
+): state is AsyncProviderInternalState<unknown> {
+  // Changed any to unknown
   return state?.type === 'async';
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isStreamProviderInternalState<_T>(
-  state: InternalState<any> | undefined
-): state is StreamProviderInternalState<any> {
+  state: InternalState<unknown> | undefined // Changed any to unknown
+): state is StreamProviderInternalState<unknown> {
+  // Changed any to unknown
   return state?.type === 'stream';
 }
 
@@ -101,9 +104,9 @@ function isStreamProviderInternalState<_T>(
  * @implements {Disposable}
  */
 export class Scope implements Disposable {
-  private providerStates = new Map<Provider<any>, InternalState<any>>();
+  private providerStates = new Map<Provider<unknown>, InternalState<unknown>>(); // Changed any to unknown
   private parent: Scope | null;
-  private overridesMap = new Map<Provider<any>, Provider<any> | any>();
+  private overridesMap = new Map<Provider<unknown>, Provider<unknown> | unknown>(); // Changed any to unknown
   private _isDisposed = false;
 
   public get isDisposed(): boolean {
@@ -125,7 +128,8 @@ export class Scope implements Disposable {
   }
 
   /** Safely gets the debug name of a provider, if available. @private */
-  private _getProviderName(provider: Provider<any>): string {
+  private _getProviderName(provider: Provider<unknown>): string {
+    // Changed any to unknown
     if (isStateProviderInstance(provider)) {
       return provider[$stateProvider]?.name ?? '<stateProvider>';
     }
@@ -233,8 +237,8 @@ export class Scope implements Disposable {
 
   /** Creates the internal state structure for a given provider. @private */
   private _createProviderStateStructure<T>(provider: Provider<T>): InternalState<T> {
-    const dependencies = new Set<Provider<any>>();
-    const dependents = new Set<Provider<any>>();
+    const dependencies = new Set<Provider<unknown>>(); // Changed any to unknown
+    const dependents = new Set<Provider<unknown>>(); // Changed any to unknown
     const disposeCallbacks = new Set<Dispose>();
     const listeners = new Set<() => void>();
     const internalId = internalStateIdCounter++;
@@ -252,9 +256,10 @@ export class Scope implements Disposable {
       notifyListeners: () => {},
       dispose: () => {},
     };
-    this.providerStates.set(provider, placeholderState as InternalState<any>);
+    this.providerStates.set(provider, placeholderState as InternalState<unknown>); // Changed any to unknown
 
-    const baseDisposeLogic = (stateRef: InternalState<any>, providerKey: Provider<any>) => {
+    const baseDisposeLogic = (stateRef: InternalState<unknown>, providerKey: Provider<unknown>) => {
+      // Changed any to unknown
       if (stateRef.isDisposed) return;
       // Mark dependents stale during disposal so they re-evaluate
       this.markDependentsStale(providerKey, new Set());
@@ -324,9 +329,10 @@ export class Scope implements Disposable {
         dispose: () => baseDisposeLogic(internalState, provider),
       };
     } else if (isAsyncProviderInstance<T>(provider)) {
-      const initialValue: AsyncValue<any> = { state: 'loading' };
+      const initialValue: AsyncValue<unknown> = { state: 'loading' }; // Changed any to unknown
       const abortController = new AbortController();
-      const asyncState: AsyncProviderInternalStateDefinition<any> = {
+      const asyncState: AsyncProviderInternalStateDefinition<unknown> = {
+        // Changed any to unknown
         value: initialValue,
         listeners: new Set(),
         notifyListeners,
@@ -338,7 +344,7 @@ export class Scope implements Disposable {
       internalState = {
         internalId,
         type: 'async',
-        asyncProviderState: asyncState,
+        asyncProviderState: asyncState as AsyncProviderInternalStateDefinition<T>, // Cast needed here
         disposeCallbacks,
         dependencies,
         dependents,
@@ -349,10 +355,14 @@ export class Scope implements Disposable {
         notifyListeners,
         dispose: () => baseDisposeLogic(internalState, provider),
       };
-      this._executeAsyncProvider(provider as AsyncProviderInstance<T>, internalState); // Remove redundant cast
+      this._executeAsyncProvider(
+        provider as AsyncProviderInstance<T>,
+        internalState as AsyncProviderInternalState<T>
+      ); // Cast needed
     } else if (isStreamProviderInstance<T>(provider)) {
-      const initialValue: AsyncValue<any> = { state: 'loading' };
-      const streamState: StreamProviderInternalStateDefinition<any> = {
+      const initialValue: AsyncValue<unknown> = { state: 'loading' }; // Changed any to unknown
+      const streamState: StreamProviderInternalStateDefinition<unknown> = {
+        // Changed any to unknown
         value: initialValue,
         notifyListeners,
         subscription: undefined,
@@ -362,7 +372,7 @@ export class Scope implements Disposable {
       internalState = {
         internalId,
         type: 'stream',
-        streamProviderState: streamState,
+        streamProviderState: streamState as StreamProviderInternalStateDefinition<T>, // Cast needed here
         disposeCallbacks,
         dependencies,
         dependents,
@@ -443,7 +453,7 @@ export class Scope implements Disposable {
 
   /** Computes/recomputes value for generic/computed providers. @private */
   private _computeAndCacheValue<T>(provider: Provider<T>, state: GenericProviderState<T>): T {
-    const dependencies = new Set<Provider<any>>();
+    const dependencies = new Set<Provider<unknown>>(); // Changed any to unknown
     state.dependencies.forEach((oldDepProvider) => {
       const oldDepState = this.providerStates.get(oldDepProvider);
       if (oldDepState?.dependents) {
@@ -492,8 +502,8 @@ export class Scope implements Disposable {
   /** Helper for tracking dependencies during read/watch. @private */
   private _trackDependency<P>(
     dependencyProvider: Provider<P>,
-    dependentProvider: Provider<any>,
-    currentDependenciesSet: Set<Provider<any>>
+    dependentProvider: Provider<unknown>, // Changed any to unknown
+    currentDependenciesSet: Set<Provider<unknown>> // Changed any to unknown
   ): P {
     currentDependenciesSet.add(dependencyProvider);
     const value = this.read(dependencyProvider); // Delegate read
@@ -641,7 +651,8 @@ export class Scope implements Disposable {
   }
 
   /** Recursively marks dependents as stale and notifies listeners. @private */
-  private markDependentsStale(provider: Provider<any>, visited: Set<Provider<any>>): void {
+  private markDependentsStale(provider: Provider<unknown>, visited: Set<Provider<unknown>>): void {
+    // Changed any to unknown
     const providerState = this.providerStates.get(provider);
     if (visited.has(provider) || !providerState || providerState.isDisposed) {
       return;
@@ -658,7 +669,7 @@ export class Scope implements Disposable {
         // Trigger re-execution for async, notify others
         if (isAsyncProviderInternalState(dependentState)) {
           this._executeAsyncProvider(
-            dependentProvider as unknown as AsyncProviderInstance<any>,
+            dependentProvider as AsyncProviderInstance<unknown>, // Changed any to unknown
             dependentState
           );
         } else if (isStreamProviderInternalState(dependentState)) {

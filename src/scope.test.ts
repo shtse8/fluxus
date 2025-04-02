@@ -68,6 +68,7 @@ describe('Scope', () => {
     const scope = createScope();
     const simpleProvider: Provider<string> = () => 'hello';
     // Need to cast simpleProvider because updater expects StateProviderInstance
+
     expect(() => scope.updater(simpleProvider as any)).toThrowError(
       'Target provider is not a StateProvider or state is inconsistent'
     );

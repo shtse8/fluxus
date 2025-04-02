@@ -11,7 +11,7 @@ import { Provider } from '../src/types.js';
 // ProviderScope creates its own internal scope.
 
 // Helper component to test useProvider
-const TestComponent = ({ provider }: { provider: Provider<any> }) => {
+const TestComponent = <T,>({ provider }: { provider: Provider<T> }) => {
   const value = useProvider(provider);
   return <div data-testid="value">{JSON.stringify(value)}</div>;
 };
@@ -143,7 +143,9 @@ describe('React Adapter Hooks', () => {
       console.error = vi.fn(); // Suppress React error boundary logs
 
       const GetUpdaterComponent = () => {
-        useProviderUpdater(simpleProvider as any); // Cast needed for test
+        // Removed eslint-disable-next-line comment from here
+
+        useProviderUpdater(simpleProvider as any); // eslint-disable-line @typescript-eslint/no-explicit-any
         return null;
       };
 

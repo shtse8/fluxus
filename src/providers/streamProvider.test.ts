@@ -8,6 +8,13 @@ import { Subject } from 'rxjs'; // Using RxJS Subject for easy stream simulation
 // Helper to delay execution
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Simple Observer interface for testing
+interface TestObserver<T> {
+  next?: (value: T) => void;
+  error?: (err: unknown) => void;
+  complete?: () => void;
+}
+
 describe('streamProvider', () => {
   let scope: Scope;
   let testStream: Subject<string>; // Use RxJS Subject to push values
@@ -92,7 +99,8 @@ describe('streamProvider', () => {
   it('should call unsubscribe on the subscription when scope is disposed', () => {
     const unsubscribeSpy = vi.fn();
     const mockSubscribable = {
-      subscribe: (observer: any) => {
+      subscribe: (observer: TestObserver<string>) => {
+        // Use TestObserver type
         // Simulate emitting one value so subscription is active
         observer.next?.('initial');
         return { unsubscribe: unsubscribeSpy }; // Return subscription with the spy
@@ -110,7 +118,8 @@ describe('streamProvider', () => {
   it('should call unsubscribe when listener count drops to zero (autoDispose)', () => {
     const unsubscribeSpy = vi.fn();
     const mockSubscribable = {
-      subscribe: (observer: any) => {
+      subscribe: (observer: TestObserver<string>) => {
+        // Use TestObserver type
         observer.next?.('initial');
         return { unsubscribe: unsubscribeSpy };
       },
