@@ -28,8 +28,25 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "state management",
+    "react",
+    "typescript",
+    "functional",
+    "reactive",
+    "fluxus",
+    "riverpod"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shtse8/fluxus.git"
+  },
+  "homepage": "https://github.com/shtse8/fluxus#readme",
+  "bugs": {
+    "url": "https://github.com/shtse8/fluxus/issues"
+  },
+
+  "author": "shtse8",
   "license": "ISC",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
