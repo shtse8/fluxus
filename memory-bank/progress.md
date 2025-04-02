@@ -1,15 +1,16 @@
-# Progress: Fluxus (Feature: `keepPreviousDataOnError` for `asyncProvider`)
+# Progress: Fluxus (Docs: API Sidebar Improvement)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
 functional. Cancellation features for async and stream providers have been
-implemented and tested. **Added `keepPreviousDataOnError` option to
-`asyncProvider`**. Documentation site with auto-deployment is set up, including
+implemented and tested. Added `keepPreviousDataOnError` option to
+`asyncProvider`. Documentation site with auto-deployment is set up, including
 pages for Riverpod comparison and a guide on combining providers (with
-examples). Initial refactoring phase addressing known issues and setting up
-linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
-addressed. Memory Bank is updated. Focus can shift towards further refinement,
-features, or documentation.
+examples). **The API documentation sidebar structure has been improved to mirror
+the generated TypeDoc output.** Initial refactoring phase addressing known
+issues and setting up linting/formatting is complete. Most `no-explicit-any`
+ESLint warnings have been addressed. Memory Bank is updated. Focus can shift
+towards further refinement, features, or documentation.
 
 **What Works:**
 
@@ -60,7 +61,8 @@ features, or documentation.
     overrides, Riverpod comparison, and a guide on Combining Providers (with
     examples). **`asyncProvider` guide updated with `keepPreviousDataOnError`
     option.**
-  - Sidebar configuration (`.vitepress/config.mts`) updated for new pages.
+  - Sidebar configuration (`.vitepress/config.mts`) updated for new pages and
+    **restructured for improved API documentation navigation**.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
     (`replace-in-file`).
@@ -89,7 +91,8 @@ features, or documentation.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)
    - Add more examples and advanced usage guides (Started: Combining Providers).
-   - Improve API documentation presentation (e.g., better sidebar generation).
+   - Improve API documentation presentation (Sidebar structure improved, further
+     enhancements like better generation possible).
 
 **Known Issues:**
 

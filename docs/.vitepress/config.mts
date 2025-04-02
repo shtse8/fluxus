@@ -62,31 +62,65 @@ export default defineConfig({
           ],
         },
       ],
-      // Placeholder for API sidebar
       '/api/': [
+        { text: 'Overview', link: '/api/' }, // Keep the main overview link
         {
-          text: 'API Reference',
+          text: 'Core API',
           items: [
-            { text: 'Overview', link: '/api/' }, // Links to our placeholder index
-            { text: 'API Index', link: '/api/generated/' }, // Links to generated README
-            // Add links to specific important items as needed, e.g.:
-            { text: 'Core: stateProvider', link: '/api/generated/src/functions/stateProvider' },
+            { text: 'Index', link: '/api/generated/src/' }, // Link to src/README.md
             {
-              text: 'Core: computedProvider',
-              link: '/api/generated/src/functions/computedProvider',
-            },
-            { text: 'Core: Scope', link: '/api/generated/src/classes/Scope' },
-            {
-              text: 'React: ProviderScope',
-              link: '/api/generated/react-adapter/functions/ProviderScope',
+              text: 'Classes',
+              collapsed: true, // Keep sections collapsed initially
+              items: [
+                { text: 'Scope', link: '/api/generated/src/classes/Scope' },
+              ],
             },
             {
-              text: 'React: useProvider',
-              link: '/api/generated/react-adapter/functions/useProvider',
+              text: 'Functions',
+              collapsed: true,
+              items: [
+                { text: 'computedProvider', link: '/api/generated/src/functions/computedProvider' },
+                { text: 'createScope', link: '/api/generated/src/functions/createScope' },
+                { text: 'isComputedProviderInstance', link: '/api/generated/src/functions/isComputedProviderInstance' },
+                { text: 'isProvider', link: '/api/generated/src/functions/isProvider' },
+                { text: 'isStateProviderInstance', link: '/api/generated/src/functions/isStateProviderInstance' },
+                { text: 'stateProvider', link: '/api/generated/src/functions/stateProvider' },
+              ],
             },
             {
-              text: 'React: useProviderUpdater',
-              link: '/api/generated/react-adapter/functions/useProviderUpdater',
+              text: 'Interfaces',
+              collapsed: true,
+              items: [
+                { text: 'ComputedProviderInstance', link: '/api/generated/src/interfaces/ComputedProviderInstance' },
+                { text: 'Disposable', link: '/api/generated/src/interfaces/Disposable' },
+                { text: 'ScopeReader', link: '/api/generated/src/interfaces/ScopeReader' },
+                { text: 'StateProviderInstance', link: '/api/generated/src/interfaces/StateProviderInstance' },
+              ],
+            },
+            {
+              text: 'Type Aliases',
+              collapsed: true,
+              items: [
+                { text: 'Dispose', link: '/api/generated/src/type-aliases/Dispose' },
+                { text: 'Provider', link: '/api/generated/src/type-aliases/Provider' },
+                { text: 'StateUpdater', link: '/api/generated/src/type-aliases/StateUpdater' },
+              ],
+            },
+          ],
+        },
+        {
+          text: 'React Adapter',
+          items: [
+            { text: 'Index', link: '/api/generated/react-adapter/' }, // Link to react-adapter/README.md
+            {
+              text: 'Functions',
+              collapsed: true,
+              items: [
+                { text: 'ProviderScope', link: '/api/generated/react-adapter/functions/ProviderScope' },
+                { text: 'useProvider', link: '/api/generated/react-adapter/functions/useProvider' },
+                { text: 'useProviderUpdater', link: '/api/generated/react-adapter/functions/useProviderUpdater' },
+                { text: 'useScope', link: '/api/generated/react-adapter/functions/useScope' },
+              ],
             },
           ],
         },

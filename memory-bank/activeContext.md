@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Feature: `keepPreviousDataOnError` for `asyncProvider`)
+# Active Context: Fluxus (Docs: API Sidebar Improvement)
 
-**Current Focus:** Updating Memory Bank after implementing the
-`keepPreviousDataOnError` option for `asyncProvider`.
+**Current Focus:** Updating Memory Bank after improving the API documentation
+sidebar structure in VitePress.
 
 **Recent Changes:**
 
@@ -115,8 +115,12 @@
     - Async operations triggered by state changes.
     - Using utilities (`debounce`) with providers (conceptual/side-effect
       focus).
-    - Streams depending on state (e.g., dynamic WebSocket subscription).
-  - Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
+  - Streams depending on state (e.g., dynamic WebSocket subscription).
+- Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
+- **Documentation (API Sidebar):**
+- Restructured the API sidebar in `docs/.vitepress/config.mts` to mirror the
+  TypeDoc generated file structure (`docs/api/generated/`), grouping items by
+  Core/React Adapter and then by type (Class, Function, Interface, etc.).
 
 **Next Steps (Potential):**
 
@@ -132,7 +136,7 @@
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)
    - Add more examples and advanced guides (Started: Combining Providers).
-   - Improve API documentation generation/presentation.
+   - Improve API documentation presentation (Sidebar structure improved).
 
 **Active Decisions/Considerations:**
 
