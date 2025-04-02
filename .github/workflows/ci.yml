@@ -22,7 +22,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: fluxus/package-lock.json
+        cache-dependency-path: package-lock.json # Path relative to working-directory
 
     - name: Install dependencies
       working-directory: ./fluxus
@@ -55,7 +55,7 @@ jobs:
           node-version: 20.x
           registry-url: 'https://registry.npmjs.org/' # Set npm registry
           cache: 'npm'
-          cache-dependency-path: fluxus/package-lock.json
+          cache-dependency-path: package-lock.json # Path relative to working-directory
 
       - name: Install dependencies
         working-directory: ./fluxus
