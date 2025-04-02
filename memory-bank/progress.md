@@ -1,4 +1,4 @@
-# Progress: Fluxus (Docs: API Sidebar Improvement)
+# Progress: Fluxus (ESLint `no-explicit-any` Fix)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
@@ -8,8 +8,9 @@ implemented and tested. Added `keepPreviousDataOnError` option to
 pages for Riverpod comparison and a guide on combining providers (with
 examples). **The API documentation sidebar structure has been improved to mirror
 the generated TypeDoc output.** Initial refactoring phase addressing known
-issues and setting up linting/formatting is complete. Most `no-explicit-any`
-ESLint warnings have been addressed. Memory Bank is updated. Focus can shift
+issues and setting up linting/formatting is complete. **The
+`@typescript-eslint/no-explicit-any` ESLint rule is now enforced (`error`) and
+the codebase passes linting checks.** Memory Bank is updated. Focus can shift
 towards further refinement, features, or documentation.
 
 **What Works:**
@@ -71,7 +72,7 @@ towards further refinement, features, or documentation.
 - ESLint and Prettier set up and configured (`eslint.config.js`,
   `.prettierrc.cjs`).
 - Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
-  checks (with `no-explicit-any` rule set to `warn`).
+  checks (with `no-explicit-any` rule set to `error`).
 - **Utilities:**
   - `pipe` utility function implemented and tested (`src/utils/pipe.ts`).
   - `debounce` utility function implemented and tested
@@ -96,13 +97,6 @@ towards further refinement, features, or documentation.
 
 **Known Issues:**
 
-- The `@typescript-eslint/no-explicit-any` ESLint rule is currently set to
-  `warn` in `eslint.config.js`. This is due to persistent difficulties in
-  reliably disabling the rule for specific intentional `any` casts in test files
-  (`scope.test.ts`) using `eslint-disable-line` comments, which seem to conflict
-  with Prettier formatting or ESLint parsing. The remaining warnings correspond
-  to these intentional test cases.
-
-**Blockers:**
+- None currently. **Blockers:**
 
 - None currently.

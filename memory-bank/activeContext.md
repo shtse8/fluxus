@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Docs: API Sidebar Improvement)
+# Active Context: Fluxus (ESLint `no-explicit-any` Fix)
 
-**Current Focus:** Updating Memory Bank after improving the API documentation
-sidebar structure in VitePress.
+**Current Focus:** Updating Memory Bank after resolving the
+`@typescript-eslint/no-explicit-any` ESLint rule issue.
 
 **Recent Changes:**
 
@@ -82,14 +82,17 @@ sidebar structure in VitePress.
     (`eslint.config.js`, `.prettierrc.cjs`), added `lint` and `format` scripts
     to `package.json`.
   - Ran formatter and linter, fixing initial warnings/errors.
-- **Linting (`no-explicit-any`):**
+- **Linting (`no-explicit-any`) Resolution:**
   - Replaced most `any` types with `unknown` or more specific types across the
-    codebase (`scope.ts`, `types.ts`, provider files, test files).
-  - Used `eslint-disable-line` comments in test files (`hooks.test.tsx`,
-    `scope.test.ts`) for intentional `any` casts used to test error handling.
-  - Set the `@typescript-eslint/no-explicit-any` rule back to `'warn'` in
-    `eslint.config.js` due to persistent issues with ESLint/Prettier correctly
-    handling the disable comments in `scope.test.ts`.
+    codebase.
+  - Replaced the problematic `as any` cast in `scope.test.ts` (line 73) with a
+    `// @ts-expect-error` directive on the preceding line to handle the
+    intentional type error for testing.
+  - Updated `eslint.config.js` to set the `@typescript-eslint/no-explicit-any`
+    rule to `'error'`.
+  - Ran `npm run format` to fix Prettier warnings.
+  - Removed unused `ProviderOptions` import from `asyncProvider.ts`.
+  - Confirmed the codebase passes `npm run lint` with zero warnings/errors.
 - **Cancellation Features:**
   - Added optional `signal?: AbortSignal` to `ScopeReader` (`types.ts`).
   - Updated `Scope` (`scope.ts`) to:
@@ -121,6 +124,9 @@ sidebar structure in VitePress.
 - Restructured the API sidebar in `docs/.vitepress/config.mts` to mirror the
   TypeDoc generated file structure (`docs/api/generated/`), grouping items by
   Core/React Adapter and then by type (Class, Function, Interface, etc.).
+- **ESLint Fix:** Resolved the `no-explicit-any` issue by using
+  `@ts-expect-error` in tests and setting the rule to `error` in
+  `eslint.config.js`. Ran format and lint checks successfully.
 
 **Next Steps (Potential):**
 
@@ -147,5 +153,6 @@ sidebar structure in VitePress.
   `signal`) via arguments.
 - Documentation uses VitePress, deployed via GitHub Actions.
 - ESLint and Prettier are used for code quality and formatting.
-- The `@typescript-eslint/no-explicit-any` rule is set to `warn` due to issues
-  disabling it for specific test cases.
+- The `@typescript-eslint/no-explicit-any` rule is now set to `error` and
+  enforced. Intentional type errors in tests are handled with
+  `@ts-expect-error`.

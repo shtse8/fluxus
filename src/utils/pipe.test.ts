@@ -2,8 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { pipe } from './pipe.js';
 
 describe('pipe utility', () => {
-  const add = (n: number) => (x: number): number => x + n;
-  const multiply = (n: number) => (x: number): number => x * n;
+  const add =
+    (n: number) =>
+    (x: number): number =>
+      x + n;
+  const multiply =
+    (n: number) =>
+    (x: number): number =>
+      x * n;
   const toString = (x: number): string => `Value: ${x}`;
 
   it('should return the initial value if no functions are provided', () => {
@@ -19,9 +25,9 @@ describe('pipe utility', () => {
   it('should pipe a value through multiple functions', () => {
     const result = pipe(
       5,
-      add(2),      // 7
+      add(2), // 7
       multiply(3), // 21
-      add(1),      // 22
+      add(1) // 22
     );
     expect(result).toBe(22);
   });
@@ -29,9 +35,9 @@ describe('pipe utility', () => {
   it('should handle different types across functions', () => {
     const result = pipe(
       10,
-      add(5),      // 15
+      add(5), // 15
       multiply(2), // 30
-      toString,    // "Value: 30"
+      toString // "Value: 30"
     );
     expect(result).toBe('Value: 30');
   });

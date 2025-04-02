@@ -66,8 +66,8 @@ Define an `asyncProvider` by passing it an asynchronous function that accepts a
 `keepPreviousDataOnError`.
 
 ```typescript
-import { asyncProvider } from "@shtse8/fluxus";
-import { userIdProvider } from "./otherProviders"; // Assume this exists
+import { asyncProvider } from '@shtse8/fluxus';
+import { userIdProvider } from './otherProviders'; // Assume this exists
 
 interface User {
   id: number;
@@ -95,9 +95,9 @@ export const userProvider = asyncProvider<User>(
     return data as User;
   },
   {
-    name: "userDetails", // Optional name for debugging
+    name: 'userDetails', // Optional name for debugging
     keepPreviousDataOnError: true, // Keep showing old data if fetch fails
-  },
+  }
 );
 ```
 
@@ -107,10 +107,10 @@ You typically use `useProvider` to get the current `AsyncValue` and render
 different UI based on its state:
 
 ```tsx
-import React from "react";
-import { useProvider } from "@shtse8/fluxus/react-adapter";
-import { hasData, hasError, isLoading } from "@shtse8/fluxus"; // Import type guards
-import { userProvider } from "./providers";
+import React from 'react';
+import { useProvider } from '@shtse8/fluxus/react-adapter';
+import { hasData, hasError, isLoading } from '@shtse8/fluxus'; // Import type guards
+import { userProvider } from './providers';
 
 function UserProfile() {
   const userAsyncValue = useProvider(userProvider);
@@ -118,22 +118,16 @@ function UserProfile() {
   if (isLoading(userAsyncValue)) {
     // Optionally show previous data while loading new data
     const previousName = userAsyncValue.previousData?.name;
-    return (
-      <div>
-        Loading user... {previousName ? `(Previously: ${previousName})` : ""}
-      </div>
-    );
+    return <div>Loading user... {previousName ? `(Previously: ${previousName})` : ''}</div>;
   }
 
   if (hasError(userAsyncValue)) {
     return (
-      <div style={{ color: "red" }}>
+      <div style={{ color: 'red' }}>
         Error loading user: {String(userAsyncValue.error)}
         {/* Show previous data on error if keepPreviousDataOnError was true */}
         {userAsyncValue.previousData?.name && (
-          <p style={{ fontStyle: "italic" }}>
-            (Previous data: {userAsyncValue.previousData.name})
-          </p>
+          <p style={{ fontStyle: 'italic' }}>(Previous data: {userAsyncValue.previousData.name})</p>
         )}
       </div>
     );

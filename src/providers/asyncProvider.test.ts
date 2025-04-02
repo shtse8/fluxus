@@ -186,7 +186,8 @@ describe('asyncProvider', () => {
     const testProvider = asyncProvider(async (reader) => {
       capturedSignal = reader.signal;
       // Simulate an operation that respects the signal
-      await new Promise((_resolve, reject) => { // Mark resolve as unused
+      await new Promise((_resolve, reject) => {
+        // Mark resolve as unused
         if (reader.signal?.aborted) {
           return reject(new DOMException('Aborted', 'AbortError'));
         }
@@ -212,14 +213,14 @@ describe('asyncProvider', () => {
     expect(capturedSignal?.aborted).toBe(true);
   });
 
-
   it('should abort the signal when listener count drops to zero (autoDispose)', async () => {
     scope = createScope();
     let capturedSignal: AbortSignal | undefined;
     const testProvider = asyncProvider(async (reader) => {
       capturedSignal = reader.signal;
       // Simulate an operation that respects the signal
-      await new Promise((_resolve, reject) => { // Mark resolve as unused
+      await new Promise((_resolve, reject) => {
+        // Mark resolve as unused
         if (reader.signal?.aborted) {
           return reject(new DOMException('Aborted', 'AbortError'));
         }
@@ -244,7 +245,6 @@ describe('asyncProvider', () => {
     // Check if the captured signal is now aborted
     expect(capturedSignal?.aborted).toBe(true);
   });
-
 
   it('should abort the old signal and provide a new one on dependency change', async () => {
     scope = createScope();
@@ -304,8 +304,6 @@ describe('asyncProvider', () => {
       expect(finalState.data).toBe('data_for_updated');
     }
   });
-
-
 
   // --- keepPreviousDataOnError Tests ---
 

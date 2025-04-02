@@ -569,7 +569,8 @@ export class Scope implements Disposable {
           error
         );
         // Check the option and use lastSuccessfulData if available and option is true
-        const keepPreviousData = provider[$asyncProvider]?.options?.keepPreviousDataOnError ?? false;
+        const keepPreviousData =
+          provider[$asyncProvider]?.options?.keepPreviousDataOnError ?? false;
         const previousDataOnError = keepPreviousData
           ? state.asyncProviderState.lastSuccessfulData
           : undefined;

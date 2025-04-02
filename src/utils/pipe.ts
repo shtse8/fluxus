@@ -18,23 +18,19 @@
  */
 export function pipe<T>(value: T): T;
 export function pipe<T, A>(value: T, fn1: (input: T) => A): A;
-export function pipe<T, A, B>(
-  value: T,
-  fn1: (input: T) => A,
-  fn2: (input: A) => B,
-): B;
+export function pipe<T, A, B>(value: T, fn1: (input: T) => A, fn2: (input: A) => B): B;
 export function pipe<T, A, B, C>(
   value: T,
   fn1: (input: T) => A,
   fn2: (input: A) => B,
-  fn3: (input: B) => C,
+  fn3: (input: B) => C
 ): C;
 export function pipe<T, A, B, C, D>(
   value: T,
   fn1: (input: T) => A,
   fn2: (input: A) => B,
   fn3: (input: B) => C,
-  fn4: (input: C) => D,
+  fn4: (input: C) => D
 ): D;
 export function pipe<T, A, B, C, D, E>(
   value: T,
@@ -42,7 +38,7 @@ export function pipe<T, A, B, C, D, E>(
   fn2: (input: A) => B,
   fn3: (input: B) => C,
   fn4: (input: C) => D,
-  fn5: (input: D) => E,
+  fn5: (input: D) => E
 ): E;
 export function pipe<T, A, B, C, D, E, F>(
   value: T,
@@ -51,7 +47,7 @@ export function pipe<T, A, B, C, D, E, F>(
   fn3: (input: B) => C,
   fn4: (input: C) => D,
   fn5: (input: D) => E,
-  fn6: (input: E) => F,
+  fn6: (input: E) => F
 ): F;
 export function pipe<T, A, B, C, D, E, F, G>(
   value: T,
@@ -61,7 +57,7 @@ export function pipe<T, A, B, C, D, E, F, G>(
   fn4: (input: C) => D,
   fn5: (input: D) => E,
   fn6: (input: E) => F,
-  fn7: (input: F) => G,
+  fn7: (input: F) => G
 ): G;
 export function pipe<T, A, B, C, D, E, F, G, H>(
   value: T,
@@ -72,7 +68,7 @@ export function pipe<T, A, B, C, D, E, F, G, H>(
   fn5: (input: D) => E,
   fn6: (input: E) => F,
   fn7: (input: F) => G,
-  fn8: (input: G) => H,
+  fn8: (input: G) => H
 ): H;
 export function pipe<T, A, B, C, D, E, F, G, H, I>(
   value: T,
@@ -84,7 +80,7 @@ export function pipe<T, A, B, C, D, E, F, G, H, I>(
   fn6: (input: E) => F,
   fn7: (input: F) => G,
   fn8: (input: G) => H,
-  fn9: (input: H) => I,
+  fn9: (input: H) => I
 ): I;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

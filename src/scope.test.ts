@@ -70,7 +70,8 @@ describe('Scope', () => {
     // Need to cast simpleProvider because updater expects StateProviderInstance
 
     // Match the updated error message including the provider name
-    expect(() => scope.updater(simpleProvider as any)).toThrowError(
+    // @ts-expect-error - Intentionally passing wrong provider type to test error
+    expect(() => scope.updater(simpleProvider)).toThrowError(
       "Target provider 'simpleProvider' is not a StateProvider or state is inconsistent"
     );
   });

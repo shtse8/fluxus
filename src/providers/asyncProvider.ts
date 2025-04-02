@@ -6,7 +6,7 @@ import {
   Provider,
   ScopeReader,
   Dispose,
-  ProviderOptions, // Keep for base type if needed elsewhere, but use specific below
+  // ProviderOptions, // Unused in this file
   AsyncProviderOptions,
 } from '../types.js';
 import { Scope } from '../scope.js'; // Assuming Scope class handles state management

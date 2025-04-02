@@ -10,52 +10,51 @@ A frequent use case is deriving synchronous state from asynchronous data. For
 example, filtering a list fetched from an API.
 
 ```typescript
-import {
-    asyncProvider,
-    AsyncValue,
-    computedProvider,
-    stateProvider,
-} from "fluxus";
+import { asyncProvider, AsyncValue, computedProvider, stateProvider } from 'fluxus';
 
 interface User {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
 // 1. Provider to fetch users
-const usersProvider = asyncProvider<User[]>(async ({ signal }) => {
-    const response = await fetch("/api/users", { signal });
+const usersProvider = asyncProvider<User[]>(
+  async ({ signal }) => {
+    const response = await fetch('/api/users', { signal });
     if (!response.ok) {
-        throw new Error("Failed to fetch users");
+      throw new Error('Failed to fetch users');
     }
     return response.json();
-}, { name: "usersProvider" });
+  },
+  { name: 'usersProvider' }
+);
 
 // 2. Provider for the search term
-const userSearchQueryProvider = stateProvider("", {
-    name: "userSearchQueryProvider",
+const userSearchQueryProvider = stateProvider('', {
+  name: 'userSearchQueryProvider',
 });
 
 // 3. Computed provider for filtered users
-const filteredUsersProvider = computedProvider<User[]>((reader) => {
+const filteredUsersProvider = computedProvider<User[]>(
+  (reader) => {
     const searchQuery = reader.read(userSearchQueryProvider).toLowerCase();
     const usersResult = reader.read(usersProvider); // Read the AsyncValue
 
     // Handle loading/error states from the async provider
-    if (usersResult.state !== "data") {
-        return []; // Return empty list while loading or if there's an error
+    if (usersResult.state !== 'data') {
+      return []; // Return empty list while loading or if there's an error
     }
 
     // Filter the data based on the search query
     const allUsers = usersResult.data;
     if (!searchQuery) {
-        return allUsers; // No query? Return all users.
+      return allUsers; // No query? Return all users.
     }
 
-    return allUsers.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery)
-    );
-}, { name: "filteredUsersProvider" });
+    return allUsers.filter((user) => user.name.toLowerCase().includes(searchQuery));
+  },
+  { name: 'filteredUsersProvider' }
+);
 
 // --- In your React component ---
 // import { useProvider, useProviderUpdater } from '@fluxus/react-adapter';
@@ -90,69 +89,71 @@ You might want to trigger an API call or another async task whenever a piece of
 state changes.
 
 ```typescript
-import { asyncProvider, scope, stateProvider } from "fluxus";
+import { asyncProvider, scope, stateProvider } from 'fluxus';
 
 interface FormData {
-    name: string;
-    email: string;
+  name: string;
+  email: string;
 }
 
 // 1. Provider for the form data
-const formDataProvider = stateProvider<FormData>({ name: "", email: "" }, {
-    name: "formDataProvider",
-});
+const formDataProvider = stateProvider<FormData>(
+  { name: '', email: '' },
+  {
+    name: 'formDataProvider',
+  }
+);
 
 // 2. Provider to handle the auto-save operation
 //    We use an asyncProvider that *watches* the form data.
 //    When formDataProvider changes, this provider re-runs.
 const autoSaveProvider = asyncProvider<void, { debounceMs?: number }>(
-    async (reader, { debounceMs = 500 }) => {
-        // Read the current form data. This establishes the dependency.
-        const currentData = reader.read(formDataProvider);
+  async (reader, { debounceMs = 500 }) => {
+    // Read the current form data. This establishes the dependency.
+    const currentData = reader.read(formDataProvider);
 
-        // Simple debounce implementation (in a real app, use a robust debounce function)
-        await new Promise((resolve) => setTimeout(resolve, debounceMs));
+    // Simple debounce implementation (in a real app, use a robust debounce function)
+    await new Promise((resolve) => setTimeout(resolve, debounceMs));
 
-        // Check if data actually changed since debounce started (optional but good practice)
-        // This requires reading the state *again* after the debounce.
-        // Note: This simple example doesn't handle race conditions perfectly.
-        const latestData = reader.read(formDataProvider);
-        if (JSON.stringify(currentData) !== JSON.stringify(latestData)) {
-            console.log(
-                "Data changed during debounce, skipping save for this trigger.",
-            );
-            return; // Don't save if data changed rapidly
+    // Check if data actually changed since debounce started (optional but good practice)
+    // This requires reading the state *again* after the debounce.
+    // Note: This simple example doesn't handle race conditions perfectly.
+    const latestData = reader.read(formDataProvider);
+    if (JSON.stringify(currentData) !== JSON.stringify(latestData)) {
+      console.log('Data changed during debounce, skipping save for this trigger.');
+      return; // Don't save if data changed rapidly
+    }
+
+    if (latestData.name || latestData.email) {
+      // Only save if there's data
+      console.log('Auto-saving data:', latestData);
+      try {
+        const response = await fetch('/api/save-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(latestData),
+          signal: reader.signal, // Pass the signal for cancellation
+        });
+        if (!response.ok) {
+          throw new Error('Auto-save failed');
         }
-
-        if (latestData.name || latestData.email) { // Only save if there's data
-            console.log("Auto-saving data:", latestData);
-            try {
-                const response = await fetch("/api/save-form", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(latestData),
-                    signal: reader.signal, // Pass the signal for cancellation
-                });
-                if (!response.ok) {
-                    throw new Error("Auto-save failed");
-                }
-                console.log("Auto-save successful");
-            } catch (error) {
-                if (error.name !== "AbortError") {
-                    console.error("Auto-save error:", error);
-                    // Handle error appropriately (e.g., show notification)
-                } else {
-                    console.log("Auto-save aborted.");
-                }
-                // Re-throw to potentially mark the provider as errored,
-                // though in this case, we might just log and continue.
-                // throw error;
-            }
+        console.log('Auto-save successful');
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Auto-save error:', error);
+          // Handle error appropriately (e.g., show notification)
         } else {
-            console.log("No data to auto-save.");
+          console.log('Auto-save aborted.');
         }
-    },
-    { name: "autoSaveProvider" },
+        // Re-throw to potentially mark the provider as errored,
+        // though in this case, we might just log and continue.
+        // throw error;
+      }
+    } else {
+      console.log('No data to auto-save.');
+    }
+  },
+  { name: 'autoSaveProvider' }
 );
 
 // --- How to use it ---
@@ -181,19 +182,20 @@ You can compose utility functions with your providers to add behaviors like
 debouncing.
 
 ```typescript
-import { computedProvider, stateProvider } from "fluxus";
-import { debounce } from "fluxus/utils"; // Assuming utils export debounce
+import { computedProvider, stateProvider } from 'fluxus';
+import { debounce } from 'fluxus/utils'; // Assuming utils export debounce
 // Or: import { debounce } from '../../src/utils/debounce'; // Adjust path if needed
 
 // 1. Provider for raw input
-const rawInputProvider = stateProvider("", { name: "rawInputProvider" });
+const rawInputProvider = stateProvider('', { name: 'rawInputProvider' });
 
 // 2. Debounced version of the input provider
 //    This example demonstrates debouncing a *side effect* triggered by a provider,
 //    rather than debouncing the provider's value itself, which is more complex.
 //    See the 'Async Operations Triggered by State Changes' example for a similar pattern.
 
-const debouncedLoggingProvider = computedProvider<string>((reader) => {
+const debouncedLoggingProvider = computedProvider<string>(
+  (reader) => {
     const rawInput = reader.read(rawInputProvider); // Read to establish dependency
 
     // Create a debounced logging function.
@@ -210,12 +212,10 @@ const debouncedLoggingProvider = computedProvider<string>((reader) => {
     // This example primarily shows the *concept* of using the debounce utility
     // in the context of providers, highlighting the challenges with simple computed.
     const debouncedLog = debounce((value: string) => {
-        if (value) { // Only log if there's input
-            console.log(
-                "Debounced input (logged from computedProvider):",
-                value,
-            );
-        }
+      if (value) {
+        // Only log if there's input
+        console.log('Debounced input (logged from computedProvider):', value);
+      }
     }, 750); // 750ms debounce
 
     // Call the debounced function with the current input
@@ -224,7 +224,9 @@ const debouncedLoggingProvider = computedProvider<string>((reader) => {
     // The computed provider itself just returns the raw input immediately.
     // The *side effect* (logging) is what's being debounced (though imperfectly here).
     return rawInput;
-}, { name: "debouncedLoggingProvider" });
+  },
+  { name: 'debouncedLoggingProvider' }
+);
 
 // --- Using the raw input and triggering the debounced log ---
 // import { useProvider, useProviderUpdater } from '@fluxus/react-adapter';
@@ -277,33 +279,34 @@ example, subscribing to a WebSocket topic or a real-time database query based on
 a selected item ID.
 
 ```typescript
-import { AsyncValue, stateProvider, streamProvider } from "fluxus";
+import { AsyncValue, stateProvider, streamProvider } from 'fluxus';
 
 // Assume a WebSocket utility exists
 declare function createWebSocketStream<T>(url: string): ReadableStream<T>;
 
 // 1. Provider for the currently selected item ID (could be null)
 const selectedItemIdProvider = stateProvider<number | null>(null, {
-    name: "selectedItemIdProvider",
+  name: 'selectedItemIdProvider',
 });
 
 // 2. Stream provider for messages related to the selected item
-const itemMessagesProvider = streamProvider<AsyncValue<string>>((reader) => {
+const itemMessagesProvider = streamProvider<AsyncValue<string>>(
+  (reader) => {
     const itemId = reader.read(selectedItemIdProvider);
 
     // If no item is selected, return a stream that emits nothing or an initial state
     if (itemId === null) {
-        // Option 1: Return an empty stream that closes immediately
-        // return new ReadableStream({ start(controller) { controller.close(); } });
+      // Option 1: Return an empty stream that closes immediately
+      // return new ReadableStream({ start(controller) { controller.close(); } });
 
-        // Option 2: Return a stream indicating 'no selection'
-        return new ReadableStream({
-            start(controller) {
-                controller.enqueue({ state: "data", data: "No item selected" });
-                // Keep the stream open or close it, depending on desired behavior
-                // controller.close();
-            },
-        });
+      // Option 2: Return a stream indicating 'no selection'
+      return new ReadableStream({
+        start(controller) {
+          controller.enqueue({ state: 'data', data: 'No item selected' });
+          // Keep the stream open or close it, depending on desired behavior
+          // controller.close();
+        },
+      });
     }
 
     // Create the actual WebSocket stream based on the ID
@@ -315,25 +318,27 @@ const itemMessagesProvider = streamProvider<AsyncValue<string>>((reader) => {
     // The streamProvider handles closing the subscription, but explicit cleanup
     // might be needed for the underlying WebSocket connection if not handled by createWebSocketStream.
     reader.onDispose(() => {
-        console.log(`Unsubscribing from ${wsUrl}`);
-        // Add any specific WebSocket closing logic here if needed
+      console.log(`Unsubscribing from ${wsUrl}`);
+      // Add any specific WebSocket closing logic here if needed
     });
 
     // Map the raw stream data to AsyncValue<string>
     // (Assuming createWebSocketStream provides raw strings)
     // A more robust implementation would handle connection errors.
     return stream.pipeThrough(
-        new TransformStream({
-            transform(chunk, controller) {
-                controller.enqueue({ state: "data", data: chunk });
-            },
-            // Handle stream errors
-            flush(controller) {
-                // Handle stream closing if needed
-            },
-        }),
+      new TransformStream({
+        transform(chunk, controller) {
+          controller.enqueue({ state: 'data', data: chunk });
+        },
+        // Handle stream errors
+        flush(controller) {
+          // Handle stream closing if needed
+        },
+      })
     );
-}, { name: "itemMessagesProvider" });
+  },
+  { name: 'itemMessagesProvider' }
+);
 
 // --- Usage in React ---
 // import { useProvider, useProviderUpdater } from '@fluxus/react-adapter';

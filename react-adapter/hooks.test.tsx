@@ -149,14 +149,17 @@ describe('React Adapter Hooks', () => {
         return null;
       };
 
-      expect(() =>
-        render(
-          <ProviderScope>
-            <GetUpdaterComponent />
-          </ProviderScope>
-        )
-      // Match the updated error message including the provider name
-      ).toThrowError("Target provider 'simpleProvider' is not a StateProvider or state is inconsistent");
+      expect(
+        () =>
+          render(
+            <ProviderScope>
+              <GetUpdaterComponent />
+            </ProviderScope>
+          )
+        // Match the updated error message including the provider name
+      ).toThrowError(
+        "Target provider 'simpleProvider' is not a StateProvider or state is inconsistent"
+      );
 
       console.error = originalError;
     });

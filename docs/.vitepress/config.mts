@@ -22,8 +22,8 @@ export default defineConfig({
           items: [
             { text: 'What is Fluxus?', link: '/guide/introduction' },
             { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Comparison with Riverpod', link: '/guide/comparison-riverpod' }
-          ]
+            { text: 'Comparison with Riverpod', link: '/guide/comparison-riverpod' },
+          ],
         },
         {
           text: 'Core Concepts',
@@ -71,9 +71,7 @@ export default defineConfig({
             {
               text: 'Classes',
               collapsed: true, // Keep sections collapsed initially
-              items: [
-                { text: 'Scope', link: '/api/generated/src/classes/Scope' },
-              ],
+              items: [{ text: 'Scope', link: '/api/generated/src/classes/Scope' }],
             },
             {
               text: 'Functions',
@@ -81,9 +79,15 @@ export default defineConfig({
               items: [
                 { text: 'computedProvider', link: '/api/generated/src/functions/computedProvider' },
                 { text: 'createScope', link: '/api/generated/src/functions/createScope' },
-                { text: 'isComputedProviderInstance', link: '/api/generated/src/functions/isComputedProviderInstance' },
+                {
+                  text: 'isComputedProviderInstance',
+                  link: '/api/generated/src/functions/isComputedProviderInstance',
+                },
                 { text: 'isProvider', link: '/api/generated/src/functions/isProvider' },
-                { text: 'isStateProviderInstance', link: '/api/generated/src/functions/isStateProviderInstance' },
+                {
+                  text: 'isStateProviderInstance',
+                  link: '/api/generated/src/functions/isStateProviderInstance',
+                },
                 { text: 'stateProvider', link: '/api/generated/src/functions/stateProvider' },
               ],
             },
@@ -91,10 +95,16 @@ export default defineConfig({
               text: 'Interfaces',
               collapsed: true,
               items: [
-                { text: 'ComputedProviderInstance', link: '/api/generated/src/interfaces/ComputedProviderInstance' },
+                {
+                  text: 'ComputedProviderInstance',
+                  link: '/api/generated/src/interfaces/ComputedProviderInstance',
+                },
                 { text: 'Disposable', link: '/api/generated/src/interfaces/Disposable' },
                 { text: 'ScopeReader', link: '/api/generated/src/interfaces/ScopeReader' },
-                { text: 'StateProviderInstance', link: '/api/generated/src/interfaces/StateProviderInstance' },
+                {
+                  text: 'StateProviderInstance',
+                  link: '/api/generated/src/interfaces/StateProviderInstance',
+                },
               ],
             },
             {
@@ -116,9 +126,15 @@ export default defineConfig({
               text: 'Functions',
               collapsed: true,
               items: [
-                { text: 'ProviderScope', link: '/api/generated/react-adapter/functions/ProviderScope' },
+                {
+                  text: 'ProviderScope',
+                  link: '/api/generated/react-adapter/functions/ProviderScope',
+                },
                 { text: 'useProvider', link: '/api/generated/react-adapter/functions/useProvider' },
-                { text: 'useProviderUpdater', link: '/api/generated/react-adapter/functions/useProviderUpdater' },
+                {
+                  text: 'useProviderUpdater',
+                  link: '/api/generated/react-adapter/functions/useProviderUpdater',
+                },
                 { text: 'useScope', link: '/api/generated/react-adapter/functions/useScope' },
               ],
             },
