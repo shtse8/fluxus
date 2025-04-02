@@ -40,6 +40,12 @@ export default defineConfig({
             { text: 'Setup', link: '/guide/react/setup' },
             { text: 'useProvider', link: '/guide/react/use-provider' },
             { text: 'useProviderUpdater', link: '/guide/react/use-provider-updater' },
+        {
+          text: 'Advanced',
+          items: [
+            { text: 'Provider Overrides', link: '/guide/provider-overrides' },
+          ]
+        },
           ]
         },
         // Add more sections as needed
