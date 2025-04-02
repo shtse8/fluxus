@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: fluxus/dist-docs # Use the outDir specified in VitePress config
+          path: dist-docs # Use the outDir specified in VitePress config
 
   # Deployment job
   deploy:
