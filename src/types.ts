@@ -27,6 +27,7 @@ export interface ScopeReader {
    * If the provider is not yet initialized in the scope, it will be created.
    * @param provider The provider to read.
    * @template P The type of the value provided by the dependency provider.
+
    * @param provider The dependency provider to read.
    * @returns The current value of the dependency provider within the current scope.
    */
@@ -48,6 +49,43 @@ export interface ScopeReader {
    */
   onDispose(callback: Dispose): void;
 }
+
+// --- Async Value Types ---
+
+/** Represents the state of an asynchronous operation: Loading */
+export type AsyncLoading = Readonly<{ state: 'loading'; previousData?: unknown }>;
+
+/** Represents the state of an asynchronous operation: Data Available */
+export type AsyncData<T> = Readonly<{ state: 'data'; data: T }>;
+
+/** Represents the state of an asynchronous operation: Error Occurred */
+export type AsyncError = Readonly<{ state: 'error'; error: unknown; stackTrace?: string; previousData?: unknown }>;
+
+/**
+ * A union type representing the possible states of an asynchronous operation:
+ * loading, data, or error.
+ *
+ * Inspired by Riverpod's AsyncValue.
+ */
+export type AsyncValue<T> = AsyncLoading | AsyncData<T> | AsyncError;
+
+// --- Type Guards for AsyncValue ---
+
+/** Type guard to check if an AsyncValue is in the loading state. */
+export function isLoading<T>(value: AsyncValue<T>): value is AsyncLoading {
+  return value.state === 'loading';
+}
+
+/** Type guard to check if an AsyncValue is in the data state. */
+export function hasData<T>(value: AsyncValue<T>): value is AsyncData<T> {
+  return value.state === 'data';
+}
+
+/** Type guard to check if an AsyncValue is in the error state. */
+export function hasError<T>(value: AsyncValue<T>): value is AsyncError {
+  return value.state === 'error';
+}
+
 
 /**
  * The core building block of Fluxus. A Provider defines how to create a value

@@ -12,9 +12,15 @@ export type {
   Provider,
   ScopeReader,
   Dispose,
-  Disposable
+  Disposable,
+    // AsyncValue types
+    AsyncValue,
+    AsyncLoading,
+    AsyncData,
+    AsyncError
 } from './types.js';
 export { isProvider } from './types.js'; // Export value separately
+export { isLoading, hasData, hasError } from './types.js'; // Export AsyncValue type guards
 
 // StateProvider
 export {
@@ -35,6 +41,10 @@ export {
 } from './providers/computedProvider.js';
 export type { ComputedProviderInstance } from './providers/computedProvider.js';
 
+
+// AsyncProvider
+export { asyncProvider, isAsyncProviderInstance } from './providers/asyncProvider.js';
+export type { AsyncProviderInstance } from './providers/asyncProvider.js';
 // Future exports:
 // export * from './providers/futureProvider';
 // export * from './utils/pipe';
