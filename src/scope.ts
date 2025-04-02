@@ -172,15 +172,30 @@ export class Scope implements Disposable {
         if (isStateProviderInternalState(state)) {
           return state.stateProviderState.value; // State providers aren't stale this way
         } else if (isAsyncProviderInternalState(state)) {
-          // If stale, execution was already triggered by markDependentsStale.
-          // Return the current value (likely loading or previous data).
-          // Do NOT trigger execution again here.
+          // If stale, execution was triggered by markDependentsStale. Return current value.
           return state.asyncProviderState.value as T;
         } else if (isStreamProviderInternalState(state)) {
-          // Streams update reactively, return current value. Staleness doesn't apply the same way.
-          return state.streamProviderState.value as T;
+          // If stale, dispose old state, re-initialize, copy listeners, return new initial value.
+          const oldListeners = new Set(state.listeners); // Copy listeners
+          // Explicitly unsubscribe from the old stream *before* creating the new state
+          if (isStreamProviderInternalState(state)) {
+              state.streamProviderState.subscription?.unsubscribe();
+          }
+          // Clear callbacks *before* disposing the rest of the old state to prevent
+          // potential double-unsubscribe via the callback mechanism in this specific path.
+          state.disposeCallbacks.clear();
+          state.dispose(); // Dispose the rest (dependents, etc.)
+          const newState = this._createProviderStateStructure(provider); // Create new state & subscribe
+          // Copy old listeners to the new state
+          oldListeners.forEach(listener => newState.listeners.add(listener));
+          if (isStreamProviderInternalState(newState)) {
+              return newState.streamProviderState.value as T;
+          } else {
+              console.error(`Inconsistent state type after re-initializing stream provider (ID: ${newState.internalId})`);
+              throw new Error('Internal error: Inconsistent provider state type');
+          }
         } else {
-          // Generic/Computed
+          // Generic/Computed: Recompute value directly
           return this._computeAndCacheValue(provider, state as GenericProviderState<T>);
         }
       } else {
@@ -545,8 +560,11 @@ export class Scope implements Disposable {
             // The notification will happen inside _executeAsyncProvider when it sets the loading state.
             if (isAsyncProviderInternalState(dependentState)) {
                 this._executeAsyncProvider(dependentProvider as unknown as AsyncProviderInstance<any>, dependentState);
+            } else if (isStreamProviderInternalState(dependentState)) {
+                // For stream providers, becoming stale means we need to re-subscribe on next read.
+                // Do not notify listeners here; notification happens when the *new* stream emits.
             } else {
-                // For other types (computed, state, stream), notify listeners about the staleness/change now.
+                // For other types (computed, state), notify listeners about the staleness/change now.
                 dependentState.notifyListeners();
             }
 
