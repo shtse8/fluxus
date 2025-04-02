@@ -26,7 +26,10 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "state management",
@@ -45,7 +48,6 @@
   "bugs": {
     "url": "https://github.com/shtse8/fluxus/issues"
   },
-
   "author": "shtse8",
   "license": "ISC",
   "devDependencies": {
@@ -55,6 +57,7 @@
     "jsdom": "^26.0.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
+    "vitepress": "^1.6.3",
     "vitest": "^3.1.1"
   },
   "peerDependencies": {
