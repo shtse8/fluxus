@@ -25,19 +25,19 @@ jobs:
         cache-dependency-path: package-lock.json # Path relative to working-directory
 
     - name: Install dependencies
-      working-directory: ./fluxus
+      # Run from the root of the checkout directory
       run: npm ci
 
     - name: Run type checking
-      working-directory: ./fluxus
+      # Run from the root of the checkout directory
       run: npm run typecheck
 
     - name: Run tests
-      working-directory: ./fluxus
+      # Run from the root of the checkout directory
       run: npm run test
 
     - name: Build project # Added build step here for verification
-      working-directory: ./fluxus
+      # Run from the root of the checkout directory
       run: npm run build
 
   publish-npm:
@@ -58,15 +58,15 @@ jobs:
           cache-dependency-path: package-lock.json # Path relative to working-directory
 
       - name: Install dependencies
-        working-directory: ./fluxus
+        # Run from the root of the checkout directory
         run: npm ci
 
       - name: Build project
-        working-directory: ./fluxus
+        # Run from the root of the checkout directory
         run: npm run build
 
       - name: Publish to npm
-        working-directory: ./fluxus
+        # Run from the root of the checkout directory
         run: npm publish --access public # Assuming it's a public package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
