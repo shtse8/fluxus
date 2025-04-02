@@ -29,7 +29,8 @@ export default defineConfig({
             { text: 'Providers', link: '/guide/providers' },
             { text: 'Scope', link: '/guide/scope' },
             { text: 'Reactivity', link: '/guide/reactivity' },
-            { text: 'Lifecycle', link: '/guide/lifecycle' }
+            { text: 'Lifecycle', link: '/guide/lifecycle' },
+            { text: 'Async Operations', link: '/guide/async-provider' },
           ]
         },
         {
