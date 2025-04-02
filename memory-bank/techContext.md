@@ -35,8 +35,7 @@
 - **Linter:** ESLint with standard TypeScript plugins
   (`@typescript-eslint/eslint-plugin`).
 - **Formatter:** Prettier for consistent code style.
-- Configuration files (`.eslintrc.js`, `.prettierrc.js`) have not been added
-  yet. (Optional TODO)
+- Configuration files (`eslint.config.js`, `.prettierrc.cjs`) are used.
 
 **Framework Adapters:**
 

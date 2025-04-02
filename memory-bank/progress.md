@@ -1,16 +1,17 @@
-# Progress: Fluxus (Refactoring Complete)
+# Progress: Fluxus (Linting Addressed)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`) and basic React adapter are functional. Documentation site with
 auto-deployment is set up. Initial refactoring phase addressing known issues and
-setting up linting/formatting is complete. Focus can now shift towards further
-refinement, features, or documentation.
+setting up linting/formatting is complete. Most `no-explicit-any` ESLint
+warnings have been addressed. Focus can now shift towards further refinement,
+features, or documentation.
 
 **What Works:**
 
 - Project setup complete (`package.json`, `tsconfig.json`, `tsup.config.ts`).
 - Core types defined (`src/types.ts`), including `AsyncValue`,
-  `ProviderOverride`, and `ProviderOptions`.
+  `ProviderOverride`, and `ProviderOptions`. Most `any` types replaced.
 - `Scope` class implemented (`src/scope.ts`) with:
   - State management for different provider types.
   - `read()` method supporting overrides and improved error messages (with
@@ -21,10 +22,11 @@ refinement, features, or documentation.
   - Dependency tracking for re-computation/re-execution.
   - Auto-disposal based on listener count (fixed related test failure).
   - Improved error/warning messages using provider names.
-- `stateProvider` factory implemented, tested, and updated to accept
-  `ProviderOptions`.
-- `computedProvider` factory implemented, tested (all tests passing), and
-  updated to accept `ProviderOptions`.
+  - Most `any` types replaced with `unknown` or specific types.
+- `stateProvider` factory implemented, tested, updated to accept
+  `ProviderOptions`, and internal `any` types removed.
+- `computedProvider` factory implemented, tested (all tests passing), updated to
+  accept `ProviderOptions`, and internal `any` types removed.
 - `asyncProvider` factory implemented (including re-execution on dependency
   change), tested, and updated to accept `ProviderOptions`.
 - `streamProvider` factory implemented (including re-subscription on dependency
@@ -32,11 +34,11 @@ refinement, features, or documentation.
 - Provider Overrides implemented and tested.
 - React adapter (`react-adapter/`) implemented with:
   - `ProviderScope` component (supports overrides).
-  - `useProvider` hook (using `useSyncExternalStore`).
+  - `useProvider` hook (using `useSyncExternalStore`), `any` types removed.
   - `useProviderUpdater` hook.
   - Integration tests passing (TypeScript errors resolved).
 - Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
-  All tests passing.
+  All tests passing. `any` types removed or disabled where intentional.
 - TSDoc comments added to core files.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
@@ -50,13 +52,11 @@ refinement, features, or documentation.
 - ESLint and Prettier set up and configured (`eslint.config.js`,
   `.prettierrc.cjs`).
 - Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
-  checks (with `no-explicit-any` rule temporarily disabled).
+  checks (with `no-explicit-any` rule set to `warn`).
 
 **What's Left To Build (Next Steps - Potential):**
 
 1. **Refinement:**
-   - Address remaining `no-explicit-any` warnings and re-enable the
-     corresponding ESLint rule.
    - Refine `asyncProvider`/`streamProvider` (cancellation, advanced options).
 2. **New Features:**
    - Utility functions (`pipe`, `debounce`, etc.).
@@ -70,9 +70,12 @@ refinement, features, or documentation.
 
 **Known Issues:**
 
-- The `@typescript-eslint/no-explicit-any` ESLint rule is currently disabled in
-  `eslint.config.js` due to numerous warnings (approx. 50). These should be
-  addressed incrementally to improve type safety.
+- The `@typescript-eslint/no-explicit-any` ESLint rule is currently set to
+  `warn` in `eslint.config.js`. This is due to persistent difficulties in
+  reliably disabling the rule for specific intentional `any` casts in test files
+  (`scope.test.ts`) using `eslint-disable-line` comments, which seem to conflict
+  with Prettier formatting or ESLint parsing. The remaining warnings correspond
+  to these intentional test cases.
 
 **Blockers:**
 

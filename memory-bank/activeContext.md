@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Refactoring Complete)
+# Active Context: Fluxus (Linting Addressed)
 
-**Current Focus:** Updating Memory Bank after completing the initial refactoring
-phase. Awaiting next task.
+**Current Focus:** Awaiting next task after addressing ESLint `no-explicit-any`
+warnings.
 
 **Recent Changes:**
 
@@ -74,17 +74,21 @@ phase. Awaiting next task.
   - Set up ESLint and Prettier: installed dependencies, created config files
     (`eslint.config.js`, `.prettierrc.cjs`), added `lint` and `format` scripts
     to `package.json`.
-  - Ran formatter and linter, fixing warnings/errors (Note:
-    `@typescript-eslint/no-explicit-any` rule temporarily disabled in
-    `eslint.config.js` due to numerous warnings).
+  - Ran formatter and linter, fixing initial warnings/errors.
+- **Linting (`no-explicit-any`):**
+  - Replaced most `any` types with `unknown` or more specific types across the
+    codebase (`scope.ts`, `types.ts`, provider files, test files).
+  - Used `eslint-disable-line` comments in test files (`hooks.test.tsx`,
+    `scope.test.ts`) for intentional `any` casts used to test error handling.
+  - Set the `@typescript-eslint/no-explicit-any` rule back to `'warn'` in
+    `eslint.config.js` due to persistent issues with ESLint/Prettier correctly
+    handling the disable comments in `scope.test.ts`.
 
 **Next Steps (Potential):**
 
 1. **Refinement:**
    - Refine `asyncProvider`/`streamProvider` (e.g., cancellation, advanced
      re-fetch/re-subscribe options).
-   - Address remaining `no-explicit-any` warnings and re-enable the
-     corresponding ESLint rule.
 2. **New Features:**
    - Add utility functions (e.g., `pipe`, `debounce`).
 3. **Framework Adapters:**
@@ -104,3 +108,5 @@ phase. Awaiting next task.
   arguments.
 - Documentation uses VitePress, deployed via GitHub Actions.
 - ESLint and Prettier are used for code quality and formatting.
+- The `@typescript-eslint/no-explicit-any` rule is set to `warn` due to issues
+  disabling it for specific test cases.
