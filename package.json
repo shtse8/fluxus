@@ -57,6 +57,7 @@
     "@types/react": "^19.0.12",
     "jsdom": "^26.0.0",
     "replace-in-file": "^8.3.0",
+    "rxjs": "^7.8.2",
     "tsup": "^8.4.0",
     "typedoc": "^0.28.1",
     "typedoc-plugin-markdown": "^4.6.1",

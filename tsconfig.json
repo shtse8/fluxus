@@ -9,6 +9,7 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "jsx": "react-jsx", // Add this line for JSX support
+    "types": ["vitest/globals", "@testing-library/jest-dom"], // Add types for Vitest globals and Jest DOM matchers
 
     /* Strictness */
     "strict": true,
