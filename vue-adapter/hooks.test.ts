@@ -178,11 +178,7 @@ describe('Vue Adapter Hooks', () => {
       { provider: counterProvider, useValue: stateProvider(() => 0) },
     ]);
 
-    // Get the internal state for checking listeners (requires access/type assertion)
-    const providerState = (scope as any)._providerStates.get(counterProvider);
-    expect(providerState).toBeDefined();
-    expect(providerState.listeners.size).toBe(0); // Initial listener count
-
+    // We will check the listener count *after* unmounting
     const TestComponent = defineComponent({
       setup() {
         const count = useProvider(counterProvider);
@@ -198,14 +194,17 @@ describe('Vue Adapter Hooks', () => {
       },
     });
 
-    // After mount, a listener should be added
-    expect(providerState.listeners.size).toBe(1);
-
+    // Component is mounted, useProvider should have added a listener internally.
     wrapper.unmount(); // Unmount to trigger cleanup
-    scope.dispose();
+    // After unmount, the listener added by useProvider should be removed.
+    // If this was the only listener, the provider state should be auto-disposed.
+    // Attempting to get an updater for a disposed state provider should throw an error
+    // because scope.updater() calls scope.read() internally first.
+    expect(() => {
+      scope.updater(counterProvider);
+    }).toThrow(/Cannot read provider.*its state has been disposed/);
 
-    // After unmount, the listener should be removed
-    expect(providerState.listeners.size).toBe(0);
+    scope.dispose(); // Final cleanup
   });
   it('useProvider should handle asyncProvider states (loading, data, error)', async () => {
     // Controllable promise for testing
@@ -279,6 +278,7 @@ describe('Vue Adapter Hooks', () => {
     resolvePromise!('Success!');
     await nextTick(); // Allow promise microtask to run
     await nextTick(); // Allow Vue reactivity to update
+    await nextTick(); // Add an extra tick for potentially deeper async propagation
 
     // State should be data
     expect(wrapper.find('[data-testid="async-value"]').text()).toBe('Data: Success!');

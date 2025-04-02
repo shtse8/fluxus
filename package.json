@@ -8,19 +8,19 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./react-adapter": {
+      "types": "./dist/react-adapter/index.d.ts",
       "import": "./dist/react-adapter/index.mjs",
-      "require": "./dist/react-adapter/index.js",
-      "types": "./dist/react-adapter/index.d.ts"
+      "require": "./dist/react-adapter/index.js"
     },
     "./vue-adapter": {
+      "types": "./dist/vue-adapter/index.d.ts",
       "import": "./dist/vue-adapter/index.mjs",
-      "require": "./dist/vue-adapter/index.js",
-      "types": "./dist/vue-adapter/index.d.ts"
+      "require": "./dist/vue-adapter/index.js"
     }
   },
   "files": [
