@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Cancellation Implemented)
+# Active Context: Fluxus (Docs: Riverpod Comparison Added)
 
-**Current Focus:** Awaiting next task after implementing cancellation features
-for `asyncProvider` and `streamProvider`.
+**Current Focus:** Awaiting next task after adding the Riverpod comparison
+documentation page.
 
 **Recent Changes:**
 
@@ -93,8 +93,10 @@ for `asyncProvider` and `streamProvider`.
   - Updated `asyncProvider` documentation/example (`asyncProvider.ts`).
   - Added cancellation tests to `asyncProvider.test.ts`.
   - Fixed related test assertion failures in multiple files.
-
-**Next Steps (Potential):**
+- **Documentation (Riverpod Comparison):**
+  - Created `docs/guide/comparison-riverpod.md` with initial content.
+  - Updated `docs/.vitepress/config.mts` sidebar to include the new comparison
+    page. **Next Steps (Potential):**
 
 1. **Refinement:**
    - Refine `asyncProvider`/`streamProvider` (e.g., advanced
@@ -105,7 +107,7 @@ for `asyncProvider` and `streamProvider`.
    - Plan/Implement Vue adapter.
    - Plan/Implement Angular adapter.
 4. **Documentation:**
-   - Add "Comparison with Riverpod" page.
+   - ~~Add "Comparison with Riverpod" page.~~ (Done)
    - Add more examples and advanced guides.
    - Improve API documentation generation/presentation.
 

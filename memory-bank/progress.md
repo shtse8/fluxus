@@ -1,12 +1,13 @@
-# Progress: Fluxus (Cancellation Implemented)
+# Progress: Fluxus (Docs: Riverpod Comparison Added)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
-`stream`) and basic React adapter are functional. **Cancellation features for
-async and stream providers have been implemented and tested.** Documentation
-site with auto-deployment is set up. Initial refactoring phase addressing known
-issues and setting up linting/formatting is complete. Most `no-explicit-any`
-ESLint warnings have been addressed. Focus can now shift towards further
-refinement, features, or documentation.
+`stream`) and basic React adapter are functional. Cancellation features for
+async and stream providers have been implemented and tested. Documentation site
+with auto-deployment is set up, **including a new page comparing Fluxus with
+Riverpod.** Initial refactoring phase addressing known issues and setting up
+linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
+addressed. Focus can now shift towards further refinement, features, or
+documentation.
 
 **What Works:**
 
@@ -51,7 +52,8 @@ refinement, features, or documentation.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
-    overrides.
+    overrides, **and a comparison with Riverpod**.
+  - Sidebar configuration (`.vitepress/config.mts`) updated for the new page.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
     (`replace-in-file`).
@@ -73,7 +75,7 @@ refinement, features, or documentation.
    - Plan/Implement Vue adapter.
    - Plan/Implement Angular adapter.
 4. **Documentation:**
-   - Add "Comparison with Riverpod" page.
+   - ~~Add "Comparison with Riverpod" page.~~ (Done)
    - Add more examples and advanced usage guides.
    - Improve API documentation presentation (e.g., better sidebar generation).
 

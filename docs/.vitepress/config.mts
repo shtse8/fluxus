@@ -22,7 +22,8 @@ export default defineConfig({
           items: [
             { text: 'What is Fluxus?', link: '/guide/introduction' },
             { text: 'Getting Started', link: '/guide/getting-started' },
-          ],
+            { text: 'Comparison with Riverpod', link: '/guide/comparison-riverpod' }
+          ]
         },
         {
           text: 'Core Concepts',
