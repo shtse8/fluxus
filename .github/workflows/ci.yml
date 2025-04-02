@@ -1,19 +1,18 @@
-name: Fluxus CI
+name: Fluxus CI/CD
 
 on:
   push:
     branches: [ "main" ]
+    tags: [ 'v*' ] # Also trigger on version tags
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build-and-test: # Renamed for clarity
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: [18.x, 20.x] # Test against common LTS versions
-
+        node-version: [18.x, 20.x]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -22,12 +21,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm' # Enable caching for npm dependencies
-        cache-dependency-path: fluxus/package-lock.json # Specify lock file path relative to root
+        cache: 'npm'
+        cache-dependency-path: fluxus/package-lock.json
 
     - name: Install dependencies
-      working-directory: ./fluxus # Specify working directory for npm commands
-      run: npm ci # Use ci for faster, deterministic installs
+      working-directory: ./fluxus
+      run: npm ci
 
     - name: Run type checking
       working-directory: ./fluxus
@@ -37,7 +36,37 @@ jobs:
       working-directory: ./fluxus
       run: npm run test
 
-    # Optional: Add a build step if needed
-    # - name: Build project
-    #   working-directory: ./fluxus
-    #   run: npm run build
+    - name: Build project # Added build step here for verification
+      working-directory: ./fluxus
+      run: npm run build
+
+  publish-npm:
+    needs: build-and-test # Ensure build and tests pass before publishing
+    runs-on: ubuntu-latest
+    # Run only when a version tag is pushed
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x # Use a specific Node version for publishing consistency
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org/' # Set npm registry
+          cache: 'npm'
+          cache-dependency-path: fluxus/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./fluxus
+        run: npm ci
+
+      - name: Build project
+        working-directory: ./fluxus
+        run: npm run build
+
+      - name: Publish to npm
+        working-directory: ./fluxus
+        run: npm publish --access public # Assuming it's a public package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
