@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
-import { defineComponent, h, nextTick, ref, type Ref } from 'vue';
+import { describe, it, expect, vi } from 'vitest'; // Ensure vi is imported
+
+import { defineComponent, h, nextTick, ref, type Ref, inject } from 'vue';
 import { mount } from '@vue/test-utils';
 import { Subject } from 'rxjs';
 import {
@@ -362,6 +363,322 @@ describe('Vue Adapter Hooks', () => {
   });
 
 
+
+
+
+  it('ProviderScope component should provide a scope', async () => {
+    const initialValue = 99;
+    // Use the default provider definition here
+    const scope = createScope(null, [
+      { provider: counterProvider, useValue: stateProvider(() => initialValue) },
+    ]); // Create scope manually ONLY to check against the one ProviderScope creates
+
+    // Simple component to read the value
+    const ChildComponent = defineComponent({
+      setup() {
+        const count = useProvider(counterProvider);
+        // Inject the scope provided by ProviderScope to verify it's the correct one
+        const providedScope = inject(scopeSymbol);
+        return { count, providedScope };
+      },
+      render() {
+        return h('div', `Count: ${this.count}`);
+      },
+    });
+
+    // Mount ProviderScope wrapping the child
+    const wrapper = mount(
+      defineComponent({
+        // Use ProviderScope component directly
+        render: () => h(ProviderScope, null, { default: () => h(ChildComponent) }),
+      }),
+      {
+        // No need for global provide here, ProviderScope handles it
+      },
+    );
+
+    await nextTick(); // Allow scope creation and provision
+
+    // Check if the value is read correctly (implicitly checks scope provision)
+    expect(wrapper.find('div').text()).toBe(`Count: 0`); // Default value is 0 if not overridden in ProviderScope
+
+    // Optionally, verify the provided scope instance if needed, though harder to test identity directly
+    // expect(wrapper.getComponent(ChildComponent).vm.providedScope).toBeInstanceOf(Object); // Basic check
+
+    wrapper.unmount();
+    // Scope created by ProviderScope should be disposed automatically on unmount
+  });
+
+
+  it('ProviderScope component should apply overrides', async () => {
+    const overrideValue = 42;
+    const overrideProvider = stateProvider(() => overrideValue);
+
+    // Component that reads the potentially overridden provider
+    const ReaderComponent = defineComponent({
+      setup() {
+        const count = useProvider(counterProvider);
+        return { count };
+      },
+      render() {
+        return h('div', `Count: ${this.count}`);
+      },
+    });
+
+    // Mount ProviderScope with overrides prop
+    const wrapper = mount(
+      defineComponent({
+        render: () =>
+          h(
+            ProviderScope,
+            {
+              overrides: [{ provider: counterProvider, useValue: overrideProvider }],
+            },
+            { default: () => h(ReaderComponent) },
+          ),
+      }),
+    );
+
+    await nextTick(); // Allow scope creation and provision
+
+    // Check if the overridden value is used
+    expect(wrapper.find('div').text()).toBe(`Count: ${overrideValue}`);
+
+    wrapper.unmount();
+  });
+
+  it('useProviderUpdater should work with overrides from ProviderScope', async () => {
+    const initialValue = 10;
+    const overrideValue = 500;
+    const overrideProvider = stateProvider(() => overrideValue);
+
+    // Component using both reader and updater
+    const CombinedComponent = defineComponent({
+      setup() {
+        const count = useProvider(counterProvider);
+        const update = useProviderUpdater(counterProvider);
+        return { count, update };
+      },
+      render() {
+        return h('div', [
+          h('span', { 'data-testid': 'val' }, this.count),
+          h('button', { onClick: () => this.update((c: number) => c + 1) }, 'Inc'),
+        ]);
+      },
+    });
+
+    // Mount ProviderScope with overrides
+
+  it('asyncProvider should re-fetch when dependencies change', async () => {
+    vi.useFakeTimers(); // Use fake timers for this test
+    const dependencyProvider = stateProvider(() => 'dep1');
+    const testAsyncProvider = asyncProvider(async (reader) => {
+      const depValue = reader.read(dependencyProvider);
+      await new Promise(res => setTimeout(res, 10)); // Simulate async work
+      return `Data based on ${depValue}`;
+    });
+
+    const scope = createScope();
+
+    const TestComponent = defineComponent({
+      setup() {
+        const asyncData = useProvider<AsyncValue<string>>(testAsyncProvider);
+        const updateDep = useProviderUpdater(dependencyProvider);
+        return { asyncData, updateDep };
+      },
+      render() {
+        const data = this.asyncData;
+        let content = 'Loading...';
+        if (data?.state === 'data') content = data.data;
+        else if (data?.state === 'error') content = `Error: ${data.error}`;
+        return h('div', [
+          h('span', { 'data-testid': 'async-dep' }, content),
+          h('button', { onClick: () => this.updateDep('dep2') }, 'Change Dep'),
+        ]);
+      },
+    });
+
+    const wrapper = mount(TestComponent, { global: { provide: { [scopeSymbol]: scope } } });
+
+    // Initial load
+    await nextTick(); // Start async
+    await vi.advanceTimersByTimeAsync(20); // Wait for simulated async work + buffer
+    await nextTick(); // Vue update
+    expect(wrapper.find('[data-testid="async-dep"]').text()).toBe('Data based on dep1');
+
+    // Change dependency
+    await wrapper.find('button').trigger('click');
+    await nextTick(); // Update state provider
+    await nextTick(); // Trigger async re-fetch
+    expect(wrapper.find('[data-testid="async-dep"]').text()).toBe('Loading...'); // Should show loading during re-fetch
+
+    await vi.advanceTimersByTimeAsync(20); // Wait for simulated async work + buffer
+    await nextTick(); // Vue update
+    expect(wrapper.find('[data-testid="async-dep"]').text()).toBe('Data based on dep2');
+
+    wrapper.unmount();
+    scope.dispose();
+    vi.useRealTimers(); // Restore real timers
+  });
+
+  it('streamProvider should re-subscribe when dependencies change', async () => {
+    const dependencyProvider = stateProvider(() => 'stream1');
+    const streamControllers: Record<string, Subject<string>> = {
+      stream1: new Subject<string>(),
+      stream2: new Subject<string>(),
+    };
+
+    const testStreamProvider = streamProvider<string>((reader) => { // Explicitly type the provider
+      const depValue = reader.read(dependencyProvider);
+      return streamControllers[depValue]!.asObservable(); // Add non-null assertion
+    });
+
+    const scope = createScope();
+
+    const TestComponent = defineComponent({
+      setup() {
+        const streamData = useProvider<AsyncValue<string>>(testStreamProvider);
+        const updateDep = useProviderUpdater(dependencyProvider);
+        return { streamData, updateDep };
+      },
+      render() {
+        const data = this.streamData;
+        let content = 'Waiting...';
+        if (data?.state === 'data') content = data.data;
+        else if (data?.state === 'error') content = `Error: ${data.error}`;
+        return h('div', [
+          h('span', { 'data-testid': 'stream-dep' }, content),
+          h('button', { onClick: () => this.updateDep('stream2') }, 'Change Dep'),
+        ]);
+      },
+    });
+
+    const wrapper = mount(TestComponent, { global: { provide: { [scopeSymbol]: scope } } });
+
+    await nextTick(); // Watcher setup
+    expect(wrapper.find('[data-testid="stream-dep"]').text()).toBe('Waiting...');
+
+    // Emit on first stream
+    streamControllers.stream1!.next('A'); // Add non-null assertion
+    await nextTick(); await nextTick();
+    expect(wrapper.find('[data-testid="stream-dep"]').text()).toBe('Data: A');
+
+    // Change dependency
+    await wrapper.find('button').trigger('click');
+    await nextTick(); // Update state provider
+    await nextTick(); // Trigger re-subscription
+    // State might briefly reset depending on core logic, or stay on last value.
+    // Let's assume it resets to waiting/loading state upon re-subscription start.
+    // If core keeps last value, this expectation needs adjustment.
+    expect(wrapper.find('[data-testid="stream-dep"]').text()).toBe('Waiting...'); // Or potentially 'Data: A'
+
+    // Emit on second stream
+    streamControllers.stream2!.next('B'); // Add non-null assertion
+    await nextTick(); await nextTick();
+    expect(wrapper.find('[data-testid="stream-dep"]').text()).toBe('Data: B');
+
+    // Emit on first stream again (should have no effect)
+    streamControllers.stream1!.next('C'); // Add non-null assertion
+    await nextTick(); await nextTick();
+    expect(wrapper.find('[data-testid="stream-dep"]').text()).toBe('Data: B');
+
+    wrapper.unmount();
+    scope.dispose();
+
+  it('computedProvider should react to changes in dependent asyncProvider', async () => {
+    vi.useFakeTimers();
+    const triggerProvider = stateProvider(() => 1);
+    const dataAsyncProvider = asyncProvider(async (reader) => {
+      const trigger = reader.read(triggerProvider);
+      await new Promise(res => setTimeout(res, 10)); // Simulate async work
+      return `Data ${trigger}`;
+    });
+    const processedDataProvider = computedProvider((reader) => {
+      const asyncVal = reader.read(dataAsyncProvider);
+      if (asyncVal.state === 'data') {
+        return `Processed: ${asyncVal.data}`;
+      }
+      if (asyncVal.state === 'loading') {
+        return 'Processing (Loading)...';
+      }
+      if (asyncVal.state === 'error') {
+        return `Processing Error: ${asyncVal.error}`;
+      }
+      return 'Processing (Initial)...'; // Should ideally not happen if read triggers loading
+    });
+
+    const scope = createScope();
+
+    const TestComponent = defineComponent({
+      setup() {
+        const processedData = useProvider(processedDataProvider);
+        const updateTrigger = useProviderUpdater(triggerProvider);
+        return { processedData, updateTrigger };
+      },
+      render() {
+        return h('div', [
+          h('span', { 'data-testid': 'computed-async' }, this.processedData),
+          h('button', { onClick: () => this.updateTrigger((t) => t + 1) }, 'Update Trigger'),
+        ]);
+      },
+    });
+
+    const wrapper = mount(TestComponent, { global: { provide: { [scopeSymbol]: scope } } });
+
+    // Initial state (Computed reads Async, Async starts loading)
+    await nextTick();
+    expect(wrapper.find('[data-testid="computed-async"]').text()).toBe('Processing (Loading)...');
+
+    // Wait for async to resolve
+    await vi.advanceTimersByTimeAsync(20);
+    await nextTick(); await nextTick(); // Allow async resolution and computed update
+    expect(wrapper.find('[data-testid="computed-async"]').text()).toBe('Processed: Data 1');
+
+    // Update the trigger, causing async to re-fetch and computed to update
+    await wrapper.find('button').trigger('click');
+    await nextTick(); // Update trigger state
+    await nextTick(); // Async re-fetches, Computed reads loading state
+    expect(wrapper.find('[data-testid="computed-async"]').text()).toBe('Processing (Loading)...');
+
+    // Wait for async to resolve again
+    await vi.advanceTimersByTimeAsync(20);
+    await nextTick(); await nextTick(); // Allow async resolution and computed update
+    expect(wrapper.find('[data-testid="computed-async"]').text()).toBe('Processed: Data 2');
+
+    wrapper.unmount();
+    scope.dispose();
+    vi.useRealTimers();
+  });
+
+  });
+
+    const wrapper = mount(
+      defineComponent({
+        render: () =>
+          h(
+            ProviderScope,
+            {
+              overrides: [{ provider: counterProvider, useValue: overrideProvider }],
+            },
+            { default: () => h(CombinedComponent) },
+          ),
+      }),
+    );
+
+    await nextTick();
+
+    // Check initial overridden value
+    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue));
+
+    // Trigger update using the updater
+    await wrapper.find('button').trigger('click');
+    await nextTick();
+
+    // Check if the update applied to the overridden state
+    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue + 1));
+
+    wrapper.unmount();
+  });
 
 
 
