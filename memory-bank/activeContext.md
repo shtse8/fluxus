@@ -1,7 +1,7 @@
 # Active Context: Fluxus (Docs: Riverpod Comparison Added)
 
-**Current Focus:** Awaiting next task after adding the Riverpod comparison
-documentation page.
+**Current Focus:** Updating Memory Bank to reflect implementation of `pipe` and
+`debounce` utilities.
 
 **Recent Changes:**
 
@@ -96,13 +96,17 @@ documentation page.
 - **Documentation (Riverpod Comparison):**
   - Created `docs/guide/comparison-riverpod.md` with initial content.
   - Updated `docs/.vitepress/config.mts` sidebar to include the new comparison
-    page. **Next Steps (Potential):**
+  - **Utilities:**
+  - Implemented `pipe` utility function (`src/utils/pipe.ts`) and tests
+    (`pipe.test.ts`).
+  - Implemented `debounce` utility function (`src/utils/debounce.ts`) and tests
+    (`debounce.test.ts`). page. **Next Steps (Potential):**
 
 1. **Refinement:**
    - Refine `asyncProvider`/`streamProvider` (e.g., advanced
      re-fetch/re-subscribe options). Cancellation is now implemented.
 2. **New Features:**
-   - Add utility functions (e.g., `pipe`, `debounce`).
+   - ~~Add utility functions (e.g., `pipe`, `debounce`).~~ (Done)
 3. **Framework Adapters:**
    - Plan/Implement Vue adapter.
    - Plan/Implement Angular adapter.

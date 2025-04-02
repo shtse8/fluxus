@@ -1,13 +1,13 @@
-# Progress: Fluxus (Docs: Riverpod Comparison Added)
+# Progress: Fluxus (Memory Bank: Utilities Implemented)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
-`stream`) and basic React adapter are functional. Cancellation features for
-async and stream providers have been implemented and tested. Documentation site
-with auto-deployment is set up, **including a new page comparing Fluxus with
-Riverpod.** Initial refactoring phase addressing known issues and setting up
-linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
-addressed. Focus can now shift towards further refinement, features, or
-documentation.
+`stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
+functional. Cancellation features for async and stream providers have been
+implemented and tested. Documentation site with auto-deployment is set up,
+including a new page comparing Fluxus with Riverpod. Initial refactoring phase
+addressing known issues and setting up linting/formatting is complete. Most
+`no-explicit-any` ESLint warnings have been addressed. Memory Bank is now
+updated. Focus can shift towards further refinement, features, or documentation.
 
 **What Works:**
 
@@ -63,6 +63,10 @@ documentation.
   `.prettierrc.cjs`).
 - Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
   checks (with `no-explicit-any` rule set to `warn`).
+- **Utilities:**
+  - `pipe` utility function implemented and tested (`src/utils/pipe.ts`).
+  - `debounce` utility function implemented and tested
+    (`src/utils/debounce.ts`).
 
 **What's Left To Build (Next Steps - Potential):**
 
@@ -70,7 +74,7 @@ documentation.
    - Refine `asyncProvider`/`streamProvider` (advanced options like
      re-fetch/re-subscribe strategies). Cancellation is implemented.
 2. **New Features:**
-   - Utility functions (`pipe`, `debounce`, etc.).
+   - ~~Utility functions (`pipe`, `debounce`, etc.).~~ (Done)
 3. **Framework Adapters:**
    - Plan/Implement Vue adapter.
    - Plan/Implement Angular adapter.
