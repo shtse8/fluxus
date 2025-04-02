@@ -28,7 +28,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
     "dev": "tsup --watch",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
@@ -67,6 +67,8 @@
     "@typescript-eslint/parser": "^8.29.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/test-utils": "^2.4.6",
+    "esbuild": "^0.25.2",
+    "esbuild-plugin-vue3": "^0.4.2",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.5",
@@ -81,7 +83,8 @@
     "typescript": "^5.8.2",
     "vitepress": "^1.6.3",
     "vitest": "^3.1.1",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.8"
   },
   "peerDependencies": {
     "react": "^19.1.0",

@@ -38,6 +38,17 @@ onUnmounted(() => {
 });
 </script>
 
+<script lang="ts">
+// Separate script block for explicit component definition for DTS compatibility
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'ProviderScope',
+  // The setup logic is handled by <script setup>
+});
+</script>
+
+
 <template>
   <!-- Render the default slot, making the provided scope available to children -->
   <slot />
