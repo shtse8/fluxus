@@ -75,7 +75,7 @@ export default defineConfig({
   },
 
   // Base directory for GitHub Pages deployment
-  // base: '/fluxus/', // Uncomment and set if deploying to github.io/fluxus/
+  base: '/fluxus/', // Set for github.io/fluxus/ deployment
 
   // Directory where built files will go
   outDir: '../dist-docs' // Place built docs outside the source 'docs' folder
