@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Scope, createScope } from '../src/scope.js';
 import { ScopeContext } from './context.js';
+import type { ProviderOverride } from '../src/types.js'; // Import ProviderOverride type
 
 /**
  * Props for the {@link ProviderScope} component.
@@ -8,8 +9,8 @@ import { ScopeContext } from './context.js';
 interface ProviderScopeProps {
   /** The child components that will have access to the scope created by this ProviderScope. */
   children: React.ReactNode;
-  /** Optional: Provide specific provider overrides for this scope. (Not yet implemented) */
-  // overrides?: ProviderOverride[];
+  /** An optional array of provider overrides for this scope. */
+  overrides?: ReadonlyArray<ProviderOverride>;
 }
 
 /**
@@ -36,7 +37,7 @@ interface ProviderScopeProps {
  * )
  * ```
  */
-export function ProviderScope({ children }: ProviderScopeProps): React.ReactElement {
+export function ProviderScope({ children, overrides = [] }: ProviderScopeProps): React.ReactElement {
   const parentScope = React.useContext(ScopeContext);
   const scopeRef = React.useRef<Scope | null>(null);
 
@@ -44,7 +45,7 @@ export function ProviderScope({ children }: ProviderScopeProps): React.ReactElem
   // useRef ensures this happens only once for the component instance's lifetime,
   // persisting across StrictMode unmount/remount cycles.
   if (scopeRef.current === null) {
-    scopeRef.current = createScope(parentScope);
+    scopeRef.current = createScope(parentScope, overrides); // Pass overrides
   }
 
   // The scope instance is now guaranteed to exist.

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'; // Added beforeEach, afterEach
 import { createScope, Scope } from './scope.js';
 import { Provider, ScopeReader } from './types.js';
 import { stateProvider } from './providers/stateProvider.js';
+import { computedProvider } from './providers/computedProvider.js'; // Added computedProvider
 
 describe('Scope', () => {
   it('should create a new scope instance', () => {
@@ -68,7 +69,7 @@ describe('Scope', () => {
     const simpleProvider: Provider<string> = () => 'hello';
     // Need to cast simpleProvider because updater expects StateProviderInstance
     expect(() => scope.updater(simpleProvider as any)).toThrowError(
-      'Provider is not a StateProvider or state is inconsistent' // Updated error message
+      'Target provider is not a StateProvider or state is inconsistent'
     );
   });
 
@@ -147,6 +148,95 @@ describe('Scope', () => {
     scope.dispose();
 
     // The dispose callback should have been called
+
+
+describe('Scope Overrides', () => {
+  let parentScope: Scope;
+  let childScope: Scope;
+  const providerA = stateProvider(10);
+  const providerB = stateProvider('B');
+  const providerC = computedProvider((read: ScopeReader) => `C based on ${read.read(providerA)}`); // Add type for read
+
+  beforeEach(() => {
+    parentScope = createScope();
+  });
+
+  afterEach(() => {
+    parentScope?.dispose();
+    childScope?.dispose();
+  });
+
+  it('should return override value when overridden with value', () => {
+    childScope = createScope(parentScope, [
+      { provider: providerA, useValue: 999 },
+    ]);
+    expect(childScope.read(providerA)).toBe(999);
+    // Parent scope should be unaffected
+    expect(parentScope.read(providerA)).toBe(10);
+  });
+
+  it('should use overriding provider when overridden with provider', () => {
+    const overrideProviderA = stateProvider(100);
+    childScope = createScope(parentScope, [
+      { provider: providerA, useValue: overrideProviderA },
+    ]);
+
+    // Reads from child scope use the override
+    expect(childScope.read(providerA)).toBe(100);
+
+    // Update via override
+    const updater = childScope.updater(overrideProviderA); // Get updater for the override
+    updater(childScope, overrideProviderA, (n) => n + 1);
+    expect(childScope.read(providerA)).toBe(101);
+
+    // Parent scope should be unaffected
+    expect(parentScope.read(providerA)).toBe(10);
+    const parentUpdater = parentScope.updater(providerA);
+    parentUpdater(parentScope, providerA, (n) => n + 5);
+    expect(parentScope.read(providerA)).toBe(15);
+    expect(childScope.read(providerA)).toBe(101); // Child still uses its override
+  });
+
+  it('should use override in dependent providers within the same scope', () => {
+     childScope = createScope(parentScope, [
+      { provider: providerA, useValue: 50 },
+    ]);
+    // providerC reads providerA, should use the overridden value (50) in childScope
+    expect(childScope.read(providerC)).toBe('C based on 50');
+    // Parent scope uses original value
+    expect(parentScope.read(providerC)).toBe('C based on 10');
+  });
+
+  it('should throw error when getting updater for non-stateprovider override', () => {
+    childScope = createScope(parentScope, [
+      { provider: providerA, useValue: () => 99 }, // Override with a generic provider
+    ]);
+    expect(() => childScope.updater(providerA)).toThrow(
+      'Provider overridden with a non-StateProvider value, cannot get updater.'
+    );
+  });
+
+   it('should allow overriding with a different state provider type', () => {
+    const overrideProviderA = stateProvider('overridden');
+    childScope = createScope(parentScope, [
+        // Override providerA (number) with a string state provider
+        { provider: providerA, useValue: overrideProviderA },
+    ]);
+
+    // Reading the original providerA in the child scope now returns the override's value
+    expect(childScope.read(providerA)).toBe('overridden');
+
+    // We need to get the updater for the *overriding* provider
+    const updater = childScope.updater(overrideProviderA);
+    updater(childScope, overrideProviderA, (s) => s + '!');
+    expect(childScope.read(providerA)).toBe('overridden!');
+
+    // Parent remains unaffected
+    expect(parentScope.read(providerA)).toBe(10);
+  });
+
+});
+
     expect(disposeCallback).toHaveBeenCalledTimes(1);
 
     // Reading from a disposed scope should throw

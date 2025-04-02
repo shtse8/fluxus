@@ -79,7 +79,24 @@ export function isLoading<T>(value: AsyncValue<T>): value is AsyncLoading {
 /** Type guard to check if an AsyncValue is in the data state. */
 export function hasData<T>(value: AsyncValue<T>): value is AsyncData<T> {
   return value.state === 'data';
+} // <-- Add missing closing brace
+
+/**
+ * Represents overriding a provider with another provider or a direct value
+ * within a specific Scope.
+ */
+export interface ProviderOverride {
+  /** The original provider to override. */
+  provider: Provider<any>;
+  /** The overriding provider or value. */
+  useValue: Provider<any> | any; // Allow overriding with a value or another provider
 }
+
+
+
+
+
+
 
 /** Type guard to check if an AsyncValue is in the error state. */
 export function hasError<T>(value: AsyncValue<T>): value is AsyncError {

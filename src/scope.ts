@@ -1,166 +1,117 @@
-import { Provider, ScopeReader, Dispose, Disposable, isProvider, AsyncValue, hasData } from './types.js'; // Added AsyncValue, hasData
 import {
-  StateProviderInstance,
-  isStateProviderInstance,
-  StateUpdater,
-  StateProviderState,
-  $stateProvider
+    Provider, ScopeReader, Dispose, Disposable, isProvider,
+    AsyncValue, hasData, ProviderOverride // Added ProviderOverride
+} from './types.js';
+import {
+  StateProviderInstance, isStateProviderInstance, StateUpdater,
+  StateProviderState, $stateProvider
 } from './providers/stateProvider.js';
 import {
-    ComputedProviderInstance,
-    isComputedProviderInstance,
-    $computedProvider
+    ComputedProviderInstance, isComputedProviderInstance, $computedProvider
 } from './providers/computedProvider.js';
-// Import Async types
 import {
-    AsyncProviderInstance,
-    isAsyncProviderInstance,
-    AsyncProviderState as AsyncProviderInternalStateDefinition, // Rename for clarity
-    $asyncProvider // Now correctly exported
-    // AsyncValue is imported from types.js now
+    AsyncProviderInstance, isAsyncProviderInstance,
+    AsyncProviderState as AsyncProviderInternalStateDefinition, $asyncProvider
 } from './providers/asyncProvider.js';
-// Import Stream types
 import {
-    StreamProviderInstance,
-    isStreamProviderInstance,
-    StreamProviderState as StreamProviderInternalStateDefinition, // Rename for clarity
-    $streamProvider
+    StreamProviderInstance, isStreamProviderInstance,
+    StreamProviderState as StreamProviderInternalStateDefinition, $streamProvider
 } from './providers/streamProvider.js';
-
 
 // --- Internal State Types ---
 
-/** Common fields for all internal provider states within a scope. */
-let internalStateIdCounter = 0; // Counter for unique IDs
+let internalStateIdCounter = 0;
 
 interface BaseInternalState extends Disposable {
-  /** Unique ID for debugging state instances */
   readonly internalId: number;
-  /** Explicitly add dispose signature to help TS inference */
   dispose: Dispose;
-  /** List of functions to call when this state is disposed. */
   disposeCallbacks: Set<Dispose>;
-  /** Set of providers that this provider depends on. */
   dependencies: Set<Provider<any>>;
-  /** Set of providers that depend on this provider. */
   dependents: Set<Provider<any>>;
-  /** Flag indicating if the value is currently being computed (to detect circular dependencies). */
   isComputing: boolean;
-  /** Flag indicating if the state has been disposed. */
   isDisposed: boolean;
-  /** Flag indicating if the provider's value might be outdated due to dependency changes. */
   isStale: boolean;
-  /** Set of listener callbacks subscribed via scope.watch(). */
   listeners: Set<() => void>;
-  /** Function to notify listeners of state changes. */
   notifyListeners: () => void;
 }
 
-/** Internal state for regular (non-StateProvider, non-AsyncProvider) providers. */
 interface GenericProviderState<T> extends BaseInternalState {
   type: 'generic';
-  /** The computed value of the provider. */
   value: T;
 }
 
-/** Internal state specific to StateProviders. */
 interface StateProviderInternalState<T> extends BaseInternalState {
   type: 'state';
-  /** The specific state managed by the StateProvider (value, updater). */
-  stateProviderState: StateProviderState<T>; // Holds value and listeners
+  stateProviderState: StateProviderState<T>;
 }
 
-/** Internal state specific to AsyncProviders. */
 interface AsyncProviderInternalState<T> extends BaseInternalState {
     type: 'async';
-    /** The specific state managed by the AsyncProvider. */
-    asyncProviderState: AsyncProviderInternalStateDefinition<T>; // Holds AsyncValue, execution state etc.
+    asyncProviderState: AsyncProviderInternalStateDefinition<T>;
 }
 
-/** Internal state specific to StreamProviders. */
 interface StreamProviderInternalState<T> extends BaseInternalState {
     type: 'stream';
-    /** The specific state managed by the StreamProvider. */
-    streamProviderState: StreamProviderInternalStateDefinition<T>; // Holds AsyncValue, subscription etc.
+    streamProviderState: StreamProviderInternalStateDefinition<T>;
 }
 
-/** Union type for all possible internal states stored in the scope. */
 type InternalState<T> = GenericProviderState<T> | StateProviderInternalState<T> | AsyncProviderInternalState<T> | StreamProviderInternalState<T>;
 
-// Type guard for StateProviderInternalState
-function isStateProviderInternalState<T>(
-  state: InternalState<any> | undefined
-): state is StateProviderInternalState<any> {
+// Type guards
+function isStateProviderInternalState<T>(state: InternalState<any> | undefined): state is StateProviderInternalState<any> {
   return state?.type === 'state';
 }
-
-// Type guard for AsyncProviderInternalState
-function isAsyncProviderInternalState<T>(
-    state: InternalState<any> | undefined
-): state is AsyncProviderInternalState<any> {
+function isAsyncProviderInternalState<T>(state: InternalState<any> | undefined): state is AsyncProviderInternalState<any> {
     return state?.type === 'async';
 }
-
-// Type guard for StreamProviderInternalState
-function isStreamProviderInternalState<T>(
-    state: InternalState<any> | undefined
-): state is StreamProviderInternalState<any> {
+function isStreamProviderInternalState<T>(state: InternalState<any> | undefined): state is StreamProviderInternalState<any> {
     return state?.type === 'stream';
 }
 
-
 /**
  * Manages the state and lifecycle of providers within a specific context.
- * Scopes can be nested to allow for overriding providers in different parts
- * of an application. Each scope maintains its own instance of provider states.
- *
  * @implements {Disposable}
  */
 export class Scope implements Disposable {
-  /** Stores the state associated with each provider within this scope. */
   private providerStates = new Map<Provider<any>, InternalState<any>>();
-  /** Optional parent scope for provider overrides and nesting. */
   private parent: Scope | null;
-  /** Flag indicating if the scope itself has been disposed. */
+  private overridesMap = new Map<Provider<any>, Provider<any> | any>();
   private _isDisposed = false;
 
-  /**
-   * Indicates whether the scope has been disposed. Once disposed, a scope
-   * cannot be used to read or initialize providers.
-   * @returns {boolean} True if the scope is disposed, false otherwise.
-   */
   public get isDisposed(): boolean {
       return this._isDisposed;
   }
 
-  /**
-   * Creates a new Scope instance.
-   * @param {Scope | null} [parent=null] - An optional parent scope.
-   */
-  constructor(parent: Scope | null = null) {
+  constructor(parent: Scope | null = null, overrides: ReadonlyArray<ProviderOverride> = []) {
     this.parent = parent;
+    overrides.forEach(override => {
+        this.overridesMap.set(override.provider, override.useValue);
+    });
   }
 
-  /** Checks if the scope or its ancestors have been disposed. */
   private checkDisposed(): void {
     if (this._isDisposed) {
       throw new Error('Scope has been disposed');
     }
   }
 
-  /**
-   * Reads the current value of a given provider within this scope.
-   * Handles initialization, caching, staleness checks, and recomputation.
-   *
-   * @template T The type of the value provided.
-   * @param {Provider<T>} provider The provider function/object to read.
-   * @returns {T} The current value of the provider.
-   * @throws {Error} If the scope or provider state is disposed or a circular dependency is detected.
-   */
   public read<T>(provider: Provider<T>): T {
     this.checkDisposed();
 
-    let state = this.providerStates.get(provider) as InternalState<T> | undefined;
+    // --- 1. Check for overrides ---
+    const override = this.overridesMap.get(provider);
+    let targetProvider = provider; // Use targetProvider for lookups
+    if (override !== undefined) {
+        if (!isProvider(override.useValue)) {
+            return override.useValue as T; // Return direct value override
+        } else {
+            targetProvider = override.useValue as Provider<T>; // Use overriding provider
+        }
+    }
+    // --- End Override Check ---
+
+    // --- 2. Check local cache (using targetProvider) ---
+    let state = this.providerStates.get(targetProvider) as InternalState<T> | undefined;
 
     if (state) {
       // State exists
@@ -168,25 +119,20 @@ export class Scope implements Disposable {
       if (state.isDisposed) throw new Error('Cannot read provider: its state has been disposed');
 
       if (state.isStale) {
-        // Recompute if stale (applies to generic/computed)
+        // Handle stale state based on type
         if (isStateProviderInternalState(state)) {
-          return state.stateProviderState.value; // State providers aren't stale this way
+          return state.stateProviderState.value; // Not stale this way
         } else if (isAsyncProviderInternalState(state)) {
-          // If stale, execution was triggered by markDependentsStale. Return current value.
+          // Execution triggered by markDependentsStale, return current value
           return state.asyncProviderState.value as T;
         } else if (isStreamProviderInternalState(state)) {
-          // If stale, dispose old state, re-initialize, copy listeners, return new initial value.
-          const oldListeners = new Set(state.listeners); // Copy listeners
-          // Explicitly unsubscribe from the old stream *before* creating the new state
-          if (isStreamProviderInternalState(state)) {
-              state.streamProviderState.subscription?.unsubscribe();
-          }
-          // Clear callbacks *before* disposing the rest of the old state to prevent
-          // potential double-unsubscribe via the callback mechanism in this specific path.
-          state.disposeCallbacks.clear();
-          state.dispose(); // Dispose the rest (dependents, etc.)
-          const newState = this._createProviderStateStructure(provider); // Create new state & subscribe
-          // Copy old listeners to the new state
+          // Dispose old, re-initialize, copy listeners, return new initial value
+          const oldListeners = new Set(state.listeners);
+          // Explicitly unsubscribe before disposing rest of state
+          state.streamProviderState.subscription?.unsubscribe();
+          state.disposeCallbacks.clear(); // Prevent double-unsubscribe via callback
+          state.dispose();
+          const newState = this._createProviderStateStructure(targetProvider); // Use targetProvider
           oldListeners.forEach(listener => newState.listeners.add(listener));
           if (isStreamProviderInternalState(newState)) {
               return newState.streamProviderState.value as T;
@@ -195,8 +141,8 @@ export class Scope implements Disposable {
               throw new Error('Internal error: Inconsistent provider state type');
           }
         } else {
-          // Generic/Computed: Recompute value directly
-          return this._computeAndCacheValue(provider, state as GenericProviderState<T>);
+          // Generic/Computed: Recompute value
+          return this._computeAndCacheValue(targetProvider, state as GenericProviderState<T>);
         }
       } else {
         // Return cached value
@@ -211,8 +157,8 @@ export class Scope implements Disposable {
         }
       }
     } else {
-      // Initialize state
-      const newState = this._createProviderStateStructure(provider);
+      // --- 3. Initialize state (using targetProvider) ---
+      const newState = this._createProviderStateStructure(targetProvider);
       if (isStateProviderInternalState(newState)) {
         return newState.stateProviderState.value;
       } else if (isAsyncProviderInternalState(newState)) {
@@ -221,15 +167,12 @@ export class Scope implements Disposable {
         return newState.streamProviderState.value as T;
       } else {
         // Generic/Computed needs initial computation
-        return this._computeAndCacheValue(provider, newState as GenericProviderState<T>);
+        return this._computeAndCacheValue(targetProvider, newState as GenericProviderState<T>);
       }
     }
   }
 
-   /**
-   * Creates the internal state structure for a given provider.
-   * @private
-   */
+   /** Creates the internal state structure for a given provider. @private */
   private _createProviderStateStructure<T>(provider: Provider<T>): InternalState<T> {
     const dependencies = new Set<Provider<any>>();
     const dependents = new Set<Provider<any>>();
@@ -246,7 +189,8 @@ export class Scope implements Disposable {
 
     const baseDisposeLogic = (stateRef: InternalState<any>, providerKey: Provider<any>) => {
         if (stateRef.isDisposed) return;
-        this.markDependentsStale(providerKey, new Set());
+        // Don't mark dependents stale during disposal
+        // this.markDependentsStale(providerKey, new Set());
         stateRef.isDisposed = true;
         stateRef.listeners.clear();
         stateRef.disposeCallbacks.forEach(cb => { try { cb() } catch (e) { console.error("Error during dispose callback:", e)} });
@@ -262,7 +206,7 @@ export class Scope implements Disposable {
         if (isAsyncProviderInternalState(stateRef)) {
             stateRef.asyncProviderState.abortController?.abort();
         }
-        // Stream unsubscription is handled via disposeCallbacks added during initialization
+        // Stream unsubscription handled via disposeCallbacks added during subscribe
     };
 
     const notifyListeners = () => {
@@ -278,7 +222,6 @@ export class Scope implements Disposable {
     };
 
     // --- Determine Provider Type and Initialize State ---
-
     if (isStateProviderInstance<T>(provider)) {
       const stateProviderState = (provider as any)[$stateProvider].initializeState(initReader, internalId);
       internalState = {
@@ -358,15 +301,11 @@ export class Scope implements Disposable {
         };
     }
 
-    // Replace placeholder and return the created structure
     this.providerStates.set(provider, internalState);
     return internalState;
   }
 
-  /**
-   * Computes or recomputes the value for a generic or computed provider.
-   * @private
-   */
+  /** Computes/recomputes value for generic/computed providers. @private */
   private _computeAndCacheValue<T>(
     provider: Provider<T>,
     state: GenericProviderState<T>
@@ -400,7 +339,6 @@ export class Scope implements Disposable {
 
       if (!Object.is(state.value, newValue)) {
           state.value = newValue;
-          // state.notifyListeners(); // Optionally notify for generic/computed?
       }
       state.dependencies = dependencies;
       state.isStale = false;
@@ -414,10 +352,7 @@ export class Scope implements Disposable {
     }
   }
 
-  /**
-   * Helper method for ScopeReader's read/watch to track dependencies.
-   * @private
-   */
+  /** Helper for tracking dependencies during read/watch. @private */
   private _trackDependency<P>(
     dependencyProvider: Provider<P>,
     dependentProvider: Provider<any>,
@@ -432,23 +367,14 @@ export class Scope implements Disposable {
     return value;
   }
 
-  /**
-   * Executes the async operation for an AsyncProvider.
-   * @private
-   */
+  /** Executes the async operation for an AsyncProvider. @private */
   private _executeAsyncProvider<T>(
       provider: AsyncProviderInstance<T>,
       state: AsyncProviderInternalState<T>
   ): void {
-      // Prevent re-execution if already executing or disposed
       if (state.isDisposed || state.asyncProviderState.isExecuting) {
           return;
       }
-      // Also prevent starting a new execution if the previous promise hasn't settled yet
-      // (though isExecuting flag should normally cover this)
-      // if (state.asyncProviderState.currentExecution) {
-      //     return;
-      // }
 
       state.asyncProviderState.isExecuting = true;
       const previousData = hasData(state.asyncProviderState.value) ? state.asyncProviderState.value.data : undefined;
@@ -470,7 +396,7 @@ export class Scope implements Disposable {
               if (state.isDisposed || state.asyncProviderState.abortController?.signal.aborted) return;
               state.asyncProviderState.value = { state: 'data', data };
               state.asyncProviderState.isExecuting = false;
-              state.asyncProviderState.currentExecution = undefined; // Clear current execution promise
+              state.asyncProviderState.currentExecution = undefined;
               state.notifyListeners();
               this.markDependentsStale(provider, new Set());
           })
@@ -480,43 +406,46 @@ export class Scope implements Disposable {
               const previousDataOnError = hasData(state.asyncProviderState.value) ? state.asyncProviderState.value.data : undefined;
               state.asyncProviderState.value = { state: 'error', error, previousData: previousDataOnError };
               state.asyncProviderState.isExecuting = false;
-              state.asyncProviderState.currentExecution = undefined; // Clear current execution promise
+              state.asyncProviderState.currentExecution = undefined;
               state.notifyListeners();
               this.markDependentsStale(provider, new Set());
           });
   }
 
 
-  /**
-   * Retrieves the specialized updater function for a StateProviderInstance.
-   * @template T The type of the state managed by the StateProvider.
-   * @param {StateProviderInstance<T>} provider The StateProviderInstance whose updater is needed.
-   * @returns {StateUpdater<T>} The updater function.
-   */
+  /** Retrieves the updater function for a StateProviderInstance. */
   public updater<T>(provider: StateProviderInstance<T>): StateUpdater<T> {
     this.checkDisposed();
-    this.read(provider); // Ensure initialized
-    const state = this.providerStates.get(provider);
+
+    // --- Check for overrides ---
+    let targetProvider = provider;
+    const override = this.overridesMap.get(provider);
+    if (override !== undefined) {
+        if (!isStateProviderInstance(override.useValue)) {
+            throw new Error(`Provider overridden with a non-StateProvider value, cannot get updater.`);
+        }
+        targetProvider = override.useValue as StateProviderInstance<T>;
+    }
+    // --- End Override Check ---
+
+    this.read(targetProvider); // Ensure initialized
+    const state = this.providerStates.get(targetProvider);
 
     if (!isStateProviderInternalState<T>(state)) {
-         throw new Error('Provider is not a StateProvider or state is inconsistent');
+         throw new Error('Target provider is not a StateProvider or state is inconsistent');
     }
      if (state.isDisposed) {
         throw new Error('Cannot get updater for a disposed provider state');
     }
 
-    // Return a function matching the StateUpdater<T> signature
+    // Return function matching StateUpdater<T> signature
     return (scope: Scope, providerInstance: StateProviderInstance<T>, newValueOrFn: T | ((prev: T) => T)) => {
-        // Check scope disposal *again* inside the returned function
         try {
-            // Use the passed scope instance, not 'this'
             scope.checkDisposed();
-        } catch (e) {
-             return;
-        }
+        } catch (e) { return; }
 
-        // Use passed providerInstance to get state from the passed scope
-        const currentState = scope.providerStates.get(providerInstance) as StateProviderInternalState<T> | undefined;
+        // Use targetProvider (captured via closure) to get state from the passed scope
+        const currentState = scope.providerStates.get(targetProvider) as StateProviderInternalState<T> | undefined;
 
         if (!currentState || !isStateProviderInternalState(currentState) || currentState.isDisposed) {
             const attemptedId = currentState ? currentState.internalId : 'unknown';
@@ -532,16 +461,14 @@ export class Scope implements Disposable {
 
         if (!Object.is(previousValue, newValue)) {
             stateProviderState.value = newValue;
-            currentState.notifyListeners(); // Notify base listeners
-            scope.markDependentsStale(providerInstance, new Set()); // Use passed scope/provider
+            currentState.notifyListeners();
+            // Mark dependents of the *target* provider as stale
+            scope.markDependentsStale(targetProvider, new Set());
         }
     };
   }
 
-  /**
-   * Recursively marks dependents as stale and notifies listeners.
-   * @private
-   */
+  /** Recursively marks dependents as stale and notifies listeners. @private */
   private markDependentsStale(provider: Provider<any>, visited: Set<Provider<any>>): void {
     const providerState = this.providerStates.get(provider);
     if (visited.has(provider) || !providerState || providerState.isDisposed) {
@@ -556,33 +483,20 @@ export class Scope implements Disposable {
             if (!wasAlreadyStale) {
                  dependentState.isStale = true;
             }
-            // If the stale dependent is an async provider, trigger its re-execution.
-            // The notification will happen inside _executeAsyncProvider when it sets the loading state.
+            // Trigger re-execution for async, notify others
             if (isAsyncProviderInternalState(dependentState)) {
                 this._executeAsyncProvider(dependentProvider as unknown as AsyncProviderInstance<any>, dependentState);
             } else if (isStreamProviderInternalState(dependentState)) {
-                // For stream providers, becoming stale means we need to re-subscribe on next read.
-                // Do not notify listeners here; notification happens when the *new* stream emits.
+                // Do nothing here; re-subscription happens on read if stale
             } else {
-                // For other types (computed, state), notify listeners about the staleness/change now.
                 dependentState.notifyListeners();
             }
-
-            // Recursively mark *its* dependents as stale
-            this.markDependentsStale(dependentProvider, visited);
+            this.markDependentsStale(dependentProvider, visited); // Recurse
         }
     });
   }
 
-  /**
-   * Subscribes a listener function to changes in a specific provider's state.
-   * Handles auto-disposal when listener count drops to zero.
-   *
-   * @template T The type of the value provided.
-   * @param {Provider<T>} provider The provider to watch.
-   * @param {() => void} callback The function to call on change.
-   * @returns {Dispose} A function to call to unsubscribe.
-   */
+  /** Subscribes a listener to a provider's state changes. */
   public watch<T>(provider: Provider<T>, callback: () => void): Dispose {
     this.checkDisposed();
     this.read(provider); // Ensure initialized
@@ -596,22 +510,18 @@ export class Scope implements Disposable {
     state.listeners.add(callback); // Add to base listeners
 
     return () => {
-      // Re-fetch state in case it was disposed
       const currentState = this.providerStates.get(provider);
       if (!currentState || currentState.isDisposed) return;
 
       currentState.listeners.delete(callback);
       if (currentState.listeners.size === 0 && !currentState.isDisposed) {
-           // console.log(`DEBUG: Auto-disposing state due to zero listeners (Internal ID: ${currentState.internalId})`);
-           currentState.dispose();
+           currentState.dispose(); // Auto-dispose
       }
     };
   }
 
 
-  /**
-   * Disposes of the scope, cleaning up all provider states.
-   */
+  /** Disposes of the scope and all provider states within it. */
   public dispose(): void {
     if (this.isDisposed) {
       return;
@@ -630,11 +540,7 @@ export class Scope implements Disposable {
   }
 }
 
-/**
- * Factory function to create a new {@link Scope}.
- * @param {Scope | null} [parent=null] - An optional parent scope.
- * @returns {Scope} A new Scope instance.
- */
-export function createScope(parent: Scope | null = null): Scope {
-    return new Scope(parent);
+/** Factory function to create a new Scope. */
+export function createScope(parent: Scope | null = null, overrides: ReadonlyArray<ProviderOverride> = []): Scope {
+    return new Scope(parent, overrides);
 }
