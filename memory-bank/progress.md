@@ -1,17 +1,19 @@
-# Progress: Fluxus (ESLint `no-explicit-any` Fix)
+# Progress: Fluxus (Vue Adapter Implementation)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
-`stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
-functional. Cancellation features for async and stream providers have been
-implemented and tested. Added `keepPreviousDataOnError` option to
-`asyncProvider`. Documentation site with auto-deployment is set up, including
-pages for Riverpod comparison and a guide on combining providers (with
-examples). **The API documentation sidebar structure has been improved to mirror
-the generated TypeDoc output.** Initial refactoring phase addressing known
-issues and setting up linting/formatting is complete. **The
-`@typescript-eslint/no-explicit-any` ESLint rule is now enforced (`error`) and
-the codebase passes linting checks.** Memory Bank is updated. Focus can shift
-towards further refinement, features, or documentation.
+`stream`), basic React adapter, **basic Vue adapter**, and core utilities
+(`pipe`, `debounce`) are functional. Cancellation features for async and stream
+providers have been implemented and tested. Added `keepPreviousDataOnError`
+option to `asyncProvider`. **Core override logic (`_trackDependency`, `watch`)
+has been refined to ensure correct dependency tracking and updates.**
+Documentation site with auto-deployment is set up, including pages for Riverpod
+comparison, a guide on combining providers, **and a guide for the new Vue
+adapter**. The API documentation sidebar structure has been improved. Initial
+refactoring phase addressing known issues and setting up linting/formatting is
+complete. The `@typescript-eslint/no-explicit-any` ESLint rule is enforced
+(`error`) and the codebase passes linting checks. Memory Bank is updated. Focus
+is now on integrating the Vue adapter into the build/package and potentially
+further refinements or features.
 
 **What Works:**
 
@@ -28,6 +30,10 @@ towards further refinement, features, or documentation.
   - `dispose()` method for scope cleanup.
   - Dependency tracking for re-computation/re-execution.
   - Auto-disposal based on listener count (fixed related test failure).
+  - **Overrides:** `_resolveProvider` helper added. `read`, `updater`, `watch`,
+    and `_trackDependency` now correctly resolve overrides to ensure state
+    access, updates, and dependency tracking work as expected even with
+    overridden providers.
   - **Cancellation:** `dispose()` reliably triggers `streamProvider` unsubscribe
     via callbacks. `_executeAsyncProvider` passes `AbortSignal` via
     `ScopeReader`, handles cancellation/re-execution correctly, and **now stores
@@ -51,6 +57,12 @@ towards further refinement, features, or documentation.
   - `useProvider` hook (using `useSyncExternalStore`), `any` types removed.
   - `useProviderUpdater` hook.
   - Integration tests passing (TypeScript errors resolved).
+- Vue adapter (`vue-adapter/`) implemented with:
+  - `ProviderScope.vue` component (supports overrides).
+  - `useProvider` composable.
+  - `useProviderUpdater` composable.
+  - Testing setup using `@vue/test-utils` and `@vitejs/plugin-vue`.
+  - Initial integration tests passing, including override scenarios.
 - Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
   All tests passing (including cancellation and `keepPreviousDataOnError`
   tests). `any` types removed or disabled where intentional. Test assertion
@@ -59,11 +71,12 @@ towards further refinement, features, or documentation.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
-    overrides, Riverpod comparison, and a guide on Combining Providers (with
-    examples). **`asyncProvider` guide updated with `keepPreviousDataOnError`
-    option.**
+    overrides, Riverpod comparison, Combining Providers, **and Vue adapter
+    usage**. examples). **`asyncProvider` guide updated with
+    `keepPreviousDataOnError` option.**
   - Sidebar configuration (`.vitepress/config.mts`) updated for new pages and
-    **restructured for improved API documentation navigation**.
+    **restructured for improved API documentation navigation and includes the
+    Vue guide**.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
     (`replace-in-file`).
@@ -73,6 +86,10 @@ towards further refinement, features, or documentation.
   `.prettierrc.cjs`).
 - Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
   checks (with `no-explicit-any` rule set to `error`).
+  - Build configuration (`tsup.config.ts`) updated for Vue adapter entry point
+    and external dependency.
+  - Package configuration (`package.json`) updated with Vue adapter exports and
+    peer dependency.
 - **Utilities:**
   - `pipe` utility function implemented and tested (`src/utils/pipe.ts`).
   - `debounce` utility function implemented and tested
@@ -87,7 +104,10 @@ towards further refinement, features, or documentation.
 2. **New Features:**
    - ~~Utility functions (`pipe`, `debounce`, etc.).~~ (Done)
 3. **Framework Adapters:**
-   - Plan/Implement Vue adapter.
+   - ~~Plan/Implement Vue adapter.~~ (Basic implementation done)
+   - Integrate Vue adapter into build process (`tsup.config.ts`). (Done)
+   - Add Vue adapter exports to `package.json`. (Done)
+   - Add documentation for Vue adapter usage. (Done)
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)

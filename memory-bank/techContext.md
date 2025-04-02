@@ -25,6 +25,9 @@
 - **Framework:** `vitest` is used (`vitest.config.ts`).
 - **React Testing:** `@testing-library/react` and `jsdom` are used for testing
   React components/hooks (`vitest.setup.ts`).
+- **Vue Testing:** `@vue/test-utils` and `jsdom` are used for testing Vue
+  components/composables. The `@vitejs/plugin-vue` is added to
+  `vitest.config.ts` to handle `.vue` files.
 - **Stream Testing:** `rxjs` (specifically `Subject`) is used as a dev
   dependency to simulate streams in tests.
 - **Assertions:** Integrated `vitest` assertions (`expect`) are used, extended
@@ -39,18 +42,23 @@
 
 **Framework Adapters:**
 
-- **Initial Focus:** React. Adapter will likely use React Hooks (`useState`,
-  `useEffect`, `useRef`, `useSyncExternalStore`).
-- **Future:** Plan for adapters for Vue, Svelte, Angular, potentially SolidJS.
-  The core must remain framework-agnostic.
+- **React:** Implemented using React Hooks (`useSyncExternalStore`). Provides
+  `ProviderScope`, `useProvider`, `useProviderUpdater`.
+- **Vue:** Implemented using Vue Composition API (`ref`, `provide`, `inject`,
+  `onScopeDispose`). Provides `ProviderScope.vue`, `useProvider`,
+  `useProviderUpdater`.
+- **Future:** Plan for adapters for Svelte, Angular, potentially SolidJS. The
+  core must remain framework-agnostic.
 
 **Dependencies:**
 
 - **Core:** Zero runtime dependencies.
 - **React Adapter:** Peer dependency on `react`.
+- **Vue Adapter:** Peer dependency on `vue`.
 - **Dev Dependencies:** Include `typescript`, `tsup`, `vitest`,
   `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`, `rxjs`,
-  `vitepress`, `typedoc`, `typedoc-plugin-markdown`, `replace-in-file`.
+  `vitepress`, `typedoc`, `typedoc-plugin-markdown`, `replace-in-file`, `vue`,
+  `@vue/test-utils`, `@vitejs/plugin-vue`.
 
 **Constraints:**
 

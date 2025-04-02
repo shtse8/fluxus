@@ -35,7 +35,8 @@
   (`scope.read`), its value is computed if needed and cached. Dependencies are
   tracked during this computation.
 - **Subscription:** UI components or other providers can subscribe
-  (`scope.watch` or framework-specific hooks like `useProvider`) to a provider.
+  (`scope.watch` or framework-specific hooks/composables like React's
+  `useProvider` or Vue's `useProvider`) to a provider.
 - **Change Propagation:** When a provider's state changes (e.g.,
   `stateProvider`'s value is updated), it notifies its direct dependents
   (listeners) and marks dependent providers as stale.

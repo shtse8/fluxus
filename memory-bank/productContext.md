@@ -23,7 +23,7 @@ solution that:
 - **Prioritizes Type Safety:** Leverages TypeScript's advanced features for
   end-to-end type safety.
 - **Framework Agnostic Core:** Designs the core logic independently of UI
-  frameworks, with dedicated adapters (starting with React).
+  frameworks, with dedicated adapters (React, Vue implemented).
 
 **User Experience Goals:**
 

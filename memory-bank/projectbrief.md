@@ -22,7 +22,8 @@ frameworks (React, Vue, Angular, Svelte, or framework-agnostic).
 **Success Criteria:**
 
 - A core library demonstrating the principles above.
-- A functional React adapter (`useProvider` hook).
+- Functional adapters for key frameworks (React: `useProvider` hook, Vue:
+  `useProvider` composable).
 - Clear advantages over existing libraries in terms of DX, performance, or type
   safety.
 - Comprehensive documentation and examples.
