@@ -1,19 +1,19 @@
-# Progress: Fluxus (Vue Adapter Implementation)
+# Progress: Fluxus (Post-Vue Integration)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, **basic Vue adapter**, and core utilities
 (`pipe`, `debounce`) are functional. Cancellation features for async and stream
 providers have been implemented and tested. Added `keepPreviousDataOnError`
-option to `asyncProvider`. **Core override logic (`_trackDependency`, `watch`)
-has been refined to ensure correct dependency tracking and updates.**
-Documentation site with auto-deployment is set up, including pages for Riverpod
-comparison, a guide on combining providers, **and a guide for the new Vue
-adapter**. The API documentation sidebar structure has been improved. Initial
+option to `asyncProvider`. Core override logic (`_trackDependency`, `watch`) has
+been refined. **Vue adapter integration into build process, package exports, and
+documentation is complete.** Documentation site with auto-deployment is set up,
+including pages for Riverpod comparison, combining providers, and Vue adapter
+usage. The API documentation sidebar structure has been improved. Initial
 refactoring phase addressing known issues and setting up linting/formatting is
 complete. The `@typescript-eslint/no-explicit-any` ESLint rule is enforced
 (`error`) and the codebase passes linting checks. Memory Bank is updated. Focus
-is now on integrating the Vue adapter into the build/package and potentially
-further refinements or features.
+can now shift to further refinements, adding more examples/tests, or planning
+the next major feature (e.g., Angular adapter).
 
 **What Works:**
 
@@ -72,8 +72,8 @@ further refinements or features.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
     overrides, Riverpod comparison, Combining Providers, **and Vue adapter
-    usage**. examples). **`asyncProvider` guide updated with
-    `keepPreviousDataOnError` option.**
+    usage**. `asyncProvider` guide updated with `keepPreviousDataOnError`
+    option.
   - Sidebar configuration (`.vitepress/config.mts`) updated for new pages and
     **restructured for improved API documentation navigation and includes the
     Vue guide**.
@@ -86,10 +86,10 @@ further refinements or features.
   `.prettierrc.cjs`).
 - Codebase passes formatting (`npm run format`) and linting (`npm run lint`)
   checks (with `no-explicit-any` rule set to `error`).
-  - Build configuration (`tsup.config.ts`) updated for Vue adapter entry point
-    and external dependency.
-  - Package configuration (`package.json`) updated with Vue adapter exports and
-    peer dependency.
+- **Build configuration (`tsup.config.ts`) updated for Vue adapter entry point
+  and external dependency.** (Verified Complete)
+- **Package configuration (`package.json`) updated with Vue adapter exports and
+  peer dependency.** (Verified Complete)
 - **Utilities:**
   - `pipe` utility function implemented and tested (`src/utils/pipe.ts`).
   - `debounce` utility function implemented and tested
@@ -101,13 +101,15 @@ further refinements or features.
    - ~~Add `keepPreviousDataOnError` option to `asyncProvider`.~~ (Done)
    - Further refine `asyncProvider`/`streamProvider` (advanced options like
      re-fetch/re-subscribe strategies).
+   - Refine Vue adapter tests/features (e.g., more complex scenarios, edge
+     cases).
 2. **New Features:**
    - ~~Utility functions (`pipe`, `debounce`, etc.).~~ (Done)
 3. **Framework Adapters:**
    - ~~Plan/Implement Vue adapter.~~ (Basic implementation done)
-   - Integrate Vue adapter into build process (`tsup.config.ts`). (Done)
-   - Add Vue adapter exports to `package.json`. (Done)
-   - Add documentation for Vue adapter usage. (Done)
+   - ~~Integrate Vue adapter into build process (`tsup.config.ts`).~~ (Done)
+   - ~~Add Vue adapter exports to `package.json`.~~ (Done)
+   - ~~Add documentation for Vue adapter usage.~~ (Done)
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)
@@ -117,6 +119,8 @@ further refinements or features.
 
 **Known Issues:**
 
-- None currently. **Blockers:**
+- None currently.
+
+**Blockers:**
 
 - None currently.

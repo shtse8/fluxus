@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Vue Adapter Implementation)
+# Active Context: Fluxus (Post-Vue Integration)
 
-**Current Focus:** Integrating the new Vue adapter into the build process and
-documentation.
+**Current Focus:** Refining documentation, potentially adding more Vue
+examples/tests, and planning the next major feature (e.g., Angular adapter).
 
 **Recent Changes:**
 
@@ -106,7 +106,7 @@ documentation.
 - **Documentation (Riverpod Comparison):**
   - Created `docs/guide/comparison-riverpod.md` with initial content.
   - Updated `docs/.vitepress/config.mts` sidebar to include the new comparison
-  - **Utilities:**
+- **Utilities:**
   - Implemented `pipe` utility function (`src/utils/pipe.ts`) and tests
     (`pipe.test.ts`).
   - Implemented `debounce` utility function (`src/utils/debounce.ts`) and tests
@@ -118,7 +118,7 @@ documentation.
     - Async operations triggered by state changes.
     - Using utilities (`debounce`) with providers (conceptual/side-effect
       focus).
-  - Streams depending on state (e.g., dynamic WebSocket subscription).
+    - Streams depending on state (e.g., dynamic WebSocket subscription).
 - Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
 - **Documentation (API Sidebar):**
 - Restructured the API sidebar in `docs/.vitepress/config.mts` to mirror the
@@ -144,6 +144,12 @@ documentation.
     providers update correctly when dependencies change via overrides.
   - Achieved passing tests for `useProvider` and `useProviderUpdater` with state
     and computed providers, including override scenarios.
+- **Vue Adapter (Integration & Docs):**
+  - Verified Vue adapter integration into build process (`tsup.config.ts`).
+  - Verified Vue adapter exports in `package.json`.
+  - Created Vue adapter usage guide (`docs/guide/vue.md`).
+  - Verified Vue guide link in documentation sidebar
+    (`docs/.vitepress/config.mts`).
 
 **Next Steps (Potential):**
 
@@ -151,13 +157,15 @@ documentation.
    - ~~Add `keepPreviousDataOnError` option to `asyncProvider`.~~ (Done)
    - Further refine `asyncProvider`/`streamProvider` (e.g., advanced
      re-fetch/re-subscribe options).
+   - Refine Vue adapter tests/features (e.g., more complex scenarios, edge
+     cases).
 2. **New Features:**
    - ~~Add utility functions (e.g., `pipe`, `debounce`).~~ (Done)
 3. **Framework Adapters:**
    - ~~Plan/Implement Vue adapter.~~ (Basic implementation done)
-   - Integrate Vue adapter into build process (`tsup.config.ts`).
-   - Add Vue adapter exports to `package.json`.
-   - Add documentation for Vue adapter usage.
+   - ~~Integrate Vue adapter into build process (`tsup.config.ts`).~~ (Done)
+   - ~~Add Vue adapter exports to `package.json`.~~ (Done)
+   - ~~Add documentation for Vue adapter usage.~~ (Done)
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)

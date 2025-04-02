@@ -1,121 +1,134 @@
 # Using Fluxus with Vue
 
-Fluxus provides a dedicated adapter to seamlessly integrate its providers with
-Vue 3's Composition API.
+Fluxus provides a dedicated adapter to seamlessly integrate its state management
+capabilities into your Vue 3 applications using the Composition API.
 
-## Installation
+## Setup
 
-First, ensure you have `fluxus` and `vue` installed:
+First, ensure you have installed both the core Fluxus library and the Vue
+adapter:
 
 ```bash
-npm install @shtse8/fluxus vue
+npm install @shtse8/fluxus @shtse8/fluxus/vue-adapter
 # or
-yarn add @shtse8/fluxus vue
+yarn add @shtse8/fluxus @shtse8/fluxus/vue-adapter
 # or
-pnpm add @shtse8/fluxus vue
+pnpm add @shtse8/fluxus @shtse8/fluxus/vue-adapter
 ```
 
-## Setup: `ProviderScope`
+Make sure you also have `vue` installed, as it's a peer dependency.
+
+## `ProviderScope` Component
 
 Similar to the React adapter, you need to wrap your application or the relevant
-component subtree with the `ProviderScope` component. This component creates the
-Fluxus `Scope` instance where provider states will live.
+part of your component tree with the `ProviderScope` component. This component
+creates a new Fluxus scope, making providers available to components within it.
 
 ```vue
-<!-- src/App.vue -->
 <script setup lang="ts">
 import { ProviderScope } from '@shtse8/fluxus/vue-adapter';
-// Import your root component
-import MyAppComponent from './components/MyAppComponent.vue';
+import MyComponent from './MyComponent.vue';
+// Import any provider overrides if needed
+// import { myProviderOverride } from './providers';
 </script>
 
 <template>
-  <ProviderScope>
-    <MyAppComponent />
+  <ProviderScope> <!-- Optionally pass overrides: :overrides="[myProviderOverride]" -->
+    <MyComponent />
+    <!-- Other components -->
   </ProviderScope>
 </template>
 ```
 
-## Reading Providers: `useProvider`
+## `useProvider` Composable
 
-The `useProvider` composable allows you to read the current value of a provider
-within your component's `setup` function. It returns a Vue `Ref` that
+The `useProvider` composable is the primary way to access and subscribe to
+provider values within your Vue components. It returns a `Ref` that
 automatically updates when the provider's state changes.
 
 ```vue
-<!-- src/components/CounterDisplay.vue -->
 <script setup lang="ts">
 import { useProvider } from '@shtse8/fluxus/vue-adapter';
-import { counterProvider } from '../providers/counter'; // Assuming you have defined this provider
+import { counterProvider } from './providers'; // Assuming counterProvider is a stateProvider
 
+// Access the counter value. The `count` ref will update automatically.
 const count = useProvider(counterProvider);
 </script>
 
 <template>
-  <div>Count: {{ count }}</div>
+  <div>
+    Count: {{ count }}
+  </div>
 </template>
 ```
 
-Fluxus handles the subscription and unsubscription automatically. When the
-component unmounts, the subscription created by `useProvider` is cleaned up.
+`useProvider` works with all provider types (`stateProvider`,
+`computedProvider`, `asyncProvider`, `streamProvider`). For `asyncProvider` and
+`streamProvider`, the `Ref` will hold an `AsyncValue` object
+(`{ state: 'loading' | 'data' | 'error', data?: T, error?: unknown }`).
 
-## Updating State Providers: `useProviderUpdater`
+## `useProviderUpdater` Composable
 
-For `stateProvider` instances, you can get the updater function using the
-`useProviderUpdater` composable.
+For `stateProvider`s, you often need a way to update their value. The
+`useProviderUpdater` composable provides access to the updater function defined
+by the `stateProvider`.
 
 ```vue
-<!-- src/components/CounterControls.vue -->
 <script setup lang="ts">
-import { useProviderUpdater } from '@shtse8/fluxus/vue-adapter';
-import { counterProvider } from '../providers/counter';
+import { useProvider, useProviderUpdater } from '@shtse8/fluxus/vue-adapter';
+import { counterProvider } from './providers'; // Assuming counterProvider is stateProvider<number>
 
+const count = useProvider(counterProvider);
 const updateCounter = useProviderUpdater(counterProvider);
 
 function increment() {
-  updateCounter((prevCount) => prevCount + 1);
+  // The updater function receives the current value and returns the new value
+  updateCounter(currentValue => currentValue + 1);
 }
 
 function reset() {
-  updateCounter(0); // Set to a specific value
+  // Or you can set the value directly
+  updateCounter(0);
 }
 </script>
 
 <template>
-  <button @click="increment">Increment</button>
-  <button @click="reset">Reset</button>
+  <div>
+    Count: {{ count }}
+    <button @click="increment">Increment</button>
+    <button @click="reset">Reset</button>
+  </div>
 </template>
 ```
 
 ## Provider Overrides
 
-The `ProviderScope` component accepts an optional `overrides` prop, allowing you
-to replace providers within its subtree, which is particularly useful for
-testing or specific scenarios.
+Provider overrides work the same way as in the core library and React adapter.
+You can pass an array of `ProviderOverride` objects to the `overrides` prop of
+the `ProviderScope` component, which is useful for testing or specific
+scenarios.
 
 ```vue
-<!-- src/App.vue (Example with Override) -->
 <script setup lang="ts">
 import { ProviderScope } from '@shtse8/fluxus/vue-adapter';
-import { stateProvider } from '@shtse8/fluxus';
-import MyAppComponent from './components/MyAppComponent.vue';
-import { counterProvider } from './providers/counter'; // Original provider
+import { counterProvider, mockedCounterProvider } from './providers';
+import MyComponent from './MyComponent.vue';
 
-// Create an override for testing or specific context
-const mockCounterProvider = stateProvider(() => 100);
 const overrides = [
-  { provider: counterProvider, useValue: mockCounterProvider }
+  {
+    provider: counterProvider,
+    useValue: mockedCounterProvider // Or useFactory/useClass depending on provider type
+  }
 ];
 </script>
 
 <template>
   <ProviderScope :overrides="overrides">
-    <!-- Components inside here will use mockCounterProvider -->
-    <MyAppComponent />
+    <MyComponent />
   </ProviderScope>
 </template>
 ```
 
-Now, any component within this `ProviderScope` calling
-`useProvider(counterProvider)` will receive the state from `mockCounterProvider`
-instead.
+This adapter leverages Vue's Composition API (`provide`, `inject`, `ref`,
+`onScopeDispose`) to provide a reactive and idiomatic experience for Vue
+developers.
