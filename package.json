@@ -1,5 +1,5 @@
 {
-  "name": "fluxus",
+  "name": "@shtse8/fluxus",
   "version": "1.0.0",
   "description": "A functional, reactive state management library for TypeScript inspired by Riverpod.",
   "type": "module",
