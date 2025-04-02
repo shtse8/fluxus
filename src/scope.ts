@@ -146,6 +146,17 @@ export class Scope implements Disposable {
     return provider.name || '<unknownProvider>';
   }
 
+  /** Resolves a provider to its override if one exists and is a provider. @private */
+  private _resolveProvider<T>(provider: Provider<T>): Provider<T> {
+    const override = this.overridesMap.get(provider);
+    // Check if the override exists and is a provider function itself
+    if (override !== undefined && isProvider(override)) {
+      return override as Provider<T>; // Use the overriding provider
+    }
+    // Otherwise, use the original provider
+    return provider;
+  }
+
   public read<T>(provider: Provider<T>): T {
     this.checkDisposed();
 
@@ -500,15 +511,25 @@ export class Scope implements Disposable {
 
   /** Helper for tracking dependencies during read/watch. @private */
   private _trackDependency<P>(
-    dependencyProvider: Provider<P>,
-    dependentProvider: Provider<unknown>, // Changed any to unknown
-    currentDependenciesSet: Set<Provider<unknown>> // Changed any to unknown
+    dependencyProvider: Provider<P>, // The provider being requested as a dependency
+    dependentProvider: Provider<unknown>, // The provider that is depending on the other
+    currentDependenciesSet: Set<Provider<unknown>> // The set to add the dependency key to
   ): P {
+    // 1. Add the original provider key to the dependent's dependency list
     currentDependenciesSet.add(dependencyProvider);
-    const value = this.read(dependencyProvider); // Delegate read
-    const dependencyState = this.providerStates.get(dependencyProvider);
-    if (dependencyState && !dependencyState.isDisposed) {
-      dependencyState.dependents.add(dependentProvider);
+
+    // 2. Resolve the dependency provider (handles overrides)
+    const resolvedDependencyProvider = this._resolveProvider(dependencyProvider);
+
+    // 3. Read the value using the resolved provider (ensures state exists)
+    const value = this.read(resolvedDependencyProvider);
+
+    // 4. Get the state associated with the *resolved* provider
+    const resolvedDependencyState = this.providerStates.get(resolvedDependencyProvider);
+
+    // 5. Add the dependent provider to the *resolved* provider's dependents list
+    if (resolvedDependencyState && !resolvedDependencyState.isDisposed) {
+      resolvedDependencyState.dependents.add(dependentProvider);
     }
     return value;
   }
@@ -700,20 +721,22 @@ export class Scope implements Disposable {
   /** Subscribes a listener to a provider's state changes. */
   public watch<T>(provider: Provider<T>, callback: () => void): Dispose {
     this.checkDisposed();
-    this.read(provider); // Ensure initialized
-    const state = this.providerStates.get(provider);
+    const resolvedProvider = this._resolveProvider(provider); // Resolve override first
+    this.read(resolvedProvider); // Ensure the *resolved* provider's state is initialized
+    const state = this.providerStates.get(resolvedProvider); // Get state using the *resolved* provider key
 
     if (!state || state.isDisposed) {
       console.warn(
-        `Attempted to watch provider '${this._getProviderName(provider)}' (ID: ${state?.internalId ?? 'N/A'}) but its state was not found or was disposed.`
+        `Attempted to watch provider '${this._getProviderName(provider)}' (resolved to '${this._getProviderName(resolvedProvider)}') but its state was not found or was disposed.`
       );
       return () => {};
     }
 
-    state.listeners.add(callback); // Add to base listeners
+    state.listeners.add(callback); // Add listener to the resolved provider's state
 
     return () => {
-      const currentState = this.providerStates.get(provider);
+      // Use the resolved provider key when removing the listener too
+      const currentState = this.providerStates.get(resolvedProvider);
       if (!currentState || currentState.isDisposed) return;
 
       currentState.listeners.delete(callback);

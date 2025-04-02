@@ -1,7 +1,7 @@
-# Active Context: Fluxus (ESLint `no-explicit-any` Fix)
+# Active Context: Fluxus (Vue Adapter Implementation)
 
-**Current Focus:** Updating Memory Bank after resolving the
-`@typescript-eslint/no-explicit-any` ESLint rule issue.
+**Current Focus:** Integrating the new Vue adapter into the build process and
+documentation.
 
 **Recent Changes:**
 
@@ -127,6 +127,23 @@
 - **ESLint Fix:** Resolved the `no-explicit-any` issue by using
   `@ts-expect-error` in tests and setting the rule to `error` in
   `eslint.config.js`. Ran format and lint checks successfully.
+- **Vue Adapter (Initial Implementation):**
+  - Created `vue-adapter/` directory and core files (`index.ts`, `hooks.ts`,
+    `context.ts`, `ProviderScope.vue`).
+  - Implemented `ProviderScope.vue` component for scope creation and provision
+    using `provide`/`inject` with `scopeSymbol`.
+  - Implemented `useProvider` composable using `inject`, `ref`, `scope.watch`,
+    `onScopeDispose`.
+  - Implemented `useProviderUpdater` composable, wrapping `scope.updater` to
+    provide a simplified API.
+  - Added `vue`, `@vue/test-utils`, `@vitejs/plugin-vue` dev dependencies.
+  - Configured `vitest.config.ts` with `@vitejs/plugin-vue`.
+  - Created initial test suite `vue-adapter/hooks.test.ts`.
+  - **Refined Core for Overrides:** Updated `Scope._trackDependency` and
+    `Scope.watch` to correctly resolve provider overrides, ensuring dependent
+    providers update correctly when dependencies change via overrides.
+  - Achieved passing tests for `useProvider` and `useProviderUpdater` with state
+    and computed providers, including override scenarios.
 
 **Next Steps (Potential):**
 
@@ -137,7 +154,10 @@
 2. **New Features:**
    - ~~Add utility functions (e.g., `pipe`, `debounce`).~~ (Done)
 3. **Framework Adapters:**
-   - Plan/Implement Vue adapter.
+   - ~~Plan/Implement Vue adapter.~~ (Basic implementation done)
+   - Integrate Vue adapter into build process (`tsup.config.ts`).
+   - Add Vue adapter exports to `package.json`.
+   - Add documentation for Vue adapter usage.
    - Plan/Implement Angular adapter.
 4. **Documentation:**
    - ~~Add "Comparison with Riverpod" page.~~ (Done)

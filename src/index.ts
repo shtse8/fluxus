@@ -13,6 +13,7 @@ export type {
   ScopeReader,
   Dispose,
   Disposable,
+  ProviderOverride, // Added ProviderOverride
   // AsyncValue types
   AsyncValue,
   AsyncLoading,

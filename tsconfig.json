@@ -43,6 +43,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "react-adapter/**/*.ts", "react-adapter/**/*.tsx", "vitest.setup.ts"], // Include source, react adapter (ts/tsx), and setup file
+  "include": ["src/**/*.ts", "react-adapter/**/*.ts", "react-adapter/**/*.tsx", "vue-adapter/**/*.ts", "vitest.setup.ts"], // Include source, adapters (ts/tsx), and setup file
   "exclude": ["node_modules", "dist"] // Exclude build output and dependencies
 }

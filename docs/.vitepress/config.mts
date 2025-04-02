@@ -49,6 +49,10 @@ export default defineConfig({
             },
           ],
         },
+        {
+          text: 'Vue Adapter',
+          items: [{ text: 'Usage Guide', link: '/guide/vue' }],
+        },
         // Add more sections as needed
       ],
       '/project-context/': [
