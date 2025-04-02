@@ -1,56 +1,75 @@
-# Progress: Fluxus (Core Implementation & React Adapter)
+# Progress: Fluxus (Core Providers & Docs Implemented)
 
-**Current Status:** Core Implementation & React Adapter Phase
+**Current Status:** Core provider implementations (`state`, `computed`, `async`,
+`stream`) and basic React adapter are functional. Documentation site with
+auto-deployment is set up. Focus is shifting towards refinement, further
+documentation, and potentially new framework adapters.
 
 **What Works:**
 
 - Project setup complete (`package.json`, `tsconfig.json`, `tsup.config.ts`).
-- All core Memory Bank files created and updated.
-- Core types defined (`src/types.ts`).
+- Core types defined (`src/types.ts`), including `AsyncValue` and
+  `ProviderOverride`.
 - `Scope` class implemented (`src/scope.ts`) with:
-  - `read()` method.
-  - `updater()` method.
+  - State management for different provider types.
+  - `read()` method supporting overrides.
+  - `updater()` method supporting overrides.
   - `watch()` method for subscriptions.
-  - `dispose()` method.
-  - Basic state management and lifecycle hooks (`onDispose`).
-- `stateProvider` factory implemented (`src/providers/stateProvider.ts`) with:
-  - Internal state management (value, updater, listeners).
-  - Listener notification on update.
-- Basic React adapter implemented (`react-adapter/`) with:
-  - `ProviderScope` component.
-  - `useScope` hook.
-  - Reactive `useProvider` hook (using `useSyncExternalStore`).
+  - `dispose()` method for scope cleanup.
+  - Dependency tracking for re-computation/re-execution.
+  - Auto-disposal based on listener count.
+- `stateProvider` factory implemented and tested.
+- `computedProvider` factory implemented and tested (except for one auto-dispose
+  scenario).
+- `asyncProvider` factory implemented (including re-execution on dependency
+  change) and tested.
+- `streamProvider` factory implemented (including re-subscription on dependency
+  change) and tested.
+- Provider Overrides implemented and tested.
+- React adapter (`react-adapter/`) implemented with:
+  - `ProviderScope` component (supports overrides).
+  - `useProvider` hook (using `useSyncExternalStore`).
   - `useProviderUpdater` hook.
-- React adapter directory renamed to `react-adapter` to resolve import
-  conflicts.
-- TypeScript configuration (`tsconfig.json`) finalized for `NodeNext` module
-  resolution.
-- `npm run typecheck` passes without errors.
-- Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`).
-- Unit tests written and passing for `Scope` (`src/scope.test.ts`).
-- Unit tests written and passing for `stateProvider`
-  (`src/providers/stateProvider.test.ts`).
-- Integration tests written and passing for React hooks (`useProvider`,
-  `useProviderUpdater`) including StrictMode handling
-  (`react-adapter/hooks.test.tsx`).
-- All tests pass via `npm run test`.
+  - Integration tests passing (ignoring TS errors).
+- Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
+- TSDoc comments added to core files.
+- Basic `README.md` created.
+- Documentation site using VitePress created (`docs/`).
+  - Includes homepage, guide pages for core concepts, providers, lifecycle,
+    overrides.
+  - TypeDoc integration generates API docs (`docs/api/generated`).
+  - Build process includes TypeDoc generation and markdown fixes
+    (`replace-in-file`).
+- GitHub Actions workflow set up for automatic deployment to GitHub Pages.
+- `.gitignore` configured.
 
-**What's Left To Build (Next Steps):**
+**What's Left To Build (Next Steps - Potential):**
 
 1. **Refinement:**
-   - Enhance dependency tracking in `Scope` for re-computation (currently only
-     for disposal).
-   - Consider auto-disposal of provider state based on listener count.
-2. **Documentation:**
-   - Create `README.md`.
-   - Add TSDoc comments.
-3. **Features:**
-   - Implement `ComputedProvider`.
+   - Investigate and fix failing `computedProvider` auto-dispose test.
+   - Investigate and fix persistent TypeScript errors in `hooks.test.tsx`.
+   - Refine `asyncProvider`/`streamProvider` (cancellation, advanced options).
+   - Add provider names/IDs for debugging.
+2. **New Features:**
+   - Utility functions (`pipe`, `debounce`, etc.).
+3. **Framework Adapters:**
+   - Plan/Implement Vue adapter.
+   - Plan/Implement Angular adapter.
+4. **Documentation:**
+   - Add "Comparison with Riverpod" page.
+   - Add more examples and advanced usage guides.
+   - Improve API documentation presentation (e.g., better sidebar generation).
 
 **Known Issues:**
 
-- None yet.
+- One test failure in `src/providers/computedProvider.test.ts` related to
+  reading a computed provider after its dependency auto-disposes
+  (`should fail read if dependency was auto-disposed`). The underlying `read`
+  logic seems correct, but the test expectation isn't met.
+- Persistent TypeScript errors in `react-adapter/hooks.test.tsx` regarding
+  `@testing-library/jest-dom` matchers (`toHaveTextContent`) not being
+  recognized by the type checker, despite being present at runtime.
 
 **Blockers:**
 
-- None yet.
+- None currently.

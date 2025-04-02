@@ -1,4 +1,4 @@
-# Tech Context: Fluxus (Initial Setup)
+# Tech Context: Fluxus
 
 **Core Language:** TypeScript
 
@@ -14,38 +14,44 @@
 
 - **Compiler:** `tsc` (TypeScript compiler) for type checking and potentially
   basic builds.
-- **Bundler:** Likely `tsup` (uses esbuild) for efficient bundling into multiple
-  formats (ESM, CJS). This simplifies configuration compared to raw `tsc` or
-  more complex bundlers like Webpack/Rollup for library development.
+- **Bundler:** `tsup` (using esbuild) is used for bundling into ESM and CJS
+  formats (`tsup.config.ts`).
 - **Target:** Modern JavaScript environments (ES2020+), potentially with
   down-leveling for wider compatibility if needed, but prioritizing modern
   targets initially.
 
 **Testing:**
 
-- **Framework:** `vitest` is a strong candidate due to its speed, compatibility
-  with Vite ecosystem, and modern features. `jest` is another possibility.
-- **Assertions:** Use the assertion library integrated with the chosen test
-  framework.
+- **Framework:** `vitest` is used (`vitest.config.ts`).
+- **React Testing:** `@testing-library/react` and `jsdom` are used for testing
+  React components/hooks (`vitest.setup.ts`).
+- **Stream Testing:** `rxjs` (specifically `Subject`) is used as a dev
+  dependency to simulate streams in tests.
+- **Assertions:** Integrated `vitest` assertions (`expect`) are used, extended
+  with `@testing-library/jest-dom` matchers.
 
 **Linting/Formatting:**
 
 - **Linter:** ESLint with standard TypeScript plugins
   (`@typescript-eslint/eslint-plugin`).
 - **Formatter:** Prettier for consistent code style.
-- Configuration files (`.eslintrc.js`, `.prettierrc.js`) will be added.
+- Configuration files (`.eslintrc.js`, `.prettierrc.js`) have not been added
+  yet. (Optional TODO)
 
 **Framework Adapters:**
 
 - **Initial Focus:** React. Adapter will likely use React Hooks (`useState`,
-  `useEffect`, `useSyncExternalStore`).
+  `useEffect`, `useRef`, `useSyncExternalStore`).
 - **Future:** Plan for adapters for Vue, Svelte, Angular, potentially SolidJS.
   The core must remain framework-agnostic.
 
-**Dependencies (Anticipated Core - Minimal):**
+**Dependencies:**
 
-- None initially. The goal is a zero-dependency core library. Framework adapters
-  will have peer dependencies on the respective frameworks (e.g., `react`).
+- **Core:** Zero runtime dependencies.
+- **React Adapter:** Peer dependency on `react`.
+- **Dev Dependencies:** Include `typescript`, `tsup`, `vitest`,
+  `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`, `rxjs`,
+  `vitepress`, `typedoc`, `typedoc-plugin-markdown`, `replace-in-file`.
 
 **Constraints:**
 
