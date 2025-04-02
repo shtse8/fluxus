@@ -1,14 +1,14 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / computedProvider
 
 # Function: computedProvider()
 
-> **computedProvider**\<`T`\>(`compute`): [`ComputedProviderInstance`](../interfaces/ComputedProviderInstance.md)\<`T`\>
+> **computedProvider**\<`T`\>(`compute`, `options`?): [`ComputedProviderInstance`](../interfaces/ComputedProviderInstance.md)\<`T`\>
 
-Defined in: [src/providers/computedProvider.ts:88](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/computedProvider.ts#L88)
+Defined in: [src/providers/computedProvider.ts:99](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/computedProvider.ts#L99)
 
 Creates a [ComputedProviderInstance](../interfaces/ComputedProviderInstance.md) which derives its state by computing
 a value based on other providers.
@@ -33,9 +33,13 @@ The type of the computed value.
 (`reader`) => `T`
 
 The function that computes the
-derived state. It receives a [ScopeReader](../interfaces/ScopeReader.md) to access other providers.
-It's crucial to use `reader.watch` or `reader.read` within this function
-to establish dependencies correctly for automatic recomputation.
+  derived state. It receives a [ScopeReader](../interfaces/ScopeReader.md) to access other providers.
+  It's crucial to use `reader.watch` or `reader.read` within this function
+  to establish dependencies correctly for automatic recomputation.
+
+### options?
+
+`ProviderOptions`
 
 ## Returns
 
@@ -49,13 +53,11 @@ The created ComputedProvider instance.
 const countProvider = stateProvider(0);
 const doubleCountProvider = computedProvider((reader) => {
   const count = reader.watch(countProvider); // Establish dependency
-  const count = reader.watch(countProvider); // Establish dependency
   return count * 2;
 });
 ```
 
 ## See
 
-- [stateProvider](stateProvider.md) for creating mutable state.
-- [ScopeReader](../interfaces/ScopeReader.md) for how to access dependencies.
-  });
+ - [stateProvider](stateProvider.md) for creating mutable state.
+ - [ScopeReader](../interfaces/ScopeReader.md) for how to access dependencies.

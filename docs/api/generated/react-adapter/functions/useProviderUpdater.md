@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [react-adapter](../README.md) / useProviderUpdater
 
@@ -8,7 +8,7 @@
 
 > **useProviderUpdater**\<`T`\>(`provider`): (`newValueOrFn`) => `void`
 
-Defined in: [react-adapter/hooks.ts:114](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/react-adapter/hooks.ts#L114)
+Defined in: [react-adapter/hooks.ts:124](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/react-adapter/hooks.ts#L124)
 
 A React hook that returns the updater function for a [StateProviderInstance](../../src/interfaces/StateProviderInstance.md).
 

@@ -1,12 +1,12 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / StateProviderInstance
 
 # Interface: StateProviderInstance()\<T\>
 
-Defined in: [src/providers/stateProvider.ts:50](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L50)
+Defined in: [src/providers/stateProvider.ts:49](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/stateProvider.ts#L49)
 
 A specialized [Provider](../type-aliases/Provider.md) that manages a mutable piece of state.
 
@@ -28,7 +28,7 @@ The type of the state value.
 
 > **StateProviderInstance**(`reader`): `T`
 
-Defined in: [src/providers/stateProvider.ts:50](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L50)
+Defined in: [src/providers/stateProvider.ts:49](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/stateProvider.ts#L49)
 
 A specialized [Provider](../type-aliases/Provider.md) that manages a mutable piece of state.
 
@@ -48,23 +48,23 @@ StateProviders are the primary way to introduce mutable state into the Fluxus sy
 
 ## Properties
 
-### \_fluxus_provider_type
+### \_fluxus\_provider\_type
 
-> `readonly` **\_fluxus_provider_type**: `"StateProvider"`
+> `readonly` **\_fluxus\_provider\_type**: `"StateProvider"`
 
-Defined in: [src/providers/stateProvider.ts:64](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L64)
+Defined in: [src/providers/stateProvider.ts:65](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/stateProvider.ts#L65)
 
 **`Internal`**
 
 A read-only property for easier type narrowing if needed.
 
----
+***
 
 ### \[$stateProvider\]
 
 > **\[$stateProvider\]**: `object`
 
-Defined in: [src/providers/stateProvider.ts:52](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L52)
+Defined in: [src/providers/stateProvider.ts:51](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/stateProvider.ts#L51)
 
 **`Internal`**
 
@@ -98,3 +98,9 @@ A unique ID assigned by the scope for debugging.
 `StateProviderState`\<`T`\>
 
 The initial internal state.
+
+#### name?
+
+> `optional` **name**: `string`
+
+An optional name for debugging.

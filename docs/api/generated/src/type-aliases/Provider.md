@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / Provider
 
@@ -8,7 +8,7 @@
 
 > **Provider**\<`T`\> = (`reader`) => `T`
 
-Defined in: [src/types.ts:67](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/types.ts#L67)
+Defined in: [src/types.ts:153](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/types.ts#L153)
 
 The core building block of Fluxus. A Provider defines how to create a value
 within a specific scope. Providers are functions or objects that encapsulate

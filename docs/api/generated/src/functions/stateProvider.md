@@ -1,14 +1,14 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [src](../README.md) / stateProvider
 
 # Function: stateProvider()
 
-> **stateProvider**\<`T`\>(`initialValue`): [`StateProviderInstance`](../interfaces/StateProviderInstance.md)\<`T`\>
+> **stateProvider**\<`T`\>(`initialValue`, `options`?): [`StateProviderInstance`](../interfaces/StateProviderInstance.md)\<`T`\>
 
-Defined in: [src/providers/stateProvider.ts:102](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/stateProvider.ts#L102)
+Defined in: [src/providers/stateProvider.ts:113](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/stateProvider.ts#L113)
 
 Creates a [StateProviderInstance](../interfaces/StateProviderInstance.md) which manages a mutable piece of state.
 
@@ -25,11 +25,15 @@ The type of the state value.
 ### initialValue
 
 The initial value for the state,
-or a function that computes the initial value using a [ScopeReader](../interfaces/ScopeReader.md).
-If a function is provided, it will be called once per scope when the provider
-is first initialized within that scope.
+  or a function that computes the initial value using a [ScopeReader](../interfaces/ScopeReader.md).
+  If a function is provided, it will be called once per scope when the provider
+  is first initialized within that scope.
 
 `T` | (`reader`) => `T`
+
+### options?
+
+`ProviderOptions`
 
 ## Returns
 

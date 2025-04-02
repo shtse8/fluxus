@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [react-adapter](../README.md) / useProvider
 
@@ -8,7 +8,7 @@
 
 > **useProvider**\<`T`\>(`provider`): `T`
 
-Defined in: [react-adapter/hooks.ts:23](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/react-adapter/hooks.ts#L23)
+Defined in: [react-adapter/hooks.ts:27](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/react-adapter/hooks.ts#L27)
 
 A React hook that reads a provider's value from the current [Scope](../../src/classes/Scope.md)
 and subscribes to updates.

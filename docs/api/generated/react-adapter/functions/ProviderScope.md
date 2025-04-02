@@ -1,6 +1,6 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
 [@shtse8/fluxus](../../README.md) / [react-adapter](../README.md) / ProviderScope
 
@@ -8,7 +8,7 @@
 
 > **ProviderScope**(`props`): `ReactElement`
 
-Defined in: [react-adapter/ProviderScope.tsx:39](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/react-adapter/ProviderScope.tsx#L39)
+Defined in: [react-adapter/ProviderScope.tsx:40](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/react-adapter/ProviderScope.tsx#L40)
 
 A React component that creates and manages a Fluxus [Scope](../../src/classes/Scope.md) instance
 and provides it to descendant components via React Context.
@@ -41,6 +41,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ProviderScope>
       <App />
     </ProviderScope>
-  </React.StrictMode>
-);
+  </React.StrictMode>,
+)
 ```

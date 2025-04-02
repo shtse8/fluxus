@@ -1,18 +1,16 @@
 [**@shtse8/fluxus v1.0.0**](../../README.md)
 
----
+***
 
-[@shtse8/fluxus](../../README.md) / [src](../README.md) /
-ComputedProviderInstance
+[@shtse8/fluxus](../../README.md) / [src](../README.md) / ComputedProviderInstance
 
-# Interface: ComputedProviderInstance()&lt;T&gt;
+# Interface: ComputedProviderInstance()\<T\>
 
-Defined in:
-[src/providers/computedProvider.ts:28](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/computedProvider.ts#L28)
+Defined in: [src/providers/computedProvider.ts:28](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/computedProvider.ts#L28)
 
-Represents an instance of a ComputedProvider. It acts as a Provider<T> for
-reading the computed value. It carries metadata via a symbol to distinguish it
-during initialization.
+Represents an instance of a ComputedProvider.
+It acts as a Provider&lt;T&gt; for reading the computed value. It carries metadata
+via a symbol to distinguish it during initialization.
 
 ## Extends
 
@@ -28,12 +26,11 @@ The type of the computed value.
 
 > **ComputedProviderInstance**(`reader`): `T`
 
-Defined in:
-[src/providers/computedProvider.ts:28](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/computedProvider.ts#L28)
+Defined in: [src/providers/computedProvider.ts:28](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/computedProvider.ts#L28)
 
-Represents an instance of a ComputedProvider. It acts as a Provider<T> for
-reading the computed value. It carries metadata via a symbol to distinguish it
-during initialization.
+Represents an instance of a ComputedProvider.
+It acts as a Provider&lt;T&gt; for reading the computed value. It carries metadata
+via a symbol to distinguish it during initialization.
 
 ## Parameters
 
@@ -47,25 +44,23 @@ during initialization.
 
 ## Properties
 
-### \_fluxus_provider_type
+### \_fluxus\_provider\_type
 
-> `readonly` **\_fluxus_provider_type**: `"ComputedProvider"`
+> `readonly` **\_fluxus\_provider\_type**: `"ComputedProvider"`
 
-Defined in:
-[src/providers/computedProvider.ts:40](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/computedProvider.ts#L40)
+Defined in: [src/providers/computedProvider.ts:42](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/computedProvider.ts#L42)
 
 **`Internal`**
 
 A read-only property for easier type narrowing if needed.
 
----
+***
 
 ### \[$computedProvider\]
 
 > **\[$computedProvider\]**: `object`
 
-Defined in:
-[src/providers/computedProvider.ts:30](https://github.com/shtse8/fluxus/blob/4924e60e87ca8856c0bf61d7c46469f55d63d7b6/src/providers/computedProvider.ts#L30)
+Defined in: [src/providers/computedProvider.ts:30](https://github.com/shtse8/fluxus/blob/213c71c5e98d0245d85ae1e863504b6b01882dfb/src/providers/computedProvider.ts#L30)
 
 **`Internal`**
 
@@ -77,8 +72,8 @@ A unique symbol used to identify ComputedProvider instances.
 
 **`Internal`**
 
-The computation function provided when the provider was created. This function
-is called by the Scope during initialization or recomputation.
+The computation function provided when the provider was created.
+This function is called by the Scope during initialization or recomputation.
 
 ##### Parameters
 
@@ -93,3 +88,9 @@ The reader for the current scope.
 `T`
 
 The computed value.
+
+#### name?
+
+> `optional` **name**: `string`
+
+An optional name for debugging.

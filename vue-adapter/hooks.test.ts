@@ -170,6 +170,7 @@ describe('Vue Adapter Hooks', () => {
     // Clean up
     wrapper.unmount();
     scope.dispose();
+  });
 
   it('should clean up scope listener on component unmount', async () => {
     // Override the provider to ensure a clean initial state of 0
@@ -200,6 +201,12 @@ describe('Vue Adapter Hooks', () => {
     // After mount, a listener should be added
     expect(providerState.listeners.size).toBe(1);
 
+    wrapper.unmount(); // Unmount to trigger cleanup
+    scope.dispose();
+
+    // After unmount, the listener should be removed
+    expect(providerState.listeners.size).toBe(0);
+  });
   it('useProvider should handle asyncProvider states (loading, data, error)', async () => {
     // Controllable promise for testing
     let resolvePromise: (value: string) => void;
