@@ -1,7 +1,7 @@
 # Active Context: Fluxus (Docs: Combining Providers Guide Added)
 
-**Current Focus:** Updating Memory Bank after adding the "Combining Providers"
-documentation guide.
+**Current Focus:** Updating Memory Bank after adding the "Streams Depending on
+State" example to the "Combining Providers" guide.
 
 **Recent Changes:**
 
@@ -108,6 +108,7 @@ documentation guide.
     - Async operations triggered by state changes.
     - Using utilities (`debounce`) with providers (conceptual/side-effect
       focus).
+    - Streams depending on state (e.g., dynamic WebSocket subscription).
   - Updated `docs/.vitepress/config.mts` sidebar to include the new guide.
 
 1. **Refinement:**

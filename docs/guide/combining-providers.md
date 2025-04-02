@@ -270,4 +270,92 @@ const debouncedValueProvider = pipe(
 // for debouncing function calls, often used for side effects as shown above.
 ```
 
+## Streams Depending on State
+
+A powerful pattern is creating streams whose source depends on other state. For
+example, subscribing to a WebSocket topic or a real-time database query based on
+a selected item ID.
+
+```typescript
+import { AsyncValue, stateProvider, streamProvider } from "fluxus";
+
+// Assume a WebSocket utility exists
+declare function createWebSocketStream<T>(url: string): ReadableStream<T>;
+
+// 1. Provider for the currently selected item ID (could be null)
+const selectedItemIdProvider = stateProvider<number | null>(null, {
+    name: "selectedItemIdProvider",
+});
+
+// 2. Stream provider for messages related to the selected item
+const itemMessagesProvider = streamProvider<AsyncValue<string>>((reader) => {
+    const itemId = reader.read(selectedItemIdProvider);
+
+    // If no item is selected, return a stream that emits nothing or an initial state
+    if (itemId === null) {
+        // Option 1: Return an empty stream that closes immediately
+        // return new ReadableStream({ start(controller) { controller.close(); } });
+
+        // Option 2: Return a stream indicating 'no selection'
+        return new ReadableStream({
+            start(controller) {
+                controller.enqueue({ state: "data", data: "No item selected" });
+                // Keep the stream open or close it, depending on desired behavior
+                // controller.close();
+            },
+        });
+    }
+
+    // Create the actual WebSocket stream based on the ID
+    const wsUrl = `wss://example.com/items/${itemId}`;
+    console.log(`Subscribing to ${wsUrl}`);
+    const stream = createWebSocketStream<string>(wsUrl);
+
+    // Important: Ensure cleanup when the provider is disposed or the ID changes
+    // The streamProvider handles closing the subscription, but explicit cleanup
+    // might be needed for the underlying WebSocket connection if not handled by createWebSocketStream.
+    reader.onDispose(() => {
+        console.log(`Unsubscribing from ${wsUrl}`);
+        // Add any specific WebSocket closing logic here if needed
+    });
+
+    // Map the raw stream data to AsyncValue<string>
+    // (Assuming createWebSocketStream provides raw strings)
+    // A more robust implementation would handle connection errors.
+    return stream.pipeThrough(
+        new TransformStream({
+            transform(chunk, controller) {
+                controller.enqueue({ state: "data", data: chunk });
+            },
+            // Handle stream errors
+            flush(controller) {
+                // Handle stream closing if needed
+            },
+        }),
+    );
+}, { name: "itemMessagesProvider" });
+
+// --- Usage in React ---
+// import { useProvider, useProviderUpdater } from '@fluxus/react-adapter';
+//
+// function ItemMessagesDisplay() {
+//   const messagesResult = useProvider(itemMessagesProvider);
+//   const setSelectedItemId = useProviderUpdater(selectedItemIdProvider);
+//
+//   return (
+//     <div>
+//       <button onClick={() => setSelectedItemId(1)}>Select Item 1</button>
+//       <button onClick={() => setSelectedItemId(2)}>Select Item 2</button>
+//       <button onClick={() => setSelectedItemId(null)}>Deselect</button>
+//
+//       <h3>Messages:</h3>
+//       {messagesResult.state === 'loading' && <p>Connecting...</p>}
+//       {messagesResult.state === 'error' && <p>Error: {messagesResult.error.message}</p>}
+//       {messagesResult.state === 'data' && <p>{messagesResult.data}</p>}
+//       {/* You might want to accumulate messages in a stateProvider */}
+//     </div>
+//   );
+// }
+```
+
 _(More examples to come...)_

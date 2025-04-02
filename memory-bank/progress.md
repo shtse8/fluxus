@@ -1,14 +1,15 @@
-# Progress: Fluxus (Docs: Combining Providers Guide Added)
+# Progress: Fluxus (Docs: Combining Providers Examples Added)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
 `stream`), basic React adapter, and core utilities (`pipe`, `debounce`) are
 functional. Cancellation features for async and stream providers have been
 implemented and tested. Documentation site with auto-deployment is set up,
-including pages for Riverpod comparison **and a new guide on combining
-providers**. Initial refactoring phase addressing known issues and setting up
-linting/formatting is complete. Most `no-explicit-any` ESLint warnings have been
-addressed. Memory Bank is updated. Focus can shift towards further refinement,
-features, or documentation.
+including pages for Riverpod comparison and a guide on combining providers
+**(now with examples for computed from async, async from state, utility usage,
+and streams from state)**. Initial refactoring phase addressing known issues and
+setting up linting/formatting is complete. Most `no-explicit-any` ESLint
+warnings have been addressed. Memory Bank is updated. Focus can shift towards
+further refinement, features, or documentation.
 
 **What Works:**
 
@@ -53,8 +54,9 @@ features, or documentation.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
   - Includes homepage, guide pages for core concepts, providers, lifecycle,
-    overrides, Riverpod comparison, **and a new guide on Combining Providers
-    (with initial examples)**.
+    overrides, Riverpod comparison, and a guide on Combining Providers **(with
+    examples for computed-from-async, async-from-state, utility usage, and
+    stream-from-state)**.
   - Sidebar configuration (`.vitepress/config.mts`) updated for new pages.
   - TypeDoc integration generates API docs (`docs/api/generated`).
   - Build process includes TypeDoc generation and markdown fixes
