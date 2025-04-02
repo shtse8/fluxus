@@ -58,14 +58,14 @@ export default defineConfig({
           text: 'API Reference',
           items: [
             { text: 'Overview', link: '/api/' }, // Links to our placeholder index
-            { text: 'Modules', link: '/api/generated/modules' }, // Link to modules list
+            { text: 'API Index', link: '/api/generated/' }, // Links to generated README
             // Add links to specific important items as needed, e.g.:
-            { text: 'Core: stateProvider', link: '/api/generated/functions/src.stateProvider' },
-            { text: 'Core: computedProvider', link: '/api/generated/functions/src.computedProvider' },
-            { text: 'Core: Scope', link: '/api/generated/classes/src.Scope' },
-            { text: 'React: ProviderScope', link: '/api/generated/functions/react_adapter.ProviderScope' },
-            { text: 'React: useProvider', link: '/api/generated/functions/react_adapter.useProvider' },
-            { text: 'React: useProviderUpdater', link: '/api/generated/functions/react_adapter.useProviderUpdater' },
+            { text: 'Core: stateProvider', link: '/api/generated/src/functions/stateProvider' },
+            { text: 'Core: computedProvider', link: '/api/generated/src/functions/computedProvider' },
+            { text: 'Core: Scope', link: '/api/generated/src/classes/Scope' },
+            { text: 'React: ProviderScope', link: '/api/generated/react-adapter/functions/ProviderScope' },
+            { text: 'React: useProvider', link: '/api/generated/react-adapter/functions/useProvider' },
+            { text: 'React: useProviderUpdater', link: '/api/generated/react-adapter/functions/useProviderUpdater' },
           ]
         }
       ]
