@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2020", // Target modern JS features
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "jsx": "react-jsx", // Add this line for JSX support
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* If transpiling with TypeScript: */
+    // "module": "CommonJS", // Or "ESNext" depending on target
+    // "outDir": "dist",
+
+    /* If NOT transpiling with TypeScript: */
+    "module": "NodeNext", // Must be NodeNext when moduleResolution is NodeNext
+    "noEmit": true, // Let the bundler (tsup) handle emitting files
+    "allowImportingTsExtensions": true, // Allow importing .ts files (though noEmit is true)
+
+    /* Library options */
+    "declaration": true, // Generate .d.ts files
+    "declarationMap": true, // Generate sourcemaps for .d.ts files
+    "sourceMap": true, // Generate .js.map sourcemap files for debugging (tsup will use this)
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // Include necessary libs
+    "moduleResolution": "nodenext", // Use NodeNext resolution
+    "baseUrl": ".", // Base directory for path aliases, if needed
+    "paths": { // Example path alias
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "react-adapter/**/*.ts", "tests/**/*.ts"], // Include source, react adapter, and test files
+  "exclude": ["node_modules", "dist"] // Exclude build output and dependencies
+}
