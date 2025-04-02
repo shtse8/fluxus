@@ -172,10 +172,12 @@ export class Scope implements Disposable {
         if (isStateProviderInternalState(state)) {
           return state.stateProviderState.value; // State providers aren't stale this way
         } else if (isAsyncProviderInternalState(state)) {
-          // TODO: Re-fetch logic for async? For now, return current value.
+          // If stale, execution was already triggered by markDependentsStale.
+          // Return the current value (likely loading or previous data).
+          // Do NOT trigger execution again here.
           return state.asyncProviderState.value as T;
         } else if (isStreamProviderInternalState(state)) {
-          // Streams update reactively, return current value.
+          // Streams update reactively, return current value. Staleness doesn't apply the same way.
           return state.streamProviderState.value as T;
         } else {
           // Generic/Computed
@@ -423,9 +425,15 @@ export class Scope implements Disposable {
       provider: AsyncProviderInstance<T>,
       state: AsyncProviderInternalState<T>
   ): void {
+      // Prevent re-execution if already executing or disposed
       if (state.isDisposed || state.asyncProviderState.isExecuting) {
           return;
       }
+      // Also prevent starting a new execution if the previous promise hasn't settled yet
+      // (though isExecuting flag should normally cover this)
+      // if (state.asyncProviderState.currentExecution) {
+      //     return;
+      // }
 
       state.asyncProviderState.isExecuting = true;
       const previousData = hasData(state.asyncProviderState.value) ? state.asyncProviderState.value.data : undefined;
@@ -447,6 +455,7 @@ export class Scope implements Disposable {
               if (state.isDisposed || state.asyncProviderState.abortController?.signal.aborted) return;
               state.asyncProviderState.value = { state: 'data', data };
               state.asyncProviderState.isExecuting = false;
+              state.asyncProviderState.currentExecution = undefined; // Clear current execution promise
               state.notifyListeners();
               this.markDependentsStale(provider, new Set());
           })
@@ -456,6 +465,7 @@ export class Scope implements Disposable {
               const previousDataOnError = hasData(state.asyncProviderState.value) ? state.asyncProviderState.value.data : undefined;
               state.asyncProviderState.value = { state: 'error', error, previousData: previousDataOnError };
               state.asyncProviderState.isExecuting = false;
+              state.asyncProviderState.currentExecution = undefined; // Clear current execution promise
               state.notifyListeners();
               this.markDependentsStale(provider, new Set());
           });
@@ -531,8 +541,17 @@ export class Scope implements Disposable {
             if (!wasAlreadyStale) {
                  dependentState.isStale = true;
             }
-            dependentState.notifyListeners(); // Notify listeners of the dependent
-            this.markDependentsStale(dependentProvider, visited); // Recurse
+            // If the stale dependent is an async provider, trigger its re-execution.
+            // The notification will happen inside _executeAsyncProvider when it sets the loading state.
+            if (isAsyncProviderInternalState(dependentState)) {
+                this._executeAsyncProvider(dependentProvider as unknown as AsyncProviderInstance<any>, dependentState);
+            } else {
+                // For other types (computed, state, stream), notify listeners about the staleness/change now.
+                dependentState.notifyListeners();
+            }
+
+            // Recursively mark *its* dependents as stale
+            this.markDependentsStale(dependentProvider, visited);
         }
     });
   }
