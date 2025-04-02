@@ -31,6 +31,7 @@ export default defineConfig({
             { text: 'Reactivity', link: '/guide/reactivity' },
             { text: 'Lifecycle', link: '/guide/lifecycle' },
             { text: 'Async Operations', link: '/guide/async-provider' },
+            { text: 'Stream Operations', link: '/guide/stream-provider' },
           ]
         },
         {
