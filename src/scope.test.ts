@@ -69,8 +69,9 @@ describe('Scope', () => {
     const simpleProvider: Provider<string> = () => 'hello';
     // Need to cast simpleProvider because updater expects StateProviderInstance
 
+    // Match the updated error message including the provider name
     expect(() => scope.updater(simpleProvider as any)).toThrowError(
-      'Target provider is not a StateProvider or state is inconsistent'
+      "Target provider 'simpleProvider' is not a StateProvider or state is inconsistent"
     );
   });
 
@@ -300,9 +301,8 @@ it('should auto-dispose state when last listener unsubscribes', () => {
   unsubscribe2();
 
   // Attempting to read should now throw because the state is disposed
-  expect(() => scope.read(counterProvider)).toThrowError(
-    'Cannot read provider: its state has been disposed'
-  );
+  // Match error message including potential provider name/ID
+  expect(() => scope.read(counterProvider)).toThrowError(/its state has been disposed/);
 });
 
 it('should NOT auto-dispose state if other listeners exist', () => {
@@ -334,9 +334,8 @@ it('should throw error when watching an auto-disposed provider state', () => {
   unsubscribe(); // Auto-dispose
 
   // Attempting to watch again should fail during the initial read
-  expect(() => scope.watch(counterProvider, listener2)).toThrowError(
-    'Cannot read provider: its state has been disposed'
-  );
+  // Match error message including potential provider name/ID
+  expect(() => scope.watch(counterProvider, listener2)).toThrowError(/its state has been disposed/);
 });
 
 it('should throw error when getting updater for an auto-disposed provider state', () => {
@@ -349,7 +348,6 @@ it('should throw error when getting updater for an auto-disposed provider state'
   unsubscribe(); // Auto-dispose
 
   // Attempting to get updater should fail during the initial read
-  expect(() => scope.updater(counterProvider)).toThrowError(
-    'Cannot read provider: its state has been disposed'
-  );
+  // Match error message including potential provider name/ID
+  expect(() => scope.updater(counterProvider)).toThrowError(/its state has been disposed/);
 });

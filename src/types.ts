@@ -48,6 +48,14 @@ export interface ScopeReader {
    * @param callback The cleanup function to be executed.
    */
   onDispose(callback: Dispose): void;
+
+  /**
+   * An AbortSignal that is aborted when the provider's state is disposed.
+   * This can be used to cancel asynchronous operations like `fetch` requests
+   * when the provider is no longer needed.
+   * Only relevant for async providers.
+   */
+  readonly signal?: AbortSignal;
 }
 
 // --- Async Value Types ---

@@ -1,7 +1,7 @@
-# Active Context: Fluxus (Linting Addressed)
+# Active Context: Fluxus (Cancellation Implemented)
 
-**Current Focus:** Awaiting next task after addressing ESLint `no-explicit-any`
-warnings.
+**Current Focus:** Awaiting next task after implementing cancellation features
+for `asyncProvider` and `streamProvider`.
 
 **Recent Changes:**
 
@@ -83,12 +83,22 @@ warnings.
   - Set the `@typescript-eslint/no-explicit-any` rule back to `'warn'` in
     `eslint.config.js` due to persistent issues with ESLint/Prettier correctly
     handling the disable comments in `scope.test.ts`.
+- **Cancellation Features:**
+  - Added optional `signal?: AbortSignal` to `ScopeReader` (`types.ts`).
+  - Updated `Scope` (`scope.ts`) to:
+    - Pass the `AbortSignal` to `asyncProvider` creation function.
+    - Abort previous async operations on re-execution due to dependency changes.
+    - Ensure `streamProvider` subscriptions are reliably cancelled via
+      `disposeCallbacks`.
+  - Updated `asyncProvider` documentation/example (`asyncProvider.ts`).
+  - Added cancellation tests to `asyncProvider.test.ts`.
+  - Fixed related test assertion failures in multiple files.
 
 **Next Steps (Potential):**
 
 1. **Refinement:**
-   - Refine `asyncProvider`/`streamProvider` (e.g., cancellation, advanced
-     re-fetch/re-subscribe options).
+   - Refine `asyncProvider`/`streamProvider` (e.g., advanced
+     re-fetch/re-subscribe options). Cancellation is now implemented.
 2. **New Features:**
    - Add utility functions (e.g., `pipe`, `debounce`).
 3. **Framework Adapters:**
@@ -104,8 +114,8 @@ warnings.
 - Core library remains zero-dependency.
 - Auto-disposal is the default lifecycle; no explicit `keepAlive`.
 - Provider definition primarily function-based.
-- `ScopeReader` provides capabilities (`read`, `watch`, `onDispose`) via
-  arguments.
+- `ScopeReader` provides capabilities (`read`, `watch`, `onDispose`, optional
+  `signal`) via arguments.
 - Documentation uses VitePress, deployed via GitHub Actions.
 - ESLint and Prettier are used for code quality and formatting.
 - The `@typescript-eslint/no-explicit-any` rule is set to `warn` due to issues

@@ -70,14 +70,21 @@ export interface AsyncProviderState<T> {
  * transitioning through loading, data, and error states.
  *
  * @template T The type of data the asynchronous operation produces.
- * @param create A function that takes a ScopeReader and returns a Promise resolving to the data.
+ * @param create A function that takes a ScopeReader (which includes an optional `signal` property for cancellation) and returns a Promise resolving to the data.
  * @returns An AsyncProviderInstance.
  *
  * @example
- * const userProvider = asyncProvider(async (read) => {
- *   const userId = read(userIdProvider);
- *   const response = await fetch(`/api/users/${userId}`);
+ * const userProvider = asyncProvider(async (reader) => {
+ *   const userId = reader.read(userIdProvider);
+ *   // Pass the signal from the reader to fetch for cancellation
+ *   const response = await fetch(`/api/users/${userId}`, { signal: reader.signal });
  *   if (!response.ok) {
+ *     // Handle potential AbortError if the request was cancelled
+ *     if (response.status === 0 && reader.signal?.aborted) {
+ *       console.log('User fetch aborted.');
+ *       // You might want to throw a specific error or return a default state
+ *       throw new Error('Fetch aborted');
+ *     }
  *     throw new Error('Failed to fetch user');
  *   }
  *   return await response.json() as User;

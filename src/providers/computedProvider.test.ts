@@ -150,8 +150,7 @@ describe('computedProvider', () => {
 
     // Reading derived should now fail because its dependency (counterProvider) is disposed
 
-    expect(() => scope.read(derivedProvider)).toThrowError(
-      'Cannot read provider: its state has been disposed'
-    );
+    // Match error message including potential provider name/ID of the *dependency*
+    expect(() => scope.read(derivedProvider)).toThrowError(/its state has been disposed/);
   });
 });

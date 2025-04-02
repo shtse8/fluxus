@@ -178,7 +178,134 @@ describe('asyncProvider', () => {
     expect(listener).toHaveBeenCalledTimes(3); // loading -> data
   });
 
+  // --- Cancellation Tests ---
+
+  it('should abort the signal when scope is disposed', async () => {
+    scope = createScope();
+    let capturedSignal: AbortSignal | undefined;
+    const testProvider = asyncProvider(async (reader) => {
+      capturedSignal = reader.signal;
+      // Simulate an operation that respects the signal
+      await new Promise((_resolve, reject) => { // Mark resolve as unused
+        if (reader.signal?.aborted) {
+          return reject(new DOMException('Aborted', 'AbortError'));
+        }
+        reader.signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        });
+        // Never resolve normally in this test case
+      });
+      return 'data'; // Should not be reached if aborted
+    });
+
+    // Initialize the provider, starting the async operation
+    scope.read(testProvider);
+    await delay(1); // Give time for the async function to start and capture the signal
+
+    expect(capturedSignal).toBeDefined();
+    expect(capturedSignal?.aborted).toBe(false);
+
+    // Dispose the scope, which should trigger the abort controller
+    scope.dispose();
+
+    // Check if the captured signal is now aborted
+    expect(capturedSignal?.aborted).toBe(true);
+  });
+
+
+  it('should abort the signal when listener count drops to zero (autoDispose)', async () => {
+    scope = createScope();
+    let capturedSignal: AbortSignal | undefined;
+    const testProvider = asyncProvider(async (reader) => {
+      capturedSignal = reader.signal;
+      // Simulate an operation that respects the signal
+      await new Promise((_resolve, reject) => { // Mark resolve as unused
+        if (reader.signal?.aborted) {
+          return reject(new DOMException('Aborted', 'AbortError'));
+        }
+        reader.signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        });
+        // Never resolve normally in this test case
+      });
+      return 'data'; // Should not be reached if aborted
+    });
+
+    // Watch the provider, starting the async operation and capturing the signal
+    const disposeWatcher = scope.watch(testProvider, () => {});
+    await delay(1); // Give time for the async function to start and capture the signal
+
+    expect(capturedSignal).toBeDefined();
+    expect(capturedSignal?.aborted).toBe(false);
+
+    // Dispose the watcher, which should trigger auto-disposal and abort the signal
+    disposeWatcher();
+
+    // Check if the captured signal is now aborted
+    expect(capturedSignal?.aborted).toBe(true);
+  });
+
+
+  it('should abort the old signal and provide a new one on dependency change', async () => {
+    scope = createScope();
+    const dependency = stateProvider('initial');
+    let capturedSignal1: AbortSignal | undefined;
+    let capturedSignal2: AbortSignal | undefined;
+    let executionCount = 0;
+
+    const testProvider = asyncProvider(async (reader) => {
+      executionCount++;
+      const depValue = reader.read(dependency);
+      if (executionCount === 1) {
+        capturedSignal1 = reader.signal;
+      } else {
+        capturedSignal2 = reader.signal;
+      }
+
+      // Simulate an operation that respects the signal
+      await new Promise((resolve, reject) => {
+        if (reader.signal?.aborted) {
+          return reject(new DOMException('Aborted', 'AbortError'));
+        }
+        reader.signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        });
+        // Resolve after a delay if not aborted
+        setTimeout(() => resolve(`data_for_${depValue}`), 20);
+      });
+      return `data_for_${depValue}`; // Should not be reached if aborted early
+    });
+
+    // Initial execution
+    scope.read(testProvider);
+    await delay(1); // Allow execution 1 to start and capture signal 1
+
+    expect(executionCount).toBe(1);
+    expect(capturedSignal1).toBeDefined();
+    expect(capturedSignal1?.aborted).toBe(false);
+    expect(capturedSignal2).toBeUndefined();
+
+    // Update dependency to trigger re-execution
+    const updater = scope.updater(dependency);
+    updater(scope, dependency, 'updated');
+    await delay(1); // Allow re-execution to start and capture signal 2
+
+    // Check execution count and signals
+    expect(executionCount).toBe(2);
+    expect(capturedSignal1?.aborted).toBe(true); // First signal should now be aborted
+    expect(capturedSignal2).toBeDefined();
+    expect(capturedSignal2?.aborted).toBe(false); // Second signal should be fresh
+
+    // Wait for the second execution to complete
+    await delay(50);
+    const finalState = scope.read(testProvider);
+    expect(hasData(finalState)).toBe(true);
+    if (hasData(finalState)) {
+      expect(finalState.data).toBe('data_for_updated');
+    }
+  });
+
   // TODO: Add tests for re-computation when dependencies change (requires enhancing Scope/AsyncProvider)
-  // TODO: Add tests for cancellation if implemented
+  // TODO: Add tests for cancellation if implemented - DONE
   // TODO: Add tests for previousData preservation in loading/error states
 });

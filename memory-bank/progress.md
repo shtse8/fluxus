@@ -1,17 +1,19 @@
-# Progress: Fluxus (Linting Addressed)
+# Progress: Fluxus (Cancellation Implemented)
 
 **Current Status:** Core provider implementations (`state`, `computed`, `async`,
-`stream`) and basic React adapter are functional. Documentation site with
-auto-deployment is set up. Initial refactoring phase addressing known issues and
-setting up linting/formatting is complete. Most `no-explicit-any` ESLint
-warnings have been addressed. Focus can now shift towards further refinement,
-features, or documentation.
+`stream`) and basic React adapter are functional. **Cancellation features for
+async and stream providers have been implemented and tested.** Documentation
+site with auto-deployment is set up. Initial refactoring phase addressing known
+issues and setting up linting/formatting is complete. Most `no-explicit-any`
+ESLint warnings have been addressed. Focus can now shift towards further
+refinement, features, or documentation.
 
 **What Works:**
 
 - Project setup complete (`package.json`, `tsconfig.json`, `tsup.config.ts`).
 - Core types defined (`src/types.ts`), including `AsyncValue`,
-  `ProviderOverride`, and `ProviderOptions`. Most `any` types replaced.
+  `ProviderOverride`, and `ProviderOptions`. `ScopeReader` now includes optional
+  `signal`. Most `any` types replaced.
 - `Scope` class implemented (`src/scope.ts`) with:
   - State management for different provider types.
   - `read()` method supporting overrides and improved error messages (with
@@ -21,6 +23,9 @@ features, or documentation.
   - `dispose()` method for scope cleanup.
   - Dependency tracking for re-computation/re-execution.
   - Auto-disposal based on listener count (fixed related test failure).
+  - **Cancellation:** `dispose()` reliably triggers `streamProvider` unsubscribe
+    via callbacks. `_executeAsyncProvider` passes `AbortSignal` via
+    `ScopeReader` and handles cancellation/re-execution correctly.
   - Improved error/warning messages using provider names.
   - Most `any` types replaced with `unknown` or specific types.
 - `stateProvider` factory implemented, tested, updated to accept
@@ -28,9 +33,11 @@ features, or documentation.
 - `computedProvider` factory implemented, tested (all tests passing), updated to
   accept `ProviderOptions`, and internal `any` types removed.
 - `asyncProvider` factory implemented (including re-execution on dependency
-  change), tested, and updated to accept `ProviderOptions`.
+  change), tested, updated to accept `ProviderOptions`, and **now supports
+  cancellation via `AbortSignal` passed in `ScopeReader`**.
 - `streamProvider` factory implemented (including re-subscription on dependency
-  change), tested, and updated to accept `ProviderOptions`.
+  change), tested, updated to accept `ProviderOptions`, and **now reliably
+  cancels subscription on disposal**.
 - Provider Overrides implemented and tested.
 - React adapter (`react-adapter/`) implemented with:
   - `ProviderScope` component (supports overrides).
@@ -38,7 +45,8 @@ features, or documentation.
   - `useProviderUpdater` hook.
   - Integration tests passing (TypeScript errors resolved).
 - Testing setup complete (`vitest`, `jsdom`, `@testing-library/react`, `rxjs`).
-  All tests passing. `any` types removed or disabled where intentional.
+  All tests passing (including new cancellation tests). `any` types removed or
+  disabled where intentional. Test assertion failures fixed.
 - TSDoc comments added to core files.
 - Basic `README.md` created.
 - Documentation site using VitePress created (`docs/`).
@@ -57,7 +65,8 @@ features, or documentation.
 **What's Left To Build (Next Steps - Potential):**
 
 1. **Refinement:**
-   - Refine `asyncProvider`/`streamProvider` (cancellation, advanced options).
+   - Refine `asyncProvider`/`streamProvider` (advanced options like
+     re-fetch/re-subscribe strategies). Cancellation is implemented.
 2. **New Features:**
    - Utility functions (`pipe`, `debounce`, etc.).
 3. **Framework Adapters:**

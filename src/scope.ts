@@ -187,14 +187,13 @@ export class Scope implements Disposable {
         } else if (isStreamProviderInternalState(state)) {
           // Dispose old, re-initialize, copy listeners, return new initial value
           const oldListeners = new Set(state.listeners);
-          // Explicitly unsubscribe before disposing rest of state
-          state.streamProviderState.subscription?.unsubscribe();
-          state.disposeCallbacks.clear(); // Prevent double-unsubscribe via callback
-          state.dispose();
-          const newState = this._createProviderStateStructure(targetProvider); // Use targetProvider
-          oldListeners.forEach((listener) => newState.listeners.add(listener));
+          state.dispose(); // Dispose the old state (this will trigger unsubscribe via callbacks)
+          const newState = this._createProviderStateStructure(targetProvider); // Create new state
+          oldListeners.forEach((listener) => newState.listeners.add(listener)); // Re-attach listeners
           if (isStreamProviderInternalState(newState)) {
+            // Return the initial value of the *new* state
             return newState.streamProviderState.value as T;
+            return (newState as StreamProviderInternalState<T>).streamProviderState.value as T;
           } else {
             console.error(
               `Internal error: Inconsistent state type after re-initializing stream provider '${this._getProviderName(targetProvider)}' (ID: ${newState.internalId})`
@@ -519,8 +518,16 @@ export class Scope implements Disposable {
     provider: AsyncProviderInstance<T>,
     state: AsyncProviderInternalState<T>
   ): void {
-    if (state.isDisposed || state.asyncProviderState.isExecuting) {
+    // Only check for disposed state here. We handle isExecuting below.
+    if (state.isDisposed) {
       return;
+    }
+
+    // If already executing, abort the previous operation and create a new controller
+    if (state.asyncProviderState.isExecuting) {
+      state.asyncProviderState.abortController?.abort();
+      // Create a new AbortController for the new execution
+      state.asyncProviderState.abortController = new AbortController();
     }
 
     state.asyncProviderState.isExecuting = true;
@@ -539,6 +546,7 @@ export class Scope implements Disposable {
         if (state.isDisposed) return;
         state.disposeCallbacks.add(callback);
       },
+      signal: state.asyncProviderState.abortController!.signal,
     };
 
     const promise = (provider as AsyncProviderInstance<T>)[$asyncProvider].create(reader);

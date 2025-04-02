@@ -155,7 +155,8 @@ describe('React Adapter Hooks', () => {
             <GetUpdaterComponent />
           </ProviderScope>
         )
-      ).toThrowError('Target provider is not a StateProvider or state is inconsistent');
+      // Match the updated error message including the provider name
+      ).toThrowError("Target provider 'simpleProvider' is not a StateProvider or state is inconsistent");
 
       console.error = originalError;
     });
