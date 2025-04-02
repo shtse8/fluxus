@@ -35,13 +35,13 @@ pnpm add fluxus
 ## Basic Usage (React)
 
 ```tsx
-import React from 'react';
+import React from "react";
 import {
   ProviderScope,
   stateProvider,
   useProvider,
   useProviderUpdater,
-} from 'fluxus/react-adapter';
+} from "fluxus/react-adapter";
 
 // 1. Define a provider (just a function)
 const counterProvider = stateProvider(0);
@@ -79,7 +79,8 @@ export default App;
 
 ## Documentation
 
-(Full documentation coming soon!)
+Find the full documentation at
+[https://shtse8.github.io/fluxus/](https://shtse8.github.io/fluxus/).
 
 ## Contributing
 
