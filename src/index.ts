@@ -39,6 +39,10 @@ export {
   computedProvider,
   isComputedProviderInstance
 } from './providers/computedProvider.js';
+
+// StreamProvider
+export { streamProvider, isStreamProviderInstance } from './providers/streamProvider.js';
+export type { StreamProviderInstance } from './providers/streamProvider.js';
 export type { ComputedProviderInstance } from './providers/computedProvider.js';
 
 
