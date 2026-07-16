@@ -1,5 +1,10 @@
 # Fluxus
 
+<p align="center">
+  <img src="docs/banner.png" alt="fluxus banner" width="100%" />
+</p>
+
+
 A functional, reactive state management library for TypeScript inspired by
 Riverpod.
 
