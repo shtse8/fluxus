@@ -1,9 +1,8 @@
 # Fluxus
 
 <p align="center">
-  <img src="docs/banner.png" alt="fluxus banner" width="100%" />
+  <img src="https://mark.sylphx.com/api/v1/banner?type=neon&theme=tokyonight&text=fluxus&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise&credit=0" alt="fluxus — Sylphx Mark banner" width="100%" />
 </p>
-
 
 A functional, reactive state management library for TypeScript inspired by
 Riverpod.
