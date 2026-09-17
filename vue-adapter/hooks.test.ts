@@ -469,6 +469,34 @@ describe('Vue Adapter Hooks', () => {
 
     // Mount ProviderScope with overrides
 
+    const wrapper = mount(
+      defineComponent({
+        render: () =>
+          h(
+            ProviderScope,
+            {
+              overrides: [{ provider: counterProvider, useValue: overrideProvider }],
+            },
+            { default: () => h(CombinedComponent) },
+          ),
+      }),
+    );
+
+    await nextTick();
+
+    // Check initial overridden value
+    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue));
+
+    // Trigger update using the updater
+    await wrapper.find('button').trigger('click');
+    await nextTick();
+
+    // Check if the update applied to the overridden state
+    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue + 1));
+
+    wrapper.unmount();
+  });
+
   it('asyncProvider should re-fetch when dependencies change', async () => {
     vi.useFakeTimers(); // Use fake timers for this test
     const dependencyProvider = stateProvider(() => 'dep1');
@@ -544,7 +572,7 @@ describe('Vue Adapter Hooks', () => {
       render() {
         const data = this.streamData;
         let content = 'Waiting...';
-        if (data?.state === 'data') content = data.data;
+        if (data?.state === 'data') content = `Data: ${data.data}`;
         else if (data?.state === 'error') content = `Error: ${data.error}`;
         return h('div', [
           h('span', { 'data-testid': 'stream-dep' }, content),
@@ -584,6 +612,7 @@ describe('Vue Adapter Hooks', () => {
 
     wrapper.unmount();
     scope.dispose();
+  });
 
   it('computedProvider should react to changes in dependent asyncProvider', async () => {
     vi.useFakeTimers();
@@ -649,38 +678,6 @@ describe('Vue Adapter Hooks', () => {
     scope.dispose();
     vi.useRealTimers();
   });
-
-  });
-
-    const wrapper = mount(
-      defineComponent({
-        render: () =>
-          h(
-            ProviderScope,
-            {
-              overrides: [{ provider: counterProvider, useValue: overrideProvider }],
-            },
-            { default: () => h(CombinedComponent) },
-          ),
-      }),
-    );
-
-    await nextTick();
-
-    // Check initial overridden value
-    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue));
-
-    // Trigger update using the updater
-    await wrapper.find('button').trigger('click');
-    await nextTick();
-
-    // Check if the update applied to the overridden state
-    expect(wrapper.find('[data-testid="val"]').text()).toBe(String(overrideValue + 1));
-
-    wrapper.unmount();
-  });
-
-
 
   // TODO: Add test for useProviderUpdater standalone (Covered by 'useProviderUpdater should update state reactively via useProvider')
   // TODO: Add test for scope disposal cleanup (Covered by 'should clean up scope listener on component unmount')
