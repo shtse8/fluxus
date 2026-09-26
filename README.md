@@ -1,7 +1,7 @@
 # Fluxus
 
 <p align="center">
-  <img src="https://mark.sylphx.com/api/v1/mark/hero?type=neon&theme=tokyonight&text=fluxus&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise" alt="fluxus — Sylphx Mark banner" width="100%" />
+  <img src="https://mark.sylphx.com/api/v1/mark/hero.svg?type=waving&theme=dark&text=fluxus&desc=Reactive%20state%20management%20for%20TypeScript" alt="fluxus" width="100%" />
 </p>
 
 A functional, reactive state management library for TypeScript inspired by
