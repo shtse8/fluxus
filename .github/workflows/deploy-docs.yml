@@ -37,7 +37,7 @@ jobs:
       - name: Build VitePress site
         run: npm run docs:build # or pnpm docs:build or yarn docs:build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist-docs # Use the outDir specified in VitePress config
 
